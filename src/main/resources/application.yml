@@ -1,0 +1,35 @@
+server:
+  port: 8000
+spring:
+  mqtt:
+    # 用户名
+    username: admin
+    # 密码
+    password: public
+    # 服务器连接地址，如果有多个，用逗号隔开，如：tcp://0.0.0.0:1883,tcp://127.0.0.1:11883
+    url: tcp://127.0.0.1:11883
+    # 连接超时
+    completionTimeout: 3000
+    # 保持连接数
+    keepalive: 100
+    # push 推送
+    publish:
+      client:
+        # 推送- 连接服务器默认客户端ID，不能重复
+        id: device-down
+      default:
+        # 推送 - 默认的消息推送主题，实际可在调用接口时指定
+        topic: saya/#
+    # subscribe 订阅
+    subscribe:
+      client:
+        #订阅 - 连接服务器默认客户端ID，不能重复
+        id: device-up
+      default:
+        #订阅 - 默认的消息推送主题，实际可在调用接口时指定
+        topic: saya/#
+
+      ## 走过的坑
+      ## mqtt  MqttPahoMessageHandler  : Lost connection; will attempt reconnect on next request
+      ## 这个是发送端和接收端id重复导致的
+      ## 主题通配符 https://www.cnblogs.com/mao2080/p/7275544.html?utm_source=itdadao&utm_medium=referral
