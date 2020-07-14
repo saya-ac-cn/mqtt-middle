@@ -24,7 +24,7 @@ public class TestController {
     @RequestMapping("/send")
     public String sendMqtt(String sendData){
         try {
-            mqttGateway.sendToMqtt(sendData,"saya/info");
+            mqttGateway.sendToMqtt(sendData,"/esp32-001/res/led");
         } catch (Exception e) {
             e.printStackTrace();
         }
