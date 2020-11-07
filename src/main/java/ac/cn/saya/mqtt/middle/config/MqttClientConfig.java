@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -28,9 +27,9 @@ public class MqttClientConfig {
 
     @Bean
     public MqttConnectOptions getMqttConnectOptions() {
-        MqttConnectOptions options=new MqttConnectOptions();
+        MqttConnectOptions options = new MqttConnectOptions();
         // 设置连接的用户名
-        if(!(mqttConfig.getUsername()).trim().equals("")){
+        if (!(mqttConfig.getUsername()).trim().equals("")) {
             options.setUserName(mqttConfig.getUsername());
         }
         // 设置连接的密码
