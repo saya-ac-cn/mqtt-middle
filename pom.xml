@@ -24,7 +24,7 @@
         <project.build.directory>mqtt-middle</project.build.directory>
         <!-- 版本属性 -->
         <druid.version>1.2.2</druid.version>
-        <mysql.version>8.0.15</mysql.version>
+        <mysql.version>8.0.16</mysql.version>
         <mybatis.version>2.1.2</mybatis.version>
         <lombok.version>1.18.10</lombok.version>
         <integration.version>5.2.7.RELEASE</integration.version>
