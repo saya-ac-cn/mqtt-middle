@@ -7,12 +7,11 @@ import org.springframework.messaging.handler.annotation.Header;
 /**
  * @Title: MqttGateway
  * @ProjectName mqtt-middle
- * @Description: TODO
- * @Author saya
+ * @Author shmily
  * @Date: 2020/7/8 22:18
- * @Description:
+ * @Description: TODO
  */
-@MessagingGateway(defaultRequestChannel = "mqttOutboundChannel")
+////@MessagingGateway(defaultRequestChannel = "mqttOutboundChannel")
 public interface MqttGateway {
 
     public void sendToMqtt(String data,@Header(MqttHeaders.TOPIC) String topic);

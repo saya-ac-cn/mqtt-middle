@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 /**
  * @Title: TestController
  * @ProjectName mqtt-middle
- * @Description: TODO
  * @Author saya
  * @Date: 2020/7/8 22:20
  * @Description:
@@ -18,13 +17,13 @@ import javax.annotation.Resource;
 @RequestMapping("/test")
 public class TestController {
 
-    @Resource
-    private MqttGateway mqttGateway;
+    //@Resource
+    //private MqttGateway mqttGateway;
 
     @RequestMapping("/send")
     public String sendMqtt(String sendData){
         try {
-            mqttGateway.sendToMqtt(sendData,"/esp32-001/res/led");
+            //mqttGateway.sendToMqtt(sendData,"/esp32-001/res/led");
         } catch (Exception e) {
             e.printStackTrace();
         }

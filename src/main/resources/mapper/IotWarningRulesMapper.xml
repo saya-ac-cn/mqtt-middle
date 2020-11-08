@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.IotWarningRulesDAO">
+
+    <resultMap type="iotWarningRules" id="IotWarningRulesMap">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="symbol" column="symbol"/>
+        <result property="value" column="value"/>
+        <result property="enable" column="enable"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="iotClient" javaType="iotClient">
+            <result property="id" column="client_id"/>
+            <result property="name" column="clientName"/>
+            <result property="lastLinkTime" column="last_link_time"/>
+            <association property="gateway" javaType="IotGateway">
+                <id property="id" column="gateway_id" />
+                <result property="name" column="gatewayName"/>
+                <result property="address" column="address"/>
+            </association>
+        </association>
+    </resultMap>
+
+    <!--查询Iot告警规则-->
+    <select id="query" resultMap="IotWarningRulesMap">
+        select
+          a.`id`, a.`name`, a.`client_id`, a.`symbol`, a.`value`, a.`enable`, a.`create_time`, a,`update_time`
+          b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+          c.`name` as gatewayName,c.`address`
+        from iot_warning_rules a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` = #{name}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!--分页查询Iot告警规则-->
+    <select id="queryPage" resultMap="IotWarningRulesMap">
+        select
+            a.`id`, a.`name`, a.`client_id`, a.`symbol`, a.`value`, a.`enable`, a.`create_time`, a,`update_time`
+            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+            c.`name` as gatewayName,c.`address`
+        from iot_warning_rules a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` = #{name}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+        </where>
+        order by a.`id` desc
+        limit #{startLine},#{endLine}
+    </select>
+
+    <!--查询Iot告警规则数量-->
+    <select id="queryCount" resultType="java.lang.Long">
+        select
+            count(*)
+        from iot_warning_rules a
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` = #{name}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+        </where>
+    </select>
+
+    <!--新增Iot告警规则-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
+        insert into iot_warning_rules(`name`, `client_id`, `symbol`, `value`, create_time)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.name}, #{item.clientId}, #{item.symbol}, #{item.value}, mow())
+        </foreach>
+    </insert>
+
+    <!--修改告警规则-->
+    <update id="update" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update iot_warning_rules
+            <set>
+                <if test="name != null and name != ''">
+                    `name` = #{item.name},
+                </if>
+                <if test="clientId != null and clientId != 0">
+                    `client_id` = #{item.clientId},
+                </if>
+                <if test="symbol != null and symbol != ''">
+                    `symbol` = #{item.symbol},
+                </if>
+                <if test="value != null and value != ''">
+                    `value` = #{item.value},
+                </if>
+                `update_time` = now()
+            </set>
+            where `id` = #{item.id}
+        </foreach>
+    </update>
+
+    <!--删除告警规则-->
+    <delete id="deleteById" parameterType = "java.util.List">
+        delete from iot_warning_rules where `id` in
+        <foreach collection="list"  item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

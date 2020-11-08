@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.IotGatewayDAO">
+
+    <resultMap type="iotGateway" id="IotGatewayMap">
+        <result property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="address" column="address"/>
+        <result property="deviceType" column="device_type"/>
+        <result property="source" column="source"/>
+        <result property="lastHeartbeat" column="last_heartbeat"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="deviceTypeInfo" column="deviceTypeInfo"/>
+        <association property="authenInfo" javaType="iotIdentify">
+            <id property="id" column="authenId" />
+            <result property="username" column="username"/>
+            <result property="password" column="password"/>
+            <result property="salt" column="salt"/>
+            <result property="enable" column="enable"/>
+        </association>
+    </resultMap>
+
+    <!--添加网关信息-->
+    <!-- useGeneratedKeys="true" 表示给主键设置自增长,keyProperty="id"  表示将自增长后的Id赋值给实体类中的userId字段-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="iotGateway" >
+        insert into iot_gateway(`code`,`authen_id`,`name`,`address`,`device_type`,`source`,`create_time`) values(#{code},#{authenId},#{name},#{address},#{deviceType},#{source},now())
+    </insert>
+
+    <!--修改网关信息-->
+    <update id="update" parameterType="iotGateway">
+        update iot_gateway
+        <set>
+            <if test = "name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test = "address != null and address != ''">
+                `address` = #{address},
+            </if>
+            <if test = "deviceType != null and deviceType != 0">
+                `device_type` = #{deviceType},
+            </if>
+            <if test = "source != null and source != ''">
+                `source` = #{source},
+            </if>
+            <if test = "lastHeartbeat != null and lastHeartbeat != ''">
+                `last_heartbeat` = #{lastHeartbeat},
+            </if>
+            <if test="remove != null and remove != 0">
+                `remove` = #{remove},
+            </if>
+            `update_time` = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--获取网关详细信息-->
+    <select id="query" parameterType="iotGateway" resultMap="IotGatewayMap">
+        select
+            a.`id`,a.`code`,a.`authen_id` as authenId,a.`name`,a.`address`,a.`device_type`,a.`source`,a.`last_heartbeat` ,a.`create_time` ,a.`update_time`,
+            b.`name` as deviceTypeInfo,
+            c.`username`,c.`password`,c.`salt`,c.`enable`
+        from iot_gateway a left join iot_gateway_type b on a.`device_type` = b.`id` left join iot_identify c on a.`authen_id` = c.`id`
+        <where>
+            <if test = "id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test = "code != null and code != ''">
+                and a.`code` like concat(#{code},'%')
+            </if>
+            <if test = "name != null and name != ''">
+                and a.`name` like concat(#{name},'%')
+            </if>
+            <if test = "deviceType != null and deviceType != 0">
+                and a.`device_type` = #{deviceType}
+            </if>
+            <if test = "source != null and source != ''">
+                and a.`source` = #{source}
+            </if>
+            <if test = "lastHeartbeat != null and lastHeartbeat != ''">
+                and a.`last_heartbeat` = #{lastHeartbeat}
+            </if>
+            <if test="remove != null and remove != 0">
+                and a.`remove` = #{remove}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`last_heartbeat`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="authenInfo != null and authenInfo.enable != null and authenInfo.enable != 0">
+                and c.`enable` = #{remove}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!--删除网关信息-->
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from iot_gateway where id = ${id}
+    </delete>
+
+    <!--分页查询网关信息-->
+    <select id="queryPage" parameterType="iotGateway" resultMap="IotGatewayMap">
+        select
+            a.`id`,a.`code`,a.`authen_id` as authenId,a.`name`,a.`address`,a.`device_type`,a.`source`,a.`last_heartbeat` ,a.`create_time` ,a.`update_time`,
+            b.`name` as deviceTypeInfo,
+            c.`username`, '' as password,c.`salt`,c.`enable`
+        from iot_gateway a left join iot_gateway_type b on a.`device_type` = b.`id` left join iot_identify c on a.`authen_id` = c.`id`
+        <where>
+            <if test = "id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test = "code != null and code != ''">
+                and a.`code` like concat(#{code},'%')
+            </if>
+            <if test = "name != null and name != ''">
+                and a.`name` like concat(#{name},'%')
+            </if>
+            <if test = "deviceType != null and deviceType != 0">
+                and a.`device_type` = #{deviceType}
+            </if>
+            <if test = "source != null and source != ''">
+                and a.`source` = #{source}
+            </if>
+            <if test = "lastHeartbeat != null and lastHeartbeat != ''">
+                and a.`last_heartbeat` = #{lastHeartbeat}
+            </if>
+            <if test="remove != null and remove != 0">
+                and a.`remove` = #{remove}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`last_heartbeat`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="authenInfo != null and authenInfo.enable != null and authenInfo.enable != 0">
+                and c.`enable` = #{authenInfo.enable}
+            </if>
+        </where>
+        order by a.id desc
+        limit #{startLine},#{endLine}
+    </select>
+
+    <!--分页查询网关总数-->
+    <select id="queryCount" parameterType="iotGateway" resultType="java.lang.Long">
+        select count(*)
+        from iot_gateway a left join iot_identify c on `authen_id` = c.`id`
+        <where>
+            <if test = "id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test = "code != null and code != ''">
+                and a.`code` like concat(#{code},'%')
+            </if>
+            <if test = "name != null and name != ''">
+                and a.`name` like concat(#{name},'%')
+            </if>
+            <if test = "deviceType != null and deviceType != 0">
+                and a.`device_type` = #{deviceType}
+            </if>
+            <if test = "source != null and source != ''">
+                and a.`source` = #{source}
+            </if>
+            <if test = "lastHeartbeat != null and lastHeartbeat != ''">
+                and a.`last_heartbeat` = #{lastHeartbeat}
+            </if>
+            <if test="remove != null and remove != 0">
+                and a.`remove` = #{remove}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`last_heartbeat`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="authenInfo != null and authenInfo.enable != null and authenInfo.enable != 0">
+                and c.`enable` = #{authenInfo.enable}
+            </if>
+        </where>
+    </select>
+
+    <!--获取网关列表信息-->
+    <select id="queryList" parameterType="iotGateway" resultMap="IotGatewayMap">
+        select
+        a.`id`,a.`name`
+        from iot_gateway a
+        <where>
+            <if test = "id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test = "code != null and code != ''">
+                and a.`code` like concat(#{code},'%')
+            </if>
+            <if test = "name != null and name != ''">
+                and a.`name` like concat(#{name},'%')
+            </if>
+            <if test = "deviceType != null and deviceType != 0">
+                and a.`device_type` = #{deviceType}
+            </if>
+            <if test = "source != null and source != ''">
+                and a.`source` = #{source}
+            </if>
+            <if test = "lastHeartbeat != null and lastHeartbeat != ''">
+                and a.`last_heartbeat` = #{lastHeartbeat}
+            </if>
+            <if test="remove != null and remove != 0">
+                and a.`remove` = #{remove}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`last_heartbeat`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+
+        </where>
+    </select>
+
+</mapper>

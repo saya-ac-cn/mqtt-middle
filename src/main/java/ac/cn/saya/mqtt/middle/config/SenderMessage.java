@@ -14,13 +14,12 @@ import javax.annotation.Resource;
 /**
  * @Title: SenderMessage
  * @ProjectName mqtt-middle
- * @Description: TODO
- * @Author saya
+ * @Author shmily
  * @Date: 2020/7/8 22:17
  * @Description: 发送消息
  */
 
-@Configuration
+////@Configuration
 public class SenderMessage {
 
     @Resource

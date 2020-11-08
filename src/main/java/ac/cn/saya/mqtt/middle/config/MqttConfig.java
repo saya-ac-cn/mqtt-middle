@@ -6,12 +6,11 @@ import org.springframework.stereotype.Component;
 /**
  * @Title: MqttConfig
  * @ProjectName mqtt-middle
- * @Description: TODO
- * @Author saya
+ * @Author shmily
  * @Date: 2020/7/7 23:34
- * @Description:
+ * @Description: MQTT配置类
  */
-@Component
+////@Component
 public class MqttConfig {
 
     @Value("${spring.mqtt.username}")

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--全局配置-->
+    <settings>
+        <!--使用jdbc的getGeneratedKeys获取数据库自增主键值-->
+        <!-- 打印查询语句 -->
+        <setting name="logImpl" value="STDOUT_LOGGING" />
+        <setting name="useGeneratedKeys" value="true"/>
+        <!-- 二级缓存开启 -->
+        <setting name="cacheEnabled" value = "true" />
+    </settings>
+    <typeAliases>
+        <typeAlias alias="iotIdentify" type="ac.cn.saya.mqtt.middle.entity.IotIdentifyEntity"/>
+        <typeAlias alias="iotGateway" type="ac.cn.saya.mqtt.middle.entity.IotGatewayEntity"/>
+        <typeAlias alias="iotGatewayType" type="ac.cn.saya.mqtt.middle.entity.IotGatewayTypeEntity"/>
+        <typeAlias alias="iotClient" type="ac.cn.saya.mqtt.middle.entity.IotClientEntity"/>
+        <typeAlias alias="iotCollection" type="ac.cn.saya.mqtt.middle.entity.IotCollectionEntity"/>
+        <typeAlias alias="iotHistoryExecute" type="ac.cn.saya.mqtt.middle.entity.IotHistoryExecuteEntity"/>
+        <typeAlias alias="iotWarningRules" type="ac.cn.saya.mqtt.middle.entity.IotWarningRulesEntity"/>
+        <typeAlias alias="iotWarningResult" type="ac.cn.saya.mqtt.middle.entity.IotWarningResultEntity"/>
+        <typeAlias alias="iotAppointment" type="ac.cn.saya.mqtt.middle.entity.IotAppointmentEntity"/>
+    </typeAliases>
+</configuration>

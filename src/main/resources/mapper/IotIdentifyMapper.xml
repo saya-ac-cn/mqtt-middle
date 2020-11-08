@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.IotIdentifyDAO">
+
+    <!--添加用户认证信息-->
+    <!-- useGeneratedKeys="true" 表示给主键设置自增长,keyProperty="id"  表示将自增长后的Id赋值给实体类中的userId字段-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="iotIdentify" >
+        insert into iot_identify(`username`,`password`,`salt`,`create_time`) values(#{username},#{password},#{salt},now())
+    </insert>
+
+    <!-- 修改用户认证信息-->
+    <update id="update" parameterType="iotIdentify">
+        update iot_identify
+        <set>
+            <if test = "password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="enable != null and enable != 0">
+                enable = #{enable}
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <!--删除用户认证信息-->
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from iot_identify where id = #{id}
+    </delete>
+
+    <!-- 查询用户认证信息-->
+    <select id="query" parameterType="iotIdentify" resultType="iotIdentify">
+        select `id`,`username`,`password`,`salt`,`enable` from iot_identify
+        <where>
+            <if test = "id != null and id != 0">
+                id = #{id}
+            </if>
+            <if test = "username != null and username != ''">
+                and username = #{username}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+</mapper>

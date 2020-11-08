@@ -14,12 +14,12 @@ import java.util.List;
  * @Title: MqttClientConfig
  * @ProjectName mqtt-middle
  * @Description: TODO
- * @Author saya
+ * @Author shmily
  * @Date: 2020/7/8 22:07
  * @Description: Mqtt
  */
-@Configuration
-//@IntegrationComponentScan
+////@Configuration
+/// @IntegrationComponentScan
 public class MqttClientConfig {
 
     @Resource
@@ -35,7 +35,7 @@ public class MqttClientConfig {
         // 设置连接的密码
         options.setPassword((mqttConfig.getPassword()).toCharArray());
         // 设置连接的地址
-        // options.setServerURIs(StringUtils.split(mqttConfig.getHostUrl(), ","));
+        /// options.setServerURIs(StringUtils.split(mqttConfig.getHostUrl(), ","));
         List<String> urlList = Arrays.asList((mqttConfig.getHostUrl()).trim().split(","));
         String[] url = new String[urlList.size()];
         urlList.toArray(url);
