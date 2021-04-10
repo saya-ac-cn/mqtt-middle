@@ -1,0 +1,73 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    # 服务名尽量用-，不用_，尽量不用特殊字符
+    name: mqtt-middle
+  mqtt:
+    # 用户名
+    username: ----
+    # 密码
+    password: ----
+    # 服务器连接地址，如果有多个，用逗号隔开，如：tcp://0.0.0.0:1883,tcp://127.0.0.1:11883
+    url: ------
+    # 连接超时
+    completionTimeout: 3000
+    # 保持连接数
+    keepalive: 100
+    # push 推送
+    publish:
+      client:
+        # 推送- 连接服务器默认客户端ID，不能重复
+        id: server-down
+      default:
+        # 推送 - 默认的消息推送主题，实际可在调用接口时指定
+        topic: /esp32-001/res
+    # subscribe 订阅
+    subscribe:
+      client:
+        #订阅 - 连接服务器默认客户端ID，不能重复
+        id: device-up
+      default:
+        #订阅 - 默认的消息推送主题，实际可在调用接口时指定
+        topic: /esp32-001/ack/#
+
+      ## 走过的坑
+      ## mqtt  MqttPahoMessageHandler  : Lost connection; will attempt reconnect on next request
+      ## 这个是发送端和接收端id重复导致的
+      ## 主题通配符 https://www.cnblogs.com/mao2080/p/7275544.html?utm_source=itdadao&utm_medium=referral
+      ## mqtt安装 https://blog.csdn.net/zhuyunier/article/details/86497405
+      ## #：表示匹配>=0个层次，比如a/#就匹配a，a/，a/b，a/b/c。单独的一个#表示匹配所有，不允许a#或a/#/c等形式。
+      ## +：表示匹配一个层次，例如a/+匹配a/b，a/c，不匹配a/b/c。单独的一个+是允许的，但a+为非法形式。
+      ## 关闭默认的匿名认证，启用MySQL认证=https://blog.csdn.net/zhen_6137/article/details/81112337
+  datasource:
+    # Druid连接池配置，官方配置参考：1、https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter
+    # 优化配置2、https://blog.csdn.net/qq_42235671/article/details/84592028
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://----?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&rewriteBatchedStatements=true
+    username: ----
+    password: -----
+    # 升级数据连接，url连接参数需加入serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # Druid其他配置
+    druid:
+      filter:
+        stat:
+          slow-sql-millis: 2000
+          log-slow-sql: true
+      # 初始配置 最小、最大连接
+      initial-size: 2
+      min-idle: 4
+      max-active: 6
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 300000
+
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: ac.cn.saya.mqtt.middle.entity
