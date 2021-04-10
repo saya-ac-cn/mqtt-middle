@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @Date: 2020/7/7 23:34
  * @Description: MQTT配置类
  */
-////@Component
+@Component
 public class MqttConfig {
 
     @Value("${spring.mqtt.username}")

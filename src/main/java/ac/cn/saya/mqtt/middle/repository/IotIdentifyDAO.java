@@ -31,10 +31,10 @@ public interface IotIdentifyDAO {
 
     /**
      * 删除用户认证信息
-     * @param id
+     * @param uuid
      * @return 返回影响的行数
      */
-    public Integer delete(@Param("id") Integer id);
+    public Integer delete(@Param("uuid") String uuid);
 
     /**
      * 查询用户认证信息

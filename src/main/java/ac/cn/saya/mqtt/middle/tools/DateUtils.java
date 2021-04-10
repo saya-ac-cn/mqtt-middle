@@ -76,7 +76,7 @@ public class DateUtils {
      * @修改人和其它信息
      */
     public static int getLengthOfMonth(String date) {
-        LocalDate localDate = LocalDate.parse(date, ac.cn.saya.laboratory.tools.DateUtils.dateFormat);
+        LocalDate localDate = LocalDate.parse(date,DateUtils.dateFormat);
         return localDate.lengthOfMonth();
     }
 
@@ -89,10 +89,10 @@ public class DateUtils {
      * @修改人和其它信息
      */
     public static int getFirstDayWeek(String date) {
-        LocalDate localDate = LocalDate.parse(date, ac.cn.saya.laboratory.tools.DateUtils.dateFormat);
+        LocalDate localDate = LocalDate.parse(date, DateUtils.dateFormat);
         // 构造本月第一天
         LocalDate firstDay = localDate.with(TemporalAdjusters.firstDayOfMonth());
-        return ac.cn.saya.laboratory.tools.DateUtils.getDayOfTheWeek(firstDay);
+        return DateUtils.getDayOfTheWeek(firstDay);
     }
 
     /**
@@ -104,9 +104,9 @@ public class DateUtils {
      * @修改人和其它信息
      */
     public static String getFirstDayOfMonth(String date) {
-        LocalDate localDate = LocalDate.parse(date, ac.cn.saya.laboratory.tools.DateUtils.dateFormat);
+        LocalDate localDate = LocalDate.parse(date, DateUtils.dateFormat);
         LocalDate firstDay = localDate.with(TemporalAdjusters.firstDayOfMonth());
-        return firstDay.format(ac.cn.saya.laboratory.tools.DateUtils.dateFormat);
+        return firstDay.format(DateUtils.dateFormat);
     }
 
     /**
@@ -118,9 +118,9 @@ public class DateUtils {
      * @修改人和其它信息
      */
     public static String getLastDayOfMonth(String date) {
-        LocalDate localDate = LocalDate.parse(date, ac.cn.saya.laboratory.tools.DateUtils.dateFormat);
+        LocalDate localDate = LocalDate.parse(date, DateUtils.dateFormat);
         LocalDate firstDay = localDate.with(TemporalAdjusters.lastDayOfMonth());
-        return firstDay.format(ac.cn.saya.laboratory.tools.DateUtils.dateFormat);
+        return firstDay.format(DateUtils.dateFormat);
     }
 
     /**
@@ -131,7 +131,7 @@ public class DateUtils {
      */
     public static Boolean checkIsCurrentMonth(String date) {
         try {
-            LocalDate paramDate = LocalDate.parse(date, ac.cn.saya.laboratory.tools.DateUtils.dateFormat);
+            LocalDate paramDate = LocalDate.parse(date, DateUtils.dateFormat);
             LocalDate currentDate = LocalDate.now();
             if ((paramDate.getYear()) == currentDate.getYear() && paramDate.getMonthValue() == currentDate.getMonthValue()) {
                 return true;
@@ -145,13 +145,13 @@ public class DateUtils {
     }
 
     public static void main(String[] args) {
-        String datetime = ac.cn.saya.laboratory.tools.DateUtils.getCurrentDateTime(ac.cn.saya.laboratory.tools.DateUtils.dateTimeFormat);
+        String datetime = DateUtils.getCurrentDateTime(DateUtils.dateTimeFormat);
         System.out.println("now-date:" + datetime);
-        String firstDayOfMonth = ac.cn.saya.laboratory.tools.DateUtils.getFirstDayOfMonth("2019-10-10");
+        String firstDayOfMonth = DateUtils.getFirstDayOfMonth("2019-10-10");
         System.out.println("firstDayOfMonth:" + firstDayOfMonth);
-        String lastDayOfMonth = ac.cn.saya.laboratory.tools.DateUtils.getLastDayOfMonth("2019-10-10");
+        String lastDayOfMonth = DateUtils.getLastDayOfMonth("2019-10-10");
         System.out.println("lastDayOfMonth:" + lastDayOfMonth);
-        System.out.println("本月天数:" + ac.cn.saya.laboratory.tools.DateUtils.getLengthOfMonth("2019-10-20"));
+        System.out.println("本月天数:" + DateUtils.getLengthOfMonth("2019-10-20"));
         System.out.println("本月第一天是:" + getFirstDayWeek("2019-10-20"));
         checkIsCurrentMonth("2020-04-20");
     }

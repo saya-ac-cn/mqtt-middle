@@ -19,9 +19,9 @@ public class IotIdentifyEntity extends BaseEntity{
     private static final long serialVersionUID = -5202367680250917805L;
 
     /**
-     * 凭证编号
+     * 终端接入唯一id(也就是网关编码)
      */
-    private Integer id;
+    private String uuid;
 
     /**
      * 客户端连接时指定的用户名
@@ -34,7 +34,7 @@ public class IotIdentifyEntity extends BaseEntity{
     private String password;
 
     /**
-     * 加密串
+     * 加密方式
      */
     private String salt;
 
@@ -52,5 +52,10 @@ public class IotIdentifyEntity extends BaseEntity{
      * 创建时间
      */
     private String createTime;
+
+    /**
+     * 修改时间
+     */
+    private String updateTime;
 
 }

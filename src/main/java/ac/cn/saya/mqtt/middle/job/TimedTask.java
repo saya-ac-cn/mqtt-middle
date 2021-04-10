@@ -68,7 +68,7 @@ public class TimedTask {
                 continue;
             }
             // 校验网关是否在线
-            if (!metadata.isOnlineGateway(gateway.getCode())){
+            if (!metadata.isOnlineGateway(gateway.getUuid())){
                 continue;
             }
             // 校验设备是否处于启用中

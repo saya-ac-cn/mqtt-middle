@@ -26,7 +26,7 @@ public class UserEntity extends BaseEntity {
     /**
      * 姓名
      */
-    private String user;
+    private String name;
 
     /**
      * 密码
@@ -42,6 +42,11 @@ public class UserEntity extends BaseEntity {
      * 电话
      */
     private String phone;
+
+    /**
+     * 修改时间
+     */
+    private String createTime;
 
     /**
      * 修改时间

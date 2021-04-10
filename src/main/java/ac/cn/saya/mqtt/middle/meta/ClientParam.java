@@ -17,14 +17,20 @@ import org.springframework.util.StringUtils;
 @Getter
 public class ClientParam {
 
-    private String code;
+    /**
+     * 网关编码
+     */
+    private String uuid;
 
+    /**
+     * 设备编号
+     */
     private Integer clientId;
 
 
     @Override
     public int hashCode() {
-        return (!StringUtils.isEmpty(code) && null != clientId && 0 != clientId) ? (code.hashCode()+clientId.hashCode()) : 0;
+        return (!StringUtils.isEmpty(uuid) && null != clientId && 0 != clientId) ? (uuid.hashCode()+clientId.hashCode()) : 0;
     }
 
     @Override
@@ -36,10 +42,10 @@ public class ClientParam {
             return false;
         }
         ClientParam _this = (ClientParam) obj;
-        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(_this.getCode()) || null == clientId || null == _this.getCode()|| 0 == clientId || 0 == _this.getClientId()){
+        if (StringUtils.isEmpty(uuid) || StringUtils.isEmpty(_this.getUuid()) || null == clientId || null == _this.getUuid()|| 0 == clientId || 0 == _this.getClientId()){
             return false;
         }
-        if (code.equals(_this.getCode()) && clientId.equals(_this.getClientId())){
+        if (uuid.equals(_this.getUuid()) && clientId.equals(_this.getClientId())){
             return true;
         }
         return false;

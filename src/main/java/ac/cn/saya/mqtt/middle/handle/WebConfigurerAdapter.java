@@ -19,16 +19,6 @@ import java.io.File;
 @Configuration
 public class WebConfigurerAdapter extends WebMvcConfigurationSupport {
 
-    /**
-     * 允许put
-     *
-     * @return
-     */
-    @Bean
-    public HttpPutFormContentFilter httpPutFormContentFilter() {
-        return new HttpPutFormContentFilter();
-    }
-
 
     /**
      * 注册拦截器
@@ -38,7 +28,7 @@ public class WebConfigurerAdapter extends WebMvcConfigurationSupport {
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
         //注册自定义拦截器，添加拦截路径和排除拦截路径
-        registry.addInterceptor(new SystemInterceptor()).addPathPatterns("/backend/**").excludePathPatterns("/backend/login/*");
+        registry.addInterceptor(new SystemInterceptor()).addPathPatterns("/backend/**").excludePathPatterns("/backend/login/**");
     }
 
     @Override

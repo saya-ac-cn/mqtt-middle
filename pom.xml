@@ -17,18 +17,18 @@
     <properties>
         <!-- 基本属性 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <java.version>1.8</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <java.version>11</java.version>
         <skipTests>true</skipTests>
         <project.build.directory>mqtt-middle</project.build.directory>
         <!-- 版本属性 -->
         <druid.version>1.2.2</druid.version>
-        <mysql.version>8.0.15</mysql.version>
+        <mysql.version>8.0.18</mysql.version>
         <mybatis.version>2.1.2</mybatis.version>
         <lombok.version>1.18.10</lombok.version>
         <integration.version>5.2.7.RELEASE</integration.version>
-        <jackson.version>2.9.7</jackson.version>
+        <jackson.version>2.11.2</jackson.version>
     </properties>
 
     <dependencies>

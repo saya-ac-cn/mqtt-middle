@@ -11,6 +11,7 @@
         <setting name="cacheEnabled" value = "true" />
     </settings>
     <typeAliases>
+        <typeAlias alias="user" type="ac.cn.saya.mqtt.middle.entity.UserEntity"/>
         <typeAlias alias="iotIdentify" type="ac.cn.saya.mqtt.middle.entity.IotIdentifyEntity"/>
         <typeAlias alias="iotGateway" type="ac.cn.saya.mqtt.middle.entity.IotGatewayEntity"/>
         <typeAlias alias="iotGatewayType" type="ac.cn.saya.mqtt.middle.entity.IotGatewayTypeEntity"/>

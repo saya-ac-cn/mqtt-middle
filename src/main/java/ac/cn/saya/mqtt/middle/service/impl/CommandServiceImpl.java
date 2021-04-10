@@ -28,8 +28,6 @@ import javax.annotation.Resource;
 @Transactional(propagation= Propagation.REQUIRED, isolation= Isolation.SERIALIZABLE, rollbackFor= IOTException.class)
 public class CommandServiceImpl implements CommandService {
 
-    private final static Logger logger = LoggerFactory.getLogger(CommandServiceImpl.class);
-
     @Resource
     private IotHistoryExecuteDAO iotHistoryExecuteDAO;
 
@@ -51,8 +49,7 @@ public class CommandServiceImpl implements CommandService {
             Long count = iotHistoryExecuteDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotHistoryExecuteDAO.queryPage((IotHistoryExecuteEntity) condition));
         } catch (Exception e) {
-            logger.error("分页查看指令下发历史列表发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("分页查看指令下发历史列表发生异常",e,CommandServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -73,8 +70,7 @@ public class CommandServiceImpl implements CommandService {
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"添加终端规则预约异常");
         } catch (Exception e) {
-            logger.error("添加终端规则预约发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("添加终端规则预约发生异常",e,CommandServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -96,8 +92,7 @@ public class CommandServiceImpl implements CommandService {
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"修改终端规则预约异常");
         } catch (Exception e) {
-            logger.error("修改终端规则预约发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("修改终端规则预约发生异常", e,CommandServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -118,8 +113,7 @@ public class CommandServiceImpl implements CommandService {
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除终端规则预约异常");
         } catch (Exception e) {
-            logger.error("删除终端规则预约发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("删除终端规则预约发生异常",e,CommandServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -139,8 +133,7 @@ public class CommandServiceImpl implements CommandService {
             Long count = iotAppointmentDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotAppointmentDAO.queryPage((IotAppointmentEntity) condition));
         } catch (Exception e) {
-            logger.error("查询分页后的终端规则预约信息发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的终端规则预约信息发生异常",e,CommandServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }

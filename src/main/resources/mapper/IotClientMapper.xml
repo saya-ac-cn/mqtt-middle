@@ -14,7 +14,7 @@
         <result property="updateTime" column="update_time"/>
         <association property="gateway" javaType="IotGateway">
             <id property="id" column="gateway_id" />
-            <result property="code" column="code"/>
+            <result property="uuid" column="uuid"/>
             <result property="name" column="gatewayName"/>
             <result property="address" column="address"/>
             <result property="source" column="source"/>
@@ -70,7 +70,7 @@
     <select id="queryByGatewayId" resultMap="IotClientMap">
         select
             a.`id`, a.`gateway_id`, a.`name`, a.`level`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
-            b.`code`,b.`name` as gatewayName,b.`address`,b.`source`
+            b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         where a.`gateway_id` = #{gatewayId}
     </select>
@@ -79,7 +79,7 @@
     <select id="queryPage" resultMap="IotClientMap">
         select
             a.`id`, a.`gateway_id`, a.`name`, a.`level`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
-            b.`code`,b.`name` as gatewayName,b.`address`,b.`source`
+            b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         <where>
             <if test="id != null and id != 0">
@@ -189,7 +189,7 @@
 
     <!--删除Iot终端-->
     <delete id="deleteById">
-        delete from laboratory_web.iot_client where id = #{id}
+        delete from iot_client where id = #{id}
     </delete>
 
 </mapper>

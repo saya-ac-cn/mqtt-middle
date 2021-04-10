@@ -32,8 +32,6 @@ import java.util.List;
 @Transactional(propagation= Propagation.REQUIRED, isolation= Isolation.SERIALIZABLE, rollbackFor= IOTException.class)
 public class DeviceServiceImpl implements DeviceService {
 
-    private final static Logger logger = LoggerFactory.getLogger(DeviceServiceImpl.class);
-
     @Resource
     private IotGatewayTypeDAO iotGatewayTypeDAO;
 
@@ -67,8 +65,7 @@ public class DeviceServiceImpl implements DeviceService {
             }
             return ResultUtil.error(ResultEnum.NOT_EXIST);
         } catch (Exception e) {
-            logger.error("获取Iot设备类型异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("获取Iot设备类型异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -87,34 +84,33 @@ public class DeviceServiceImpl implements DeviceService {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         UserEntity userSession = (UserEntity) request.getSession().getAttribute("user");
-        entity.setSource(userSession.getUser());
+        entity.setSource(userSession.getAccount());
         IotIdentifyEntity authenInfo = entity.getAuthenInfo();
         if (null == authenInfo){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        if (StringUtils.isEmpty(authenInfo.getPassword())){
+        if (StringUtils.isEmpty(authenInfo.getUsername()) || StringUtils.isEmpty(authenInfo.getPassword())){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         // 本例采用固定写法
         authenInfo.setSalt("sha256");
         // 加密密码
         authenInfo.setPassword(Sha256Utils.getSHA256(authenInfo.getPassword()));
-        // 生成随机的iot认证name
-        authenInfo.setUsername("IOT"+entity.getSource()+RandomUtil.getRandomIotName());
-        if (StringUtils.isEmpty(entity.getCode()) || StringUtils.isEmpty(entity.getName()) || StringUtils.isEmpty(entity.getSource()) || null == entity.getDeviceType()){
+        String uuid = RandomUtil.getRandKeys(12);
+        authenInfo.setUuid(uuid);
+        if (StringUtils.isEmpty(entity.getSource()) || null == entity.getDeviceType()){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
             if (iotIdentifyDAO.insert(authenInfo)>0){
-                entity.setAuthenId(authenInfo.getId());
+                entity.setUuid(uuid);
                 if (iotGatewayDAO.insert(entity)>0){
                     return ResultUtil.success();
                 }
             }
             return ResultUtil.error(ResultEnum.ERROR);
         } catch (Exception e) {
-            logger.error("添加网关设备异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("添加网关设备异常", e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -133,17 +129,16 @@ public class DeviceServiceImpl implements DeviceService {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         UserEntity userSession = (UserEntity) request.getSession().getAttribute("user");
-        entity.setSource(userSession.getUser());
+        entity.setSource(userSession.getAccount());
         IotIdentifyEntity authenInfo = entity.getAuthenInfo();
         try {
-            if (null != authenInfo || null != entity.getAuthenId()){
+            if (null != authenInfo || null != entity.getUuid()){
                 iotIdentifyDAO.update(authenInfo);
             }
             iotGatewayDAO.update(entity);
             return ResultUtil.success();
         } catch (Exception e) {
-            logger.error("修改网关设备异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("修改网关设备异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -178,7 +173,7 @@ public class DeviceServiceImpl implements DeviceService {
             List<IotClientEntity> clientEntities = iotClientDAO.queryByGatewayId(id);
             metadata.removeClients(clientEntities);
             // 删除认证信息
-            if (iotIdentifyDAO.delete(query.getAuthenId()) < 0){
+            if (iotIdentifyDAO.delete(query.getUuid()) < 0){
                 return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除认证信息异常");
             }
             // 删除网关信息
@@ -187,8 +182,7 @@ public class DeviceServiceImpl implements DeviceService {
             }
             return ResultUtil.success();
         } catch (Exception e) {
-            logger.error("删除网关信息异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("删除网关信息异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -210,8 +204,7 @@ public class DeviceServiceImpl implements DeviceService {
             Long count = iotGatewayDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotGatewayDAO.queryPage((IotGatewayEntity) condition));
         } catch (Exception e) {
-            logger.error("查询分页后的网关列表发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的网关列表发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -239,8 +232,7 @@ public class DeviceServiceImpl implements DeviceService {
             }
             return ResultUtil.success(result);
         } catch (Exception e) {
-            logger.error("获取单个网关详情发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("获取单个网关详情发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -259,7 +251,7 @@ public class DeviceServiceImpl implements DeviceService {
         IotGatewayEntity entity = new IotGatewayEntity();
         UserEntity userSession = (UserEntity) request.getSession().getAttribute("user");
         // 放入用户名
-        entity.setSource(userSession.getUser());
+        entity.setSource(userSession.getAccount());
         // 正常在用设备
         entity.setRemove(1);
         try {
@@ -269,8 +261,7 @@ public class DeviceServiceImpl implements DeviceService {
             }
             return ResultUtil.success(result);
         } catch (Exception e) {
-            logger.error("获取网关下拉列表发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("获取网关下拉列表发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -295,8 +286,7 @@ public class DeviceServiceImpl implements DeviceService {
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"添加设备异常");
         } catch (Exception e) {
-            logger.error("添加设备发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("添加设备发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -329,8 +319,7 @@ public class DeviceServiceImpl implements DeviceService {
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"修改设备异常");
         } catch (Exception e) {
-            logger.error("修改设备发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("修改设备发生异常", e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -361,8 +350,7 @@ public class DeviceServiceImpl implements DeviceService {
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除设备异常");
         } catch (Exception e) {
-            logger.error("删除设备发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("删除设备发生异常", e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -384,8 +372,7 @@ public class DeviceServiceImpl implements DeviceService {
             Long count = iotClientDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotClientDAO.queryPage((IotClientEntity) condition));
         } catch (Exception e) {
-            logger.error("查询分页后的设备分页发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的设备分页发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -405,14 +392,13 @@ public class DeviceServiceImpl implements DeviceService {
     public Result<List<IotClientEntity>> getClientSelectList(HttpServletRequest request,String keyWord){
         try {
             UserEntity userSession = (UserEntity) request.getSession().getAttribute("user");
-            List<IotClientEntity> result = iotClientDAO.querySelectList(userSession.getUser(), keyWord);
+            List<IotClientEntity> result = iotClientDAO.querySelectList(userSession.getAccount(), keyWord);
             if (result.isEmpty()){
                 return ResultUtil.error(ResultEnum.NOT_EXIST);
             }
             return ResultUtil.success(result);
         } catch (Exception e) {
-            logger.error("获取下拉列表显示Iot终端发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("获取下拉列表显示Iot终端发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }

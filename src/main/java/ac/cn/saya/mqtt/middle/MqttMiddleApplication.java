@@ -41,10 +41,9 @@ public class MqttMiddleApplication {
             springApplication.setAddCommandLineProperties(false);
             springApplication.run(args);
             //项目启动完成打印项目名
-            logger.warn("实验室中心已经启动 ... ");
+            logger.warn("物联网服务已经启动 ... ");
         } catch (Exception e) {
-            logger.error("实验室中心已经启动失败:{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("物联网服务启动失败",e,MqttMiddleApplication.class);
         }
     }
 

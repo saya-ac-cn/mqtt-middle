@@ -5,9 +5,8 @@
 <mapper namespace="ac.cn.saya.mqtt.middle.repository.IotIdentifyDAO">
 
     <!--添加用户认证信息-->
-    <!-- useGeneratedKeys="true" 表示给主键设置自增长,keyProperty="id"  表示将自增长后的Id赋值给实体类中的userId字段-->
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="iotIdentify" >
-        insert into iot_identify(`username`,`password`,`salt`,`create_time`) values(#{username},#{password},#{salt},now())
+    <insert id="insert" parameterType="iotIdentify" >
+        insert into iot_identify(`uuid`,`username`,`password`,`salt`,`create_time`) values(#{uuid},#{username},#{password},#{salt},now())
     </insert>
 
     <!-- 修改用户认证信息-->
@@ -21,23 +20,23 @@
                 enable = #{enable}
             </if>
         </set>
-        where `id` = #{id}
+        where `uuid` = #{uuid}
     </update>
 
     <!--删除用户认证信息-->
     <delete id="delete" parameterType="java.lang.Integer">
-        delete from iot_identify where id = #{id}
+        delete from iot_identify where uuid = #{uuid}
     </delete>
 
     <!-- 查询用户认证信息-->
     <select id="query" parameterType="iotIdentify" resultType="iotIdentify">
-        select `id`,`username`,`password`,`salt`,`enable` from iot_identify
+        select `uuid`,`username`,`password`,`salt`,`enable` from iot_identify
         <where>
-            <if test = "id != null and id != 0">
-                id = #{id}
+            <if test = "uuid != null and uuid != ''">
+                `uuid` = #{uuid}
             </if>
             <if test = "username != null and username != ''">
-                and username = #{username}
+                and `username` = #{username}
             </if>
         </where>
         limit 1

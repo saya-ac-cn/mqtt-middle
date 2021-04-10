@@ -4,13 +4,17 @@
     <entry key="Project Default">
       <profile-state>
         <expanded-state>
+          <State />
           <State>
-            <id />
+            <id>Java</id>
+          </State>
+          <State>
+            <id>Serialization issuesJava</id>
           </State>
         </expanded-state>
         <selected-state>
           <State>
-            <id>Android</id>
+            <id>SerializableHasSerialVersionUIDField</id>
           </State>
         </selected-state>
       </profile-state>

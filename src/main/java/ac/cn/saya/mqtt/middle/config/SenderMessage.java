@@ -19,7 +19,7 @@ import javax.annotation.Resource;
  * @Description: 发送消息
  */
 
-////@Configuration
+@Configuration
 public class SenderMessage {
 
     @Resource

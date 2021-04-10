@@ -1,9 +1,6 @@
 package ac.cn.saya.mqtt.middle.handle;
 
-import ac.cn.saya.mqtt.middle.tools.IOTException;
-import ac.cn.saya.mqtt.middle.tools.Log4jUtils;
-import ac.cn.saya.mqtt.middle.tools.Result;
-import ac.cn.saya.mqtt.middle.tools.ResultUtil;
+import ac.cn.saya.mqtt.middle.tools.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,10 +27,11 @@ public class ExceptionHandle {
     public Result<Object> handle(Exception e) {
         if (e instanceof IOTException) {
             IOTException exception = (IOTException) e;
+            CurrentLineInfo.printCurrentLineInfo("在顶层捕获的异常",e,ExceptionHandle.class);
             return ResultUtil.error(exception.getCode(), exception.getMessage());
         } else {
             //不在定义范围内的异常错误
-            logger.error("处理未能捕获的异常{}" , Log4jUtils.getTrace(e));
+            CurrentLineInfo.printCurrentLineInfo("未能捕获的异常错误",e,ExceptionHandle.class);
             return ResultUtil.error(-1, "未知错误");
         }
     }

@@ -32,7 +32,6 @@ import java.util.List;
 @Transactional(propagation= Propagation.REQUIRED, isolation= Isolation.SERIALIZABLE, rollbackFor= IOTException.class)
 public class CollectionServiceImpl implements CollectionService {
 
-    private final static Logger logger = LoggerFactory.getLogger(CollectionServiceImpl.class);
 
     @Resource
     private IotCollectionDAO iotCollectionDAO;
@@ -61,8 +60,7 @@ public class CollectionServiceImpl implements CollectionService {
             Long count = iotCollectionDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotCollectionDAO.queryPage((IotCollectionEntity) condition));
         } catch (Exception e) {
-            logger.error("查询分页后的采集信息列表发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的采集信息列表发生异常",e,CollectionServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -82,8 +80,7 @@ public class CollectionServiceImpl implements CollectionService {
             Long count = iotWarningResultDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotWarningResultDAO.queryPage((IotWarningResultEntity) condition));
         } catch (Exception e) {
-            logger.error("查询分页后的告警报告信息列表发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的告警报告信息列表发生异常",e,CollectionServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -107,8 +104,7 @@ public class CollectionServiceImpl implements CollectionService {
             metadata.doRefreshRules(list);
             return ResultUtil.success();
         } catch (Exception e) {
-            logger.error("添加告警规则发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("添加告警规则发生异常", e,CollectionServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -132,8 +128,7 @@ public class CollectionServiceImpl implements CollectionService {
             metadata.doRefreshRules(list);
             return ResultUtil.success();
         } catch (Exception e) {
-            logger.error("修改告警规则发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("修改告警规则发生异常",e,CollectionServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -157,8 +152,7 @@ public class CollectionServiceImpl implements CollectionService {
             metadata.removeRules(list);
             return ResultUtil.success();
         } catch (Exception e) {
-            logger.error("删除告警规则发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("删除告警规则发生异常", e,CollectionServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -178,8 +172,7 @@ public class CollectionServiceImpl implements CollectionService {
             Long count = iotWarningRulesDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotWarningRulesDAO.queryPage((IotWarningRulesEntity) condition));
         } catch (Exception e) {
-            logger.error("查询分页后的查看终端告警规则列表发生异常：{}", Log4jUtils.getTrace(e));
-            logger.error(CurrentLineInfo.printCurrentLineInfo());
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的查看终端告警规则列表发生异常",e,CollectionServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }

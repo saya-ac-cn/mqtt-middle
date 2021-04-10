@@ -23,7 +23,7 @@ import java.util.List;
  * @Description: 处理消息
  */
 
-////@Configuration
+@Configuration
 public class ReceiverMessage {
 
     @Resource

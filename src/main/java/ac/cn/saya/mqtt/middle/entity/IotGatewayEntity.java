@@ -23,14 +23,9 @@ public class IotGatewayEntity extends BaseEntity{
     private Integer id;
 
     /**
-     * 网关编码
+     * 终端接入唯一id(也就是网关编码)、外键
      */
-    private String code;
-
-    /**
-     * 认证id(mqtt_user表外键)
-     */
-    private Integer authenId;
+    private String uuid;
 
     /**
      * 认证信息（非数据库字段）

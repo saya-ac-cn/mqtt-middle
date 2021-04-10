@@ -50,8 +50,8 @@ public class Metadata {
             return;
         }
         Integer clientId = param.getId();
-        String code = gateway.getCode();
-        clients.put(new ClientParam(code, clientId), param);
+        String uuid = gateway.getUuid();
+        clients.put(new ClientParam(uuid, clientId), param);
     }
 
     public void doRefreshClient(IotClientEntity oldParam,IotClientEntity newParam) {
@@ -63,9 +63,9 @@ public class Metadata {
             return;
         }
         Integer oldClientId = newParam.getId();
-        String oldCode = oldGateway.getCode();
+        String oldUuid = oldGateway.getUuid();
         // 先移除之前的，然后进行添加操作
-        clients.remove(new ClientParam(oldCode, oldClientId));
+        clients.remove(new ClientParam(oldUuid, oldClientId));
         if (null == newParam) {
             return;
         }
@@ -74,8 +74,8 @@ public class Metadata {
             return;
         }
         Integer clientId = newParam.getId();
-        String code = gateway.getCode();
-        clients.put(new ClientParam(code, clientId), newParam);
+        String uuid = gateway.getUuid();
+        clients.put(new ClientParam(uuid, clientId), newParam);
     }
 
     public void doRefreshRule(IotWarningRulesEntity param) {
@@ -108,8 +108,8 @@ public class Metadata {
             return;
         }
         Integer clientId = param.getId();
-        String code = gateway.getCode();
-        clients.remove(new ClientParam(code, clientId));
+        String uuid = gateway.getUuid();
+        clients.remove(new ClientParam(uuid, clientId));
     }
 
     public void removeRule(Integer param) {
@@ -142,8 +142,8 @@ public class Metadata {
             return null;
         }
         Integer clientId = param.getId();
-        String code = gateway.getCode();
-        return clients.get(new ClientParam(code, clientId));
+        String uuid = gateway.getUuid();
+        return clients.get(new ClientParam(uuid, clientId));
     }
 
     public IotWarningRulesEntity getRule(Integer ruleId) {
@@ -153,17 +153,17 @@ public class Metadata {
         return rules.get(ruleId);
     }
 
-    public void addOnlineGateway(String code, String onlineTime) {
-        if (!StringUtils.isEmpty(code) && !StringUtils.isEmpty(onlineTime)) {
-            onlineGateway.put(code, onlineTime);
+    public void addOnlineGateway(String uuid, String onlineTime) {
+        if (!StringUtils.isEmpty(uuid) && !StringUtils.isEmpty(onlineTime)) {
+            onlineGateway.put(uuid, onlineTime);
         }
     }
 
-    public boolean isOnlineGateway(String code){
-        if (StringUtils.isEmpty(code)){
+    public boolean isOnlineGateway(String uuid){
+        if (StringUtils.isEmpty(uuid)){
             return false;
         }
-        return onlineGateway.containsKey(code);
+        return onlineGateway.containsKey(uuid);
     }
 
     /**
