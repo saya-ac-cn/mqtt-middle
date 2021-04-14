@@ -5,8 +5,11 @@
     <resultMap type="iotWarningRules" id="IotWarningRulesMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="clientId" column="client_id"/>
+        <result property="units" column="units"/>
         <result property="symbol" column="symbol"/>
-        <result property="value" column="value"/>
+        <result property="value1" column="value1"/>
+        <result property="value2" column="value2"/>
         <result property="enable" column="enable"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -25,7 +28,7 @@
     <!--查询Iot告警规则-->
     <select id="query" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`client_id`, a.`symbol`, a.`value`, a.`enable`, a.`create_time`, a,`update_time`
+          a.`id`, a.`name`, a.`client_id`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`
           b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
           c.`name` as gatewayName,c.`address`
         from iot_warning_rules a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
@@ -49,7 +52,7 @@
     <!--分页查询Iot告警规则-->
     <select id="queryPage" resultMap="IotWarningRulesMap">
         select
-            a.`id`, a.`name`, a.`client_id`, a.`symbol`, a.`value`, a.`enable`, a.`create_time`, a,`update_time`
+            a.`id`, a.`name`, a.`client_id`, a.`units`, a.`symbol`,a.`value1`, a.`value2`,a.`enable`, a.`create_time`, a.`update_time`,
             b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
             c.`name` as gatewayName,c.`address`
         from iot_warning_rules a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
@@ -94,10 +97,10 @@
 
     <!--新增Iot告警规则-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
-        insert into iot_warning_rules(`name`, `client_id`, `symbol`, `value`, create_time)
+        insert into iot_warning_rules(`name`, `client_id`, `units`,`symbol`, `value1`, `value2`,create_time)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.name}, #{item.clientId}, #{item.symbol}, #{item.value}, mow())
+            (#{item.name}, #{item.clientId}, #{item.units},#{item.symbol}, #{item.value1},#{item.value2}, mow())
         </foreach>
     </insert>
 
@@ -112,11 +115,17 @@
                 <if test="clientId != null and clientId != 0">
                     `client_id` = #{item.clientId},
                 </if>
+                <if test="units != null and units != ''">
+                    `units` = #{item.units},
+                </if>
                 <if test="symbol != null and symbol != ''">
                     `symbol` = #{item.symbol},
                 </if>
-                <if test="value != null and value != ''">
-                    `value` = #{item.value},
+                <if test="value1 != null and value1 != ''">
+                    `value1` = #{item.value1},
+                </if>
+                <if test="value2 != null and value2 != ''">
+                    `value2` = #{item.value2},
                 </if>
                 `update_time` = now()
             </set>

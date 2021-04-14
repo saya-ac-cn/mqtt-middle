@@ -5,8 +5,8 @@
     <resultMap type="iotClient" id="IotClientMap">
         <result property="id" column="id"/>
         <result property="gatewayId" column="gateway_id"/>
+        <result property="serialNum" column="serial_num"/>
         <result property="name" column="name"/>
-        <result property="level" column="level"/>
         <result property="lastLinkTime" column="last_link_time"/>
         <result property="enable" column="enable"/>
         <result property="remove" column="remove"/>
@@ -24,7 +24,7 @@
     <!--下拉列表显示Iot终端-->
     <select id="querySelectList" resultMap="IotClientMap">
         select
-        a.`id`, a.`gateway_id`, a.`name`, a.`level`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
+        a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
         b.`code`,b.`name` as gatewayName,b.`address`,b.`source`
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         <where>
@@ -40,7 +40,7 @@
     <!--查询Iot终端-->
     <select id="query" resultMap="IotClientMap">
         select
-          a.`id`, a.`gateway_id`, a.`name`, a.`level`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
+          a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
           b.`code`,b.`name` as gatewayName,b.`address`,b.`source`
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         <where>
@@ -69,7 +69,7 @@
     <!--通过网关查询Iot终端-->
     <select id="queryByGatewayId" resultMap="IotClientMap">
         select
-            a.`id`, a.`gateway_id`, a.`name`, a.`level`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
+            a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
             b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         where a.`gateway_id` = #{gatewayId}
@@ -78,7 +78,7 @@
     <!--分页查询Iot终端 -->
     <select id="queryPage" resultMap="IotClientMap">
         select
-            a.`id`, a.`gateway_id`, a.`name`, a.`level`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
+            a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
             b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         <where>
@@ -132,8 +132,8 @@
 
     <!--新增Iot终端-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="iotClient">
-        insert into iot_client(`gateway_id`, `name`, `enable`, `create_time`)
-        values (#{gatewayId}, #{name}, #{enable}, now())
+        insert into iot_client(`gateway_id`, `serial_num`,`name`, `enable`, `create_time`)
+        values (#{gatewayId},#{serialNum}, #{name}, #{enable}, now())
     </insert>
 
     <!--修改Iot终端-->
@@ -146,8 +146,8 @@
             <if test="name != null and name != ''">
                 `name` = #{name},
             </if>
-            <if test="level != null and level != 0">
-                `level` = #{level},
+            <if test="serialNum != null and serialNum != 0">
+                `serial_num` = #{serialNum},
             </if>
             <if test="lastLinkTime != null  and lastLinkTime != 0">
                 `last_link_time` = #{lastLinkTime},
@@ -170,8 +170,8 @@
             <if test="name != null and name != ''">
                 `name` = #{name},
             </if>
-            <if test="level != null and level != 0">
-                `level` = #{level},
+            <if test="serialNum != null and serialNum != 0">
+                `serial_num` = #{serialNum},
             </if>
             <if test="lastLinkTime != null  and lastLinkTime != 0">
                 `last_link_time` = #{lastLinkTime},

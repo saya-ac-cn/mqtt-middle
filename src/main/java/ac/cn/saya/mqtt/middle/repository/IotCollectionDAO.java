@@ -1,6 +1,8 @@
 package ac.cn.saya.mqtt.middle.repository;
 import ac.cn.saya.mqtt.middle.entity.IotCollectionEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -44,4 +46,11 @@ public interface IotCollectionDAO {
      * @return 影响行数
      */
     public int insert(IotCollectionEntity iotClient);
+
+    /**
+     * 批量写入数据
+     * @param list
+     */
+    public void batchInsert(@Param("list") List<IotCollectionEntity> list);
+
 }

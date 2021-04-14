@@ -5,9 +5,8 @@
     <resultMap type="iotCollection" id="IotCollectionMap">
         <result property="id" column="id"/>
         <result property="clientId" column="client_id"/>
-        <result property="symbol" column="symbol"/>
+        <result property="units" column="units"/>
         <result property="value" column="value"/>
-        <result property="type" column="type"/>
         <result property="collectTime" column="collect_time"/>
         <association property="iotClient" javaType="iotClient">
             <result property="id" column="client_id"/>
@@ -24,7 +23,7 @@
     <!--查询Iot采集信息-->
     <select id="query" resultMap="IotCollectionMap">
         select
-          a.`id`, a.`client_id`, a.`symbol`, a.`value`, a.`type`, a.`collect_time`,
+          a.`id`, a.`client_id`, a.`units`, a.`value`, a.`collect_time`,
           b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
           c.`name` as gatewayName,c.`address`
         from iot_collection a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
@@ -35,14 +34,11 @@
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
             </if>
-            <if test="symbol != null and symbol != ''">
-                and a.`symbol` = #{symbol}
+            <if test="units != null and units != ''">
+                and a.`units` = #{units}
             </if>
             <if test="value != null and value != ''">
                 and a.`value` = #{value}
-            </if>
-            <if test="type != null and type != ''">
-                and a.`type` = #{type}
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`collect_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
@@ -54,7 +50,7 @@
     <!--分页查询Iot采集信息-->
     <select id="queryPage" resultMap="IotCollectionMap">
         select
-            a.`id`, a.`client_id`, a.`symbol`, a.`value`, a.`type`, a.`collect_time`,
+            a.`id`, a.`client_id`, a.`units`, a.`value`, a.`collect_time`,
             b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
             c.`name` as gatewayName,c.`address`
         from iot_collection a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
@@ -65,14 +61,11 @@
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
             </if>
-            <if test="symbol != null and symbol != ''">
-                and a.`symbol` = #{symbol}
+            <if test="units != null and units != ''">
+                and a.`units` = #{units}
             </if>
             <if test="value != null and value != ''">
                 and a.`value` = #{value}
-            </if>
-            <if test="type != null and type != ''">
-                and a.`type` = #{type}
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`collect_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
@@ -94,14 +87,11 @@
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
             </if>
-            <if test="symbol != null and symbol != ''">
-                and a.`symbol` = #{symbol}
+            <if test="units != null and units != ''">
+                and a.`units` = #{units}
             </if>
             <if test="value != null and value != ''">
                 and a.`value` = #{value}
-            </if>
-            <if test="type != null and type != ''">
-                and a.`type` = #{type}
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`collect_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
@@ -111,8 +101,17 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into iot_collection(`client_id`, `symbol`, `value`, `type`, collect_time)
-        values (#{clientId}, #{symbol}, #{value}, #{type}, now())
+        insert into iot_collection(`client_id`, `units`, `value`, collect_time)
+        values (#{clientId}, #{units}, #{value}, now())
+    </insert>
+
+    <!--批量写入-->
+    <insert id="batchInsert" parameterType="list">
+        insert into iot_collection(`client_id`, `units`, `value`, collect_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.clientId}, #{item.units}, #{item.value}, now())
+        </foreach>
     </insert>
 
 

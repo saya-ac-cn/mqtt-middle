@@ -2,6 +2,8 @@ package ac.cn.saya.mqtt.middle.repository;
 
 import ac.cn.saya.mqtt.middle.entity.IotWarningResultEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -45,5 +47,11 @@ public interface IotWarningResultDAO {
      * @return 影响行数
      */
     public int insert(IotWarningResultEntity entity);
+
+
+    /**
+     * 批量写入数据
+     */
+    public int batchInsert(@Param("list") List<IotWarningResultEntity> list);
 
 }
