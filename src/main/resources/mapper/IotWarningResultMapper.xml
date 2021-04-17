@@ -113,9 +113,9 @@
     <!--批量Iot告警结果-->
     <insert id="batchInsert" parameterType="list">
         insert into iot_warning_result(`client_id`,`rule_id`, `topic`, `content`, `create_time`)
-        values ()
+        values
         <foreach collection="list" item="item" separator=",">
-            (#{item.clientId},#{item.ruleId} #{item.topic}, #{item.content},now())
+            (#{item.clientId},#{item.ruleId}, #{item.topic}, #{item.content},now())
         </foreach>
     </insert>
 
