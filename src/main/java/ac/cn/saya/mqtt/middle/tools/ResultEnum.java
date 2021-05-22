@@ -17,9 +17,9 @@ public enum ResultEnum {
     UNKONW_ERROR(-1, "未知错误"),
     SUCCESS(0, "处理成功");
 
-    private int code;
+    private final int code;
 
-    private String msg;
+    private final String msg;
 
     ResultEnum(int code, String msg) {
         this.code = code;

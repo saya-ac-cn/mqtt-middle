@@ -7,32 +7,29 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *  根据IP地址获取详细的地域信息
- *  @project:personGocheck
- *  @class:City.java
- *  @author:刘能凯 E-mail:742442849@qq.com
- *  @date：2017-07-05
+ * 根据IP地址获取详细的地域信息
+ *
+ * @project:personGocheck
+ * @class:City.java
+ * @author:刘能凯 E-mail:742442849@qq.com
+ * @date：2017-07-05
  */
 public class City {
 
     /**
-     *通过IP返回城市的完整信息（自抛出异常，不进行处理）
+     * 通过IP返回城市的完整信息（自抛出异常，不进行处理）
      *
-     * @param content
-     *            请求的参数 格式为：name=xxx&pwd=xxx
-     * @param encodingString
-     *            服务器端请求编码。如GBK,UTF-8等
+     * @param content        请求的参数 格式为：name=xxx&pwd=xxx
+     * @param encodingString 服务器端请求编码。如GBK,UTF-8等
      * @return
      * @throws UnsupportedEncodingException
      */
     public String getAddresses(String content, String encodingString)
             throws UnsupportedEncodingException {
-        if(content == null || content.equals("127.0.0.1") || content.equals("localhost") || content.equals("::1"))
-        {
+        if (content == null || content.equals("127.0.0.1") || content.equals("localhost") || content.equals("::1")) {
             return "局域网地址";
         }
-        if(!isboolIp(content))
-        {
+        if (!isboolIp(content)) {
             return "地址非法";
         }
         content = "ip=" + content;
@@ -45,7 +42,7 @@ public class City {
             // 处理返回的省市区信息-未处理的原始数据
             System.out.println(returnStr);
             String[] temp = returnStr.split(",");
-            if(temp.length<3){
+            if (temp.length < 3) {
                 //无效IP，局域网测试
                 return "局域网地址";
             }
@@ -90,19 +87,17 @@ public class City {
                         break;
                 }
             }
-            region=country+"-"+region+"-"+city+"("+city_id+")-"+county+"-"+isp;
+            region = country + "-" + region + "-" + city + "(" + city_id + ")-" + county + "-" + isp;
             System.out.println(region);
             return region;
         }
         return "获取失败";
     }
+
     /**
-     * @param urlStr
-     *            请求的地址
-     * @param content
-     *            请求的参数 格式为：name=xxx&pwd=xxx
-     * @param encoding
-     *            服务器端请求编码。如GBK,UTF-8等
+     * @param urlStr   请求的地址
+     * @param content  请求的参数 格式为：name=xxx&pwd=xxx
+     * @param encoding 服务器端请求编码。如GBK,UTF-8等
      * @return
      */
     private String getResult(String urlStr, String content, String encoding) {
@@ -155,18 +150,19 @@ public class City {
         }
         return null;
     }
+
     /**
      * unicode 转换成 中文
      *
-     * @author fanhui 2007-3-15
      * @param theString
      * @return
+     * @author fanhui 2007-3-15
      */
     public static String decodeUnicode(String theString) {
         char aChar;
         int len = theString.length();
         StringBuffer outBuffer = new StringBuffer(len);
-        for (int x = 0; x < len;) {
+        for (int x = 0; x < len; ) {
             aChar = theString.charAt(x++);
             if (aChar == '\\') {
                 aChar = theString.charAt(x++);
@@ -230,25 +226,26 @@ public class City {
 
     /**
      * 通过IP地址返回城市（自抛出异常，并自处理）
+     *
      * @param content
      * @param encodingString
      * @return
      */
-    public String getCity(String content, String encodingString)
-    {
+    public String getCity(String content, String encodingString) {
         String address = "";
         try {
             address = this.getAddresses(content, encodingString);
         } catch (UnsupportedEncodingException e) {
-            address="获取失败";
+            address = "获取失败";
             e.printStackTrace();
-        }finally {
-           return address;
+        } finally {
+            return address;
         }
     }
 
     /**
      * 判断ip地址格式是否正确
+     *
      * @param ipAddress
      * @return
      */
@@ -260,20 +257,20 @@ public class City {
     }
 
     // 测试
- public static void main(String[] args) {
-  City addressUtils = new City();
-  // 测试ip 119.29.153.69 中国=华南=广东省=广州市=越秀区=电信
-  String ip = "117.139.255.111";
-  String address = "";
-  try {
-   ///address = addressUtils.getAddresses(ip, "utf-8");
-   address = addressUtils.getCity(ip,"utf-8");
-  } catch (Exception e) {
-   e.printStackTrace();
-  }
-  System.out.println(address);
-  // 输出结果为：广东省,广州市,越秀区
- }
+    public static void main(String[] args) {
+        City addressUtils = new City();
+        // 测试ip 119.29.153.69 中国=华南=广东省=广州市=越秀区=电信
+        String ip = "117.139.255.111";
+        String address = "";
+        try {
+            ///address = addressUtils.getAddresses(ip, "utf-8");
+            address = addressUtils.getCity(ip, "utf-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(address);
+        // 输出结果为：广东省,广州市,越秀区
+    }
 
 
 }

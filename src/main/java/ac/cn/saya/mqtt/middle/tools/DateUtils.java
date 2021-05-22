@@ -58,9 +58,9 @@ public class DateUtils {
         String k = String.valueOf(date.getDayOfWeek());
         System.out.println("k:" + k);
         //获取行数
-        for (int i = 0; i < strArray.length; i++) {
-            if (k.equals(strArray[i][0])) {
-                k = strArray[i][1];
+        for (String[] strings : strArray) {
+            if (k.equals(strings[0])) {
+                k = strings[1];
                 break;
             }
         }

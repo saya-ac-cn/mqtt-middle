@@ -34,6 +34,7 @@ public class RandomUtil {
 
     /**
      * 生成随机的iot名字
+     *
      * @return
      */
     public static String getRandomIotName() {
@@ -50,7 +51,7 @@ public class RandomUtil {
      */
     public static String getRandKeys(int intLength) {
 
-        String retStr;      //生成的密码
+        StringBuilder retStr;      //生成的密码
         //String keysSource = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz!@#$%^&*<>/.,";
         //密码使用符号，可更改
 
@@ -58,7 +59,7 @@ public class RandomUtil {
         //生成结束标志
         boolean bDone = false;
         do {
-            retStr = "";
+            retStr = new StringBuilder();
             //生成密码中数字的个数
             int count = 0;
             //生成密码中字母的个数
@@ -66,29 +67,28 @@ public class RandomUtil {
             //生成密码中符号的个数
             int count2 = 0;
 
-            for ( int i = 0; i < intLength; i++ ) {
-                int intR = (int) Math.floor( Math.random() * len );
+            for (int i = 0; i < intLength; i++) {
+                int intR = (int) Math.floor(Math.random() * len);
                 //找到指定字符
                 char c = keysSource.charAt(intR);
 
                 //判断字符类型并计数：数字，字母，符号
-                if ( ( '0' <= c ) && ( c <= '9' ) ) {
+                if (('0' <= c) && (c <= '9')) {
                     count++;
-                } else if ( ( 'A' <= c ) && ( c <= 'z' ) ) {
+                } else if (('A' <= c) && (c <= 'z')) {
                     count1++;
-                } else
-                {
+                } else {
                     count2++;
                 }
-                retStr += keysSource.charAt(intR);
+                retStr.append(keysSource.charAt(intR));
             }
-            if ( count >= 1 && count1>=4 ) {
+            if (count >= 1 && count1 >= 4) {
                 //如果符号密码强度，则置结束标志：密码至少包含1个数字，4个字母，1个符号
                 bDone = true;
             }
-        } while ( !bDone );
+        } while (!bDone);
 
-        return retStr;
+        return retStr.toString();
     }
 
 
