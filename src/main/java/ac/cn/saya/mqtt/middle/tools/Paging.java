@@ -25,7 +25,7 @@ package ac.cn.saya.mqtt.middle.tools;
  * 注意这里面的页码按照1开始
  * 但是在数据库中是按照0开始，用的时候请注意
  */
-public class Paging {
+public class Paging<T> {
     /**
      * 当前页
      */
@@ -49,7 +49,7 @@ public class Paging {
     /**
      * 分页后的参数
      */
-    private Object grid;
+    private T grid;
 
 
     public Long gettotalPage() {
@@ -101,7 +101,7 @@ public class Paging {
         return grid;
     }
 
-    public void setGrid(Object grid) {
+    public void setGrid(T grid) {
         this.grid = grid;
     }
 }
