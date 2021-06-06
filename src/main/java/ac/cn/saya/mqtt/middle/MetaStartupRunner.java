@@ -3,6 +3,7 @@ package ac.cn.saya.mqtt.middle;
 import ac.cn.saya.mqtt.middle.meta.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 /**
  * @Title: MetaStartupRunner
@@ -12,7 +13,7 @@ import org.springframework.boot.CommandLineRunner;
  * @Date: 2020/8/2 17:03
  * @Description: spring boot 启动完成后 执行的初始化元数据
  */
-
+@Component
 public class MetaStartupRunner implements CommandLineRunner {
 
     @Autowired

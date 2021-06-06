@@ -276,7 +276,7 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public Result<Integer> addIotClient(IotClientEntity entity) {
-        if (null == entity || entity.getGatewayId() == null || StringUtils.isEmpty(entity.getName())){
+        if (null == entity || entity.getGatewayId() == null || StringUtils.isEmpty(entity.getName())|| entity.getSerialNum() == null){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {

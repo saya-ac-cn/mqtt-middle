@@ -1,5 +1,13 @@
 package ac.cn.saya.mqtt.middle.config;
 
+import ac.cn.saya.mqtt.middle.entity.IotClientEntity;
+import ac.cn.saya.mqtt.middle.entity.IotCollectionEntity;
+import ac.cn.saya.mqtt.middle.meta.ClientParam;
+import ac.cn.saya.mqtt.middle.meta.Metadata;
+import ac.cn.saya.mqtt.middle.service.CollectionService;
+import ac.cn.saya.mqtt.middle.tools.JackJsonUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -10,10 +18,11 @@ import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannel
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Title: ReceiverMessage
@@ -28,6 +37,13 @@ public class ReceiverMessage {
 
     @Resource
     private MqttConfig mqttConfig;
+
+    @Resource
+    @Qualifier("collectionService")
+    private CollectionService collectionService;
+
+    @Resource
+    private Metadata metadata;
 
     @Resource
     private MqttPahoClientFactory mqttClientFactory;
@@ -79,6 +95,34 @@ public class ReceiverMessage {
             System.out.println("----------------------------START---------------------------\n" +
                     "接收到订阅消息:\ntopic:" + topic + "\nmessage:" + msg +
                     "\n-----------------------------END----------------------------");
+
+            String uuid = topic.substring(topic.lastIndexOf("/") + 1);
+            JsonNode jsonNode = JackJsonUtil.readTree(msg);
+            JsonNode serialNumNode = jsonNode.get("serialNum");
+            int serialNum = -1;
+            if (null == serialNumNode || -1 == (serialNum = serialNumNode.asInt(-1))){
+                return;
+            }
+            IotClientEntity client = metadata.getClients(new ClientParam(uuid, serialNum));
+            if (null == client){
+                return;
+            }
+            Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
+            List<IotCollectionEntity> datas = new ArrayList<>();
+            while(fields.hasNext()) {
+                Map.Entry<String, JsonNode> node = fields.next();
+                String key = node.getKey();
+                if ("serialNum".equals(key)){
+                    continue;
+                }
+                JsonNode nodeValue = node.getValue();
+                datas.add(new IotCollectionEntity(client.getId(),key,nodeValue.asText("")));
+            }
+            if (CollectionUtils.isEmpty(datas)){
+                return;
+            }
+            collectionService.insertCollectionData(datas);
+            collectionService.checkRuleWarring(client,datas);
         };
     }
 

@@ -1,11 +1,12 @@
 package ac.cn.saya.mqtt.middle.service;
 
-import ac.cn.saya.mqtt.middle.entity.IotWarningRulesEntity;
-import ac.cn.saya.mqtt.middle.entity.IotCollectionEntity;
-import ac.cn.saya.mqtt.middle.entity.IotWarningResultEntity;
+import ac.cn.saya.mqtt.middle.entity.*;
 import ac.cn.saya.mqtt.middle.tools.Result;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Title: CollectionService
@@ -17,6 +18,16 @@ import java.util.List;
  */
 
 public interface CollectionService {
+
+    /**
+     * @描述 获取基本物理量
+     * @参数
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人 shmily
+     * @创建时间 2020/8/2
+     * @修改人和其它信息
+     */
+    public Result<Object> getSymbolUnits();
 
     /**
      * @描述  分页查看采集信息
@@ -77,4 +88,65 @@ public interface CollectionService {
      * @修改人和其它信息
      */
     public Result<Object> getIotWarningRulesPage(IotWarningRulesEntity entity);
+
+    /**
+     * @Title   批量写入采集数据，本方法由mq消费端发起调用
+     * @Params  datas
+     * @Return  void
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  4/11/21
+     * @Description
+     */
+    public void insertCollectionData(List<IotCollectionEntity> datas);
+
+    /**
+     * @Title 根据采集的数据校验是否产生异常告警
+     * @Params  [client, datas]
+     * @Return  void
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  4/11/21
+     * @Description
+     */
+    public void checkRuleWarring(IotClientEntity client,List<IotCollectionEntity> datas);
+
+    /**
+     * @Title 分页查看设备已经绑定的告警报告信息
+     * @Params  [entity]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/5/21
+     * @Description
+     */
+    public Result<Object> getIotClientRulePage(IotClientRulesEntity entity);
+
+    /**
+     * @Title 设备绑定告警规则
+     * @Params  [list]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/5/21
+     * @Description
+     */
+    public Result<Integer> bindIotClientRule(List<IotClientRulesEntity> list);
+
+    /**
+     * @Title 修改绑定的告警规则
+     * @Params  [list]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/5/21
+     * @Description
+     */
+    public Result<Integer> editIotClientRule(List<IotClientRulesEntity> list);
+
+    /**
+     * @Title 解绑设备告警规则
+     * @Params  [list]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/5/21
+     * @Description
+     */
+    public Result<Integer> deleteIotClientRule(List<Integer> list);
+
 }

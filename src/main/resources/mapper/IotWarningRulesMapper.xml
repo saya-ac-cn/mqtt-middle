@@ -5,42 +5,27 @@
     <resultMap type="iotWarningRules" id="IotWarningRulesMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
-        <result property="clientId" column="client_id"/>
         <result property="units" column="units"/>
+        <result property="unitsName" column="units_name"/>
         <result property="symbol" column="symbol"/>
         <result property="value1" column="value1"/>
         <result property="value2" column="value2"/>
         <result property="enable" column="enable"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
-        <association property="iotClient" javaType="iotClient">
-            <result property="id" column="client_id"/>
-            <result property="name" column="clientName"/>
-            <result property="lastLinkTime" column="last_link_time"/>
-            <association property="gateway" javaType="IotGateway">
-                <id property="id" column="gateway_id" />
-                <result property="name" column="gatewayName"/>
-                <result property="address" column="address"/>
-            </association>
-        </association>
     </resultMap>
 
     <!--查询Iot告警规则-->
     <select id="query" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`client_id`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`
-          b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
-          c.`name` as gatewayName,c.`address`
-        from iot_warning_rules a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
+          a.`id`, a.`name`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
+        from iot_warning_rules a left join iot_units b on a.`units` = b.`symbol`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
             </if>
             <if test="name != null and name != ''">
                 and a.`name` = #{name}
-            </if>
-            <if test="clientId != null and clientId != 0">
-                and a.`client_id` = #{clientId}
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
@@ -52,10 +37,8 @@
     <!--分页查询Iot告警规则-->
     <select id="queryPage" resultMap="IotWarningRulesMap">
         select
-            a.`id`, a.`name`, a.`client_id`, a.`units`, a.`symbol`,a.`value1`, a.`value2`,a.`enable`, a.`create_time`, a.`update_time`,
-            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
-            c.`name` as gatewayName,c.`address`
-        from iot_warning_rules a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
+            a.`id`, a.`name`, a.`units`, a.`symbol`,a.`value1`, a.`value2`,a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
+        from iot_warning_rules a left join iot_units b on a.`units` = b.`symbol`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
@@ -63,8 +46,8 @@
             <if test="name != null and name != ''">
                 and a.`name` = #{name}
             </if>
-            <if test="clientId != null and clientId != 0">
-                and a.`client_id` = #{clientId}
+            <if test="enable != null and enable != 0">
+                and a.`enable` = #{enable}
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
@@ -89,6 +72,9 @@
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
             </if>
+            <if test="enable != null and enable != 0">
+                and a.`enable` = #{enable}
+            </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
             </if>
@@ -97,10 +83,10 @@
 
     <!--新增Iot告警规则-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
-        insert into iot_warning_rules(`name`, `client_id`, `units`,`symbol`, `value1`, `value2`,create_time)
+        insert into iot_warning_rules(`name`, `units`,`symbol`, `value1`, `value2`,create_time)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.name}, #{item.clientId}, #{item.units},#{item.symbol}, #{item.value1},#{item.value2}, mow())
+            (#{item.name}, #{item.units},#{item.symbol}, #{item.value1},#{item.value2}, mow())
         </foreach>
     </insert>
 
@@ -111,9 +97,6 @@
             <set>
                 <if test="name != null and name != ''">
                     `name` = #{item.name},
-                </if>
-                <if test="clientId != null and clientId != 0">
-                    `client_id` = #{item.clientId},
                 </if>
                 <if test="units != null and units != ''">
                     `units` = #{item.units},

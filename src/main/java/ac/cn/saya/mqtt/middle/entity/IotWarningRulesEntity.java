@@ -15,6 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class IotWarningRulesEntity extends BaseEntity{
+
     private static final long serialVersionUID = 3100385547207394513L;
     /**
      * 序号
@@ -27,27 +28,32 @@ public class IotWarningRulesEntity extends BaseEntity{
     private String name;
 
     /**
-     * 外键,终端id
+     * 基本物理量
      */
-    private Integer clientId;
+    private String units;
 
     /**
-     * 符号
+     * 运算符
      */
     private String symbol;
 
     /**
-     * 阈值
+     * 阈值1
      */
-    private String value;
+    private String value1;
 
     /**
-     * 是否启用
+     * 阈值1
+     */
+    private String value2;
+
+    /**
+     * 是否启用 是否启用(1:启用,2:关闭)
      */
     private Integer enable;
 
     /**
-     *
+     * 创建时间
      */
     private String createTime;
 
@@ -57,7 +63,8 @@ public class IotWarningRulesEntity extends BaseEntity{
     private String updateTime;
 
     /**
-     * 所属设备信息，非数据库字段
+     * 物理量名称（非数据库字段）
      */
-    private IotClientEntity iotClient;
+    private String unitsName;
+
 }

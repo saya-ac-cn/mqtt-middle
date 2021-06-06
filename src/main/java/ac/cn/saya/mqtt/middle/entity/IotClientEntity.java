@@ -28,14 +28,15 @@ public class IotClientEntity extends BaseEntity{
     private Integer gatewayId;
 
     /**
+     * 设备在网关上的唯一序列号
+     */
+    private Integer serialNum;
+
+    /**
      * 设备名
      */
     private String name;
 
-    /**
-     * 为开关类型时，代表电平高低(1:低电平;2:高电平)
-     */
-    private Integer level;
 
     /**
      * 最后一次数据传送时间

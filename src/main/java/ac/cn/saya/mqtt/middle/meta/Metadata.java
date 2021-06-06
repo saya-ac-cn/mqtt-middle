@@ -1,17 +1,23 @@
 package ac.cn.saya.mqtt.middle.meta;
 
+import ac.cn.saya.mqtt.middle.entity.IotUnitsEntity;
 import ac.cn.saya.mqtt.middle.repository.IotClientDAO;
+import ac.cn.saya.mqtt.middle.repository.IotUnitsDAO;
 import ac.cn.saya.mqtt.middle.repository.IotWarningRulesDAO;
 import ac.cn.saya.mqtt.middle.entity.IotClientEntity;
 import ac.cn.saya.mqtt.middle.entity.IotGatewayEntity;
 import ac.cn.saya.mqtt.middle.entity.IotWarningRulesEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @Title: Metadata
@@ -29,6 +35,9 @@ public class Metadata {
     @Resource
     private IotWarningRulesDAO iotWarningRulesDAO;
 
+    @Resource
+    private IotUnitsDAO iotUnitsDAO;
+
     /**
      * 终端设备数据 内存元数据
      */
@@ -37,9 +46,17 @@ public class Metadata {
     /**
      * 告警规则数据 内存元数据
      */
-    private final Map<Integer, IotWarningRulesEntity> rules = new ConcurrentHashMap<>();
+    //private final Map<RuleParam, IotWarningRulesEntity> rules = new ConcurrentHashMap<>();
 
+    /**
+     * 在线的设备 内存元数据
+     */
     private final Map<String, String> onlineGateway = new ConcurrentHashMap<>();
+
+    /**
+     * 标准物理量分类
+     */
+    private final Map<String, String> units = new ConcurrentHashMap<>();
 
     public void doRefreshClient(IotClientEntity param) {
         if (null == param) {
@@ -49,9 +66,9 @@ public class Metadata {
         if (null == gateway) {
             return;
         }
-        Integer clientId = param.getId();
+        Integer serialNum = param.getSerialNum();
         String uuid = gateway.getUuid();
-        clients.put(new ClientParam(uuid, clientId), param);
+        clients.put(new ClientParam(uuid, serialNum), param);
     }
 
     public void doRefreshClient(IotClientEntity oldParam,IotClientEntity newParam) {
@@ -62,10 +79,10 @@ public class Metadata {
         if (null == oldGateway) {
             return;
         }
-        Integer oldClientId = newParam.getId();
+        Integer oldSerialNum= newParam.getSerialNum();
         String oldUuid = oldGateway.getUuid();
         // 先移除之前的，然后进行添加操作
-        clients.remove(new ClientParam(oldUuid, oldClientId));
+        clients.remove(new ClientParam(oldUuid, oldSerialNum));
         if (null == newParam) {
             return;
         }
@@ -73,31 +90,59 @@ public class Metadata {
         if (null == gateway) {
             return;
         }
-        Integer clientId = newParam.getId();
+        Integer serialNum = newParam.getSerialNum();
         String uuid = gateway.getUuid();
-        clients.put(new ClientParam(uuid, clientId), newParam);
+        clients.put(new ClientParam(uuid, serialNum), newParam);
     }
 
-    public void doRefreshRule(IotWarningRulesEntity param) {
-        if (null == param) {
+//    public void doRefreshRule(IotWarningRulesEntity param) {
+//        // 处于启用状态的规则才能写入
+//        if (null == param || 1 != param.getEnable()) {
+//            return;
+//        }
+//        rules.put(param.getId(), param);
+//    }
+
+    public void doRefreshUnits(IotUnitsEntity param){
+        if (null == param || StringUtils.isEmpty(param.getSymbol()) || StringUtils.isEmpty(param.getName())){
             return;
         }
-        rules.put(param.getId(), param);
+        units.put(param.getSymbol(),param.getName());
+    }
+
+    public void doRefreshUnits(IotUnitsEntity oldParam,IotUnitsEntity newParam){
+        if (null == oldParam || StringUtils.isEmpty(oldParam.getSymbol())){
+            return;
+        }
+        if (null == newParam || StringUtils.isEmpty(newParam.getSymbol()) || StringUtils.isEmpty(newParam.getName())){
+            return;
+        }
+        if (units.containsKey(oldParam.getSymbol())){
+            units.remove(oldParam.getSymbol());
+        }
+        units.put(newParam.getSymbol(),newParam.getSymbol());
+    }
+
+    public void doRefreshUnits(List<IotUnitsEntity> param){
+        if (CollectionUtils.isEmpty(param)) {
+            return;
+        }
+        param.forEach(this::doRefreshUnits);
     }
 
     public void doRefreshClients(List<IotClientEntity> param) {
-        if (param.isEmpty()) {
+        if (CollectionUtils.isEmpty(param)) {
             return;
         }
         param.forEach(this::doRefreshClient);
     }
 
-    public void doRefreshRules(List<IotWarningRulesEntity> param) {
-        if (param.isEmpty()) {
-            return;
-        }
-        param.forEach(this::doRefreshRule);
-    }
+//    public void doRefreshRules(List<IotWarningRulesEntity> param) {
+//        if (CollectionUtils.isEmpty(param)) {
+//            return;
+//        }
+//        param.forEach(this::doRefreshRule);
+//    }
 
     public void removeClient(IotClientEntity param) {
         if (null == param) {
@@ -112,12 +157,12 @@ public class Metadata {
         clients.remove(new ClientParam(uuid, clientId));
     }
 
-    public void removeRule(Integer param) {
-        if (null == param) {
-            return;
-        }
-        rules.remove(param);
-    }
+//    public void removeRule(Integer param) {
+//        if (null == param) {
+//            return;
+//        }
+//        rules.remove(param);
+//    }
 
     public void removeClients(List<IotClientEntity> param) {
         if (param.isEmpty()) {
@@ -126,12 +171,12 @@ public class Metadata {
         param.forEach(this::removeClient);
     }
 
-    public void removeRules(List<Integer> param) {
-        if (param.isEmpty()) {
-            return;
-        }
-        param.forEach(this::removeRule);
-    }
+//    public void removeRules(List<Integer> param) {
+//        if (param.isEmpty()) {
+//            return;
+//        }
+//        param.forEach(this::removeRule);
+//    }
 
     public IotClientEntity getClient(IotClientEntity param) {
         if (null == param) {
@@ -146,12 +191,12 @@ public class Metadata {
         return clients.get(new ClientParam(uuid, clientId));
     }
 
-    public IotWarningRulesEntity getRule(Integer ruleId) {
-        if (null == ruleId) {
-            return null;
-        }
-        return rules.get(ruleId);
-    }
+//    public IotWarningRulesEntity getRule(Integer ruleId) {
+//        if (null == ruleId) {
+//            return null;
+//        }
+//        return rules.get(ruleId);
+//    }
 
     public void addOnlineGateway(String uuid, String onlineTime) {
         if (!StringUtils.isEmpty(uuid) && !StringUtils.isEmpty(onlineTime)) {
@@ -167,6 +212,32 @@ public class Metadata {
     }
 
     /**
+     * 根据网关uuid，设备的序号查询设备
+     * @param key
+     * @return
+     */
+    public IotClientEntity getClients(ClientParam key) {
+        return clients.get(key);
+    }
+
+//    public List<IotWarningRulesEntity> getRuleByClient(int clientId){
+//        if (CollectionUtils.isEmpty(rules) || CollectionUtils.isEmpty(rules.values())){
+//            return Collections.EMPTY_LIST;
+//        }
+//        List<IotWarningRulesEntity> clientRules = rules.values().stream().filter(e -> e.getClientId() == clientId).collect(Collectors.toList());
+//        return clientRules;
+//    }
+
+    public Map<String, String> getUnits() {
+        return units;
+    }
+
+    public List<IotUnitsEntity> getUnitsToList(){
+        List<IotUnitsEntity> list = units.entrySet().stream().map(c -> new IotUnitsEntity(c.getKey(), c.getValue())).collect(Collectors.toList());
+        return list;
+    }
+
+    /**
      * @描述 spring 容器启动后 本方法将执行，每间隔60分钟全量刷新一次
      * @参数 []
      * @返回值 void
@@ -175,6 +246,7 @@ public class Metadata {
      * @修改人和其它信息
      */
     public void refresh() {
+        // 写入设备信息到内存
         IotClientEntity clientEntity = new IotClientEntity();
         clientEntity.setRemove(1);
         Long clientCount = iotClientDAO.queryCount(clientEntity);
@@ -186,16 +258,23 @@ public class Metadata {
         } else {
             clients.clear();
         }
-        IotWarningRulesEntity ruleEntity = new IotWarningRulesEntity();
-        ruleEntity.setEnable(1);
-        Long ruleCount = iotWarningRulesDAO.queryCount(ruleEntity);
-        if (clientCount > 0) {
-            ruleEntity.setStartLine(0);
-            ruleEntity.setEndLine(ruleCount.intValue());
-            List<IotWarningRulesEntity> clientList = iotWarningRulesDAO.queryPage(ruleEntity);
-            doRefreshRules(clientList);
-        } else {
-            rules.clear();
+//        // 写入告警规则到设备
+//        IotWarningRulesEntity ruleEntity = new IotWarningRulesEntity();
+//        // 必须是处于启用状态的告警
+//        ruleEntity.setEnable(1);
+//        Long ruleCount = iotWarningRulesDAO.queryCount(ruleEntity);
+//        if (clientCount > 0) {
+//            ruleEntity.setStartLine(0);
+//            ruleEntity.setEndLine(ruleCount.intValue());
+//            List<IotWarningRulesEntity> clientList = iotWarningRulesDAO.queryPage(ruleEntity);
+//            doRefreshRules(clientList);
+//        } else {
+//            rules.clear();
+//        }
+        // 写入基本物理量到内存
+        List<IotUnitsEntity> allUnits = iotUnitsDAO.queryAll();
+        if (!CollectionUtils.isEmpty(allUnits)){
+            doRefreshUnits(allUnits);
         }
     }
 

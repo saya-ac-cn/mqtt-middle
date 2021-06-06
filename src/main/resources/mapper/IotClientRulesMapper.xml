@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.IotClientRulesDAO">
+
+    <resultMap type="iotClientRules" id="IotClientRulesMap">
+        <result property="id" column="id"/>
+        <association property="client" javaType="iotClient">
+            <result property="id" column="client_id"/>
+            <result property="name" column="client_name"/>
+            <result property="lastLinkTime" column="last_link_time"/>
+        </association>
+        <association property="rule" javaType="iotWarningRules">
+            <result property="id" column="rule_id"/>
+            <result property="name" column="rule_name"/>
+            <result property="units" column="units"/>
+            <result property="unitsName" column="units_name"/>
+            <result property="symbol" column="symbol"/>
+            <result property="value1" column="value1"/>
+            <result property="value2" column="value2"/>
+            <result property="enable" column="enable"/>
+            <result property="createTime" column="create_time"/>
+            <result property="updateTime" column="update_time"/>
+        </association>
+    </resultMap>
+
+    <!--查询设备绑定的告警规则-->
+    <select id="query" resultMap="IotClientRulesMap">
+        select
+          a.id,b.id as client_id,b.`name` as client_name,b.last_link_time,
+          c.`id` as rule_id, c.`name` as rule_name, c.`units`,c.`symbol`, c.`value1`,c.`value2`, c.`enable`, c.`create_time`, c.`update_time`,d.`name` as units_name
+        from iot_client_rules a left join iot_client b on a.client_id = b.id
+        left join iot_warning_rules c on a.rule_id = c.id
+        left join iot_units d on c.`units` = d.`symbol`
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="ruleId != null and ruleId != 0">
+                and a.`rule_id` = #{ruleId}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!--分页查询设备绑定的告警规则-->
+    <select id="queryPage" resultMap="IotClientRulesMap">
+        select
+          a.id,b.id as client_id,b.`name` as client_name,b.last_link_time,
+          c.`id` as rule_id, c.`name` as rule_name, c.`units`,c.`symbol`, c.`value1`,c.`value2`, c.`enable`, c.`create_time`, c.`update_time`,d.`name` as units_name
+        from iot_client_rules a left join iot_client b on a.client_id = b.id
+        left join iot_warning_rules c on a.rule_id = c.id
+        left join iot_units d on c.`units` = d.`symbol`
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="ruleId != null and ruleId != 0">
+                and a.`rule_id` = #{ruleId}
+            </if>
+        </where>
+        order by a.`id` desc
+        limit #{startLine},#{endLine}
+    </select>
+
+    <!--查询设备绑定的告警规则数量-->
+    <select id="queryCount" resultType="java.lang.Long">
+        select
+            count(*)
+        from iot_client_rules a
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="ruleId != null and ruleId != 0">
+                and a.`rule_id` = #{ruleId}
+            </if>
+        </where>
+    </select>
+
+    <!--绑定设备告警规则-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
+        insert into iot_client_rules(`client_id`, `rule_id`)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.clientId}, #{item.ruleId})
+        </foreach>
+    </insert>
+
+    <!--修改设备绑定的告警规则-->
+    <update id="update" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update iot_client_rules
+            <set>
+                <if test="clientId != null and clientId != 0">
+                    `client_id` = #{item.clientId},
+                </if>
+                <if test="ruleId != null and ruleId != 0">
+                    `rule_id` = #{item.ruleId},
+                </if>
+            </set>
+            where `id` = #{item.id}
+        </foreach>
+    </update>
+
+    <!--解绑设备告警规则-->
+    <delete id="deleteById" parameterType = "java.util.List">
+        delete from iot_client_rules where `id` in
+        <foreach collection="list"  item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

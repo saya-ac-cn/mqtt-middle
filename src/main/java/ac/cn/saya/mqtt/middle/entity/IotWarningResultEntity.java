@@ -56,4 +56,12 @@ public class IotWarningResultEntity extends BaseEntity{
      * 触发规则。非数据库字段
      */
     private IotWarningRulesEntity iotRule;
+
+
+    public IotWarningResultEntity(Integer clientId, Integer ruleId, String topic, String content) {
+        this.clientId = clientId;
+        this.ruleId = ruleId;
+        this.topic = topic;
+        this.content = content;
+    }
 }

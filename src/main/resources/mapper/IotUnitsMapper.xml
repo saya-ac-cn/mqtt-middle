@@ -1,37 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="ac.cn.saya.mqtt.middle.repository.IotGatewayTypeDAO">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.IotUnitsDAO">
 
 
     <!--查询设备类别-->
-    <select id="query" resultType="iotGatewayType" parameterType="iotGatewayType">
+    <select id="query" resultType="iotUnits" parameterType="iotUnits">
         select
-          `id`, `name`
-        from iot_gateway_type
+          `id`, `symbol`,`name`
+        from iot_units
         <where>
-            <if test = "id != null and id != ''">
+            <if test = "id != null and id != 0">
                 `id` = #{id}
+            </if>
+            <if test = "symbol != null and id != 0">
+                `symbol` = #{symbol}
             </if>
         </where>
     </select>
 
     <!--查询所有设备类别-->
-    <select id="queryAll" resultType="iotGatewayType">
+    <select id="queryAll" resultType="iotUnits">
         select
-          `id`, `name`
-        from iot_gateway_type
+          `id`, `symbol`,`name`
+        from iot_units
     </select>
 
 
     <!--新增设备类别-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into iot_gateway_type(`id`,`name`) values (#{id},#{name})
+        insert into iot_units(`symbol`,`name`) values (#{symbol},#{name})
     </insert>
 
     <!--修改设备类别-->
     <update id="update">
-        update iot_gateway_type
+        update iot_units
         <set>
+            <if test="symbol != null and symbol != ''">
+                `symbol` = #{symbol},
+            </if>
             <if test="name != null and name != ''">
                 `name` = #{name},
             </if>
@@ -41,7 +47,7 @@
 
     <!--删除设备类别-->
     <delete id="delete">
-        delete from iot_gateway_type where id = #{id}
+        delete from iot_units where id = #{id}
     </delete>
 
 </mapper>

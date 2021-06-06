@@ -29,19 +29,15 @@ public class IotCollectionEntity extends BaseEntity{
     private Integer clientId;
 
     /**
-     * 符号
+     * 量的名称
      */
-    private String symbol;
+    private String units;
 
     /**
      * 值
      */
     private String value;
 
-    /**
-     * 变量类型
-     */
-    private String type;
 
     /**
      * 采集时间
@@ -53,4 +49,9 @@ public class IotCollectionEntity extends BaseEntity{
      */
     private IotClientEntity iotClient;
 
+    public IotCollectionEntity(Integer clientId, String units, String value) {
+        this.clientId = clientId;
+        this.units = units;
+        this.value = value;
+    }
 }

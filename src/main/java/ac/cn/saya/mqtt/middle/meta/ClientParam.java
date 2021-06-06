@@ -23,14 +23,13 @@ public class ClientParam {
     private String uuid;
 
     /**
-     * 设备编号
+     * 设备在网关上的唯一序列号
      */
-    private Integer clientId;
-
+    private Integer serialNum;
 
     @Override
     public int hashCode() {
-        return (!StringUtils.isEmpty(uuid) && null != clientId && 0 != clientId) ? (uuid.hashCode()+clientId.hashCode()) : 0;
+        return (!StringUtils.isEmpty(uuid) && null != serialNum && 0 != serialNum) ? (uuid.hashCode()+serialNum.hashCode()) : 0;
     }
 
     @Override
@@ -42,10 +41,10 @@ public class ClientParam {
             return false;
         }
         ClientParam _this = (ClientParam) obj;
-        if (StringUtils.isEmpty(uuid) || StringUtils.isEmpty(_this.getUuid()) || null == clientId || null == _this.getUuid()|| 0 == clientId || 0 == _this.getClientId()){
+        if (StringUtils.isEmpty(uuid) || StringUtils.isEmpty(_this.getUuid()) || null == serialNum || null == _this.getUuid()|| 0 == serialNum || 0 == _this.getSerialNum()){
             return false;
         }
-        if (uuid.equals(_this.getUuid()) && clientId.equals(_this.getClientId())){
+        if (uuid.equals(_this.getUuid()) && serialNum.equals(_this.getSerialNum())){
             return true;
         }
         return false;

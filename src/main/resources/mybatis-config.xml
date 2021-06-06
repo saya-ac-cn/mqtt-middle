@@ -20,6 +20,9 @@
         <typeAlias alias="iotHistoryExecute" type="ac.cn.saya.mqtt.middle.entity.IotHistoryExecuteEntity"/>
         <typeAlias alias="iotWarningRules" type="ac.cn.saya.mqtt.middle.entity.IotWarningRulesEntity"/>
         <typeAlias alias="iotWarningResult" type="ac.cn.saya.mqtt.middle.entity.IotWarningResultEntity"/>
+        <typeAlias alias="iotClientRules" type="ac.cn.saya.mqtt.middle.entity.IotClientRulesEntity"/>
         <typeAlias alias="iotAppointment" type="ac.cn.saya.mqtt.middle.entity.IotAppointmentEntity"/>
+        <typeAlias alias="iotUnits" type="ac.cn.saya.mqtt.middle.entity.IotUnitsEntity"/>
+
     </typeAliases>
 </configuration>
