@@ -1,12 +1,10 @@
 package ac.cn.saya.mqtt.middle.meta;
 
-import ac.cn.saya.mqtt.middle.entity.IotUnitsEntity;
+import ac.cn.saya.mqtt.middle.entity.*;
 import ac.cn.saya.mqtt.middle.repository.IotClientDAO;
+import ac.cn.saya.mqtt.middle.repository.IotClientRulesDAO;
 import ac.cn.saya.mqtt.middle.repository.IotUnitsDAO;
 import ac.cn.saya.mqtt.middle.repository.IotWarningRulesDAO;
-import ac.cn.saya.mqtt.middle.entity.IotClientEntity;
-import ac.cn.saya.mqtt.middle.entity.IotGatewayEntity;
-import ac.cn.saya.mqtt.middle.entity.IotWarningRulesEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -33,7 +31,7 @@ public class Metadata {
     private IotClientDAO iotClientDAO;
 
     @Resource
-    private IotWarningRulesDAO iotWarningRulesDAO;
+    private IotClientRulesDAO iotClientRulesDAO;
 
     @Resource
     private IotUnitsDAO iotUnitsDAO;
@@ -44,9 +42,9 @@ public class Metadata {
     private final Map<ClientParam, IotClientEntity> clients = new ConcurrentHashMap<>();
 
     /**
-     * 告警规则数据 内存元数据
+     * 设备绑定的告警规则数据 内存元数据
      */
-    //private final Map<RuleParam, IotWarningRulesEntity> rules = new ConcurrentHashMap<>();
+    private final Map<Integer, List<IotWarningRulesEntity>> rules = new ConcurrentHashMap<>();
 
     /**
      * 在线的设备 内存元数据
@@ -95,13 +93,12 @@ public class Metadata {
         clients.put(new ClientParam(uuid, serialNum), newParam);
     }
 
-//    public void doRefreshRule(IotWarningRulesEntity param) {
-//        // 处于启用状态的规则才能写入
-//        if (null == param || 1 != param.getEnable()) {
-//            return;
-//        }
-//        rules.put(param.getId(), param);
-//    }
+    public void doRefreshRule(int clientId,List<IotWarningRulesEntity> param) {
+        if (CollectionUtils.isEmpty(param)) {
+            return;
+        }
+        rules.put(clientId,param);
+    }
 
     public void doRefreshUnits(IotUnitsEntity param){
         if (null == param || StringUtils.isEmpty(param.getSymbol()) || StringUtils.isEmpty(param.getName())){
@@ -137,13 +134,6 @@ public class Metadata {
         param.forEach(this::doRefreshClient);
     }
 
-//    public void doRefreshRules(List<IotWarningRulesEntity> param) {
-//        if (CollectionUtils.isEmpty(param)) {
-//            return;
-//        }
-//        param.forEach(this::doRefreshRule);
-//    }
-
     public void removeClient(IotClientEntity param) {
         if (null == param) {
             return;
@@ -157,12 +147,12 @@ public class Metadata {
         clients.remove(new ClientParam(uuid, clientId));
     }
 
-//    public void removeRule(Integer param) {
-//        if (null == param) {
-//            return;
-//        }
-//        rules.remove(param);
-//    }
+    public void removeRule(Integer param) {
+        if (null == param) {
+            return;
+        }
+        rules.remove(param);
+    }
 
     public void removeClients(List<IotClientEntity> param) {
         if (param.isEmpty()) {
@@ -171,12 +161,12 @@ public class Metadata {
         param.forEach(this::removeClient);
     }
 
-//    public void removeRules(List<Integer> param) {
-//        if (param.isEmpty()) {
-//            return;
-//        }
-//        param.forEach(this::removeRule);
-//    }
+    public void removeRules(List<Integer> param) {
+        if (param.isEmpty()) {
+            return;
+        }
+        param.forEach(this::removeRule);
+    }
 
     public IotClientEntity getClient(IotClientEntity param) {
         if (null == param) {
@@ -220,6 +210,10 @@ public class Metadata {
         return clients.get(key);
     }
 
+    public List<IotWarningRulesEntity> getRule(int clientId){
+        return rules.get(clientId);
+    }
+
 //    public List<IotWarningRulesEntity> getRuleByClient(int clientId){
 //        if (CollectionUtils.isEmpty(rules) || CollectionUtils.isEmpty(rules.values())){
 //            return Collections.EMPTY_LIST;
@@ -230,6 +224,10 @@ public class Metadata {
 
     public Map<String, String> getUnits() {
         return units;
+    }
+
+    public String getUnitsName(String symbol) {
+        return units.getOrDefault(symbol,symbol);
     }
 
     public List<IotUnitsEntity> getUnitsToList(){
@@ -258,19 +256,27 @@ public class Metadata {
         } else {
             clients.clear();
         }
-//        // 写入告警规则到设备
-//        IotWarningRulesEntity ruleEntity = new IotWarningRulesEntity();
-//        // 必须是处于启用状态的告警
-//        ruleEntity.setEnable(1);
-//        Long ruleCount = iotWarningRulesDAO.queryCount(ruleEntity);
-//        if (clientCount > 0) {
-//            ruleEntity.setStartLine(0);
-//            ruleEntity.setEndLine(ruleCount.intValue());
-//            List<IotWarningRulesEntity> clientList = iotWarningRulesDAO.queryPage(ruleEntity);
-//            doRefreshRules(clientList);
-//        } else {
-//            rules.clear();
-//        }
+        // 写入告警规则到设备
+        IotClientRulesEntity ruleEntity = new IotClientRulesEntity();
+        ruleEntity.setEnable(1);
+        Long ruleCount = iotClientRulesDAO.queryCount(ruleEntity);
+        if (clientCount > 0) {
+            ruleEntity.setStartLine(0);
+            ruleEntity.setEndLine(ruleCount.intValue());
+            List<IotClientRulesEntity> ruleList = iotClientRulesDAO.queryPage(ruleEntity);
+            if (!CollectionUtils.isEmpty(ruleList)){
+                // 按设备id进行分组，确定每个设备关联的规则
+                Map<Integer, List<IotClientRulesEntity>> groupByClientRuleMap = ruleList.stream().collect(Collectors.groupingBy(IotClientRulesEntity::getClientId));
+                for (Map.Entry<Integer, List<IotClientRulesEntity>> item:groupByClientRuleMap.entrySet()) {
+                    List<IotClientRulesEntity> clentBindRules = item.getValue();
+                    List<IotWarningRulesEntity> rules = clentBindRules.stream().map(e -> e.getRule()).collect(Collectors.toList());
+                    // 缓存
+                    doRefreshRule(item.getKey(),rules);
+                }
+            }
+        } else {
+            rules.clear();
+        }
         // 写入基本物理量到内存
         List<IotUnitsEntity> allUnits = iotUnitsDAO.queryAll();
         if (!CollectionUtils.isEmpty(allUnits)){

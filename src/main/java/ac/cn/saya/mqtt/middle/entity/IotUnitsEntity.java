@@ -19,11 +19,6 @@ public class IotUnitsEntity extends BaseEntity{
     private static final long serialVersionUID = -1937868459071606171L;
 
     /**
-     * 主键
-     */
-    private Integer id;
-
-    /**
      * 物理量唯一标识
      */
     private String symbol;

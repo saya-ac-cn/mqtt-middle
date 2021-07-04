@@ -49,9 +49,9 @@ public interface IotUnitsDAO {
     /**
      * 删除设备类别
      *
-     * @param id 主键
+     * @param symbol 标志
      * @return 影响行数
      */
-    public int delete(@Param("id") int id);
+    public int delete(@Param("symbol") String symbol);
 
 }

@@ -187,9 +187,15 @@
         where `gateway_id` = #{gatewayId}
     </update>
 
-    <!--删除Iot终端-->
+    <!--删除Iot终端(谨慎删除)-->
     <delete id="deleteById">
         delete from iot_client where id = #{id}
     </delete>
+
+    <!--修改设备最后上线时间-->
+    <update id="updateHeart">
+        update iot_client set `last_link_time` = now() where id = #{id}
+    </update>
+
 
 </mapper>

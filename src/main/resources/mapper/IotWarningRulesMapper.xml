@@ -15,10 +15,17 @@
         <result property="updateTime" column="update_time"/>
     </resultMap>
 
+    <!--查询所有告警规则-->
+    <select id="selector" resultMap="IotWarningRulesMap">
+        select
+          a.`id`, a.`name`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
+        from iot_warning_rules a left join iot_units b on a.`units` = b.`symbol`
+    </select>
+
     <!--查询Iot告警规则-->
     <select id="query" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
+        a.`id`, a.`name`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
         from iot_warning_rules a left join iot_units b on a.`units` = b.`symbol`
         <where>
             <if test="id != null and id != 0">
@@ -69,9 +76,6 @@
             <if test="name != null and name != ''">
                 and a.`name` = #{name}
             </if>
-            <if test="clientId != null and clientId != 0">
-                and a.`client_id` = #{clientId}
-            </if>
             <if test="enable != null and enable != 0">
                 and a.`enable` = #{enable}
             </if>
@@ -83,10 +87,10 @@
 
     <!--新增Iot告警规则-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
-        insert into iot_warning_rules(`name`, `units`,`symbol`, `value1`, `value2`,create_time)
+        insert into iot_warning_rules(`name`, `units`,`symbol`, `value1`, `value2`,`enable`,create_time)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.name}, #{item.units},#{item.symbol}, #{item.value1},#{item.value2}, mow())
+            (#{item.name}, #{item.units},#{item.symbol}, #{item.value1},#{item.value2}, #{item.enable},now())
         </foreach>
     </insert>
 
@@ -95,19 +99,19 @@
         <foreach collection="list" item="item" index="index" separator=";">
             update iot_warning_rules
             <set>
-                <if test="name != null and name != ''">
+                <if test="item.name != null and item.name != ''">
                     `name` = #{item.name},
                 </if>
-                <if test="units != null and units != ''">
+                <if test="item.units != null and item.units != ''">
                     `units` = #{item.units},
                 </if>
-                <if test="symbol != null and symbol != ''">
+                <if test="item.symbol != null and item.symbol != ''">
                     `symbol` = #{item.symbol},
                 </if>
-                <if test="value1 != null and value1 != ''">
+                <if test="item.value1 != null and item.value1 != ''">
                     `value1` = #{item.value1},
                 </if>
-                <if test="value2 != null and value2 != ''">
+                <if test="item.value2 != null and item.value2 != ''">
                     `value2` = #{item.value2},
                 </if>
                 `update_time` = now()

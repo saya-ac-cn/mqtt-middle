@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 public class PageTools {
 
-    public static Result<Object> page(Long count, BaseEntity condition, Function<BaseEntity,Object> dao){
+    public static Result<Object> page(long count, BaseEntity condition, Function<BaseEntity,Object> dao){
         Paging paging = new Paging();
         if (condition.getNowPage() == null) {
             condition.setNowPage(1);

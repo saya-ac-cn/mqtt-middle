@@ -86,6 +86,13 @@ public interface IotClientDAO {
      * @param id 主键
      * @return 影响行数
      */
-    public int deleteById(@Param("id") Integer id);
+    public int deleteById(@Param("id") int id);
+
+    /**
+     * 修改设备最后上线时间
+     * @param id 设备id
+     * @return
+     */
+    public int updateHeart(@Param("id") int id);
 
 }

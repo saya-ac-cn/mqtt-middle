@@ -38,7 +38,7 @@ public interface IotWarningResultDAO {
      * @param entity 实例对象
      * @return 对象列表
      */
-    public Long queryCount(IotWarningResultEntity entity);
+    public long queryCount(IotWarningResultEntity entity);
 
     /**
      * 新增Iot告警结果

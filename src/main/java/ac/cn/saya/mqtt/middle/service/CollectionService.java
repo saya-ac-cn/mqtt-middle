@@ -30,6 +30,16 @@ public interface CollectionService {
     public Result<Object> getSymbolUnits();
 
     /**
+     * @描述 获取所有告警规则列表
+     * @参数
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人 shmily
+     * @创建时间 2021/6/20
+     * @修改人和其它信息
+     */
+    public Result<Object> getWarningRule(Integer clientId);
+
+    /**
      * @描述  分页查看采集信息
      * @参数  [entity]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
@@ -57,7 +67,7 @@ public interface CollectionService {
      * @创建时间  2020/7/29
      * @修改人和其它信息
      */
-    public Result<Integer> addIotWarningRules(List<IotWarningRulesEntity> list);
+    public Result<Integer> addIotWarningRules(IotWarningRulesEntity param);
 
     /**
      * @描述 修改告警规则
@@ -67,17 +77,17 @@ public interface CollectionService {
      * @创建时间  2020/7/29
      * @修改人和其它信息
      */
-    public Result<Integer> editIotWarningRules(List<IotWarningRulesEntity> list);
+    public Result<Integer> editIotWarningRules(IotWarningRulesEntity param);
 
     /**
      * @描述 删除告警规则
-     * @参数  [id]
+     * @参数  [ruleId]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人  shmily
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> deleteIotWarningRules(List<Integer> ids);
+    public Result<Integer> deleteIotWarningRules(Integer ruleId);
 
     /**
      * @描述 分页查看终端告警规则
@@ -127,17 +137,17 @@ public interface CollectionService {
      * @Date  6/5/21
      * @Description
      */
-    public Result<Integer> bindIotClientRule(List<IotClientRulesEntity> list);
+    public Result<Integer> bindIotClientRule(int clientId,List<Integer> ruleIds);
 
     /**
      * @Title 修改绑定的告警规则
-     * @Params  [list]
+     * @Params  [param]
      * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @Author  saya.ac.cn-刘能凯
      * @Date  6/5/21
      * @Description
      */
-    public Result<Integer> editIotClientRule(List<IotClientRulesEntity> list);
+    public Result<Integer> editIotClientRule(IotClientRulesEntity param);
 
     /**
      * @Title 解绑设备告警规则
@@ -147,6 +157,16 @@ public interface CollectionService {
      * @Date  6/5/21
      * @Description
      */
-    public Result<Integer> deleteIotClientRule(List<Integer> list);
+    public Result<Integer> deleteIotClientRule(List<IotClientRulesEntity> list);
+
+    /**
+     * @Title 修改设备最后上报时间
+     * @Params  [gatewayId, clientId]
+     * @Return  void
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/26/21
+     * @Description
+     */
+    public void updateDeviceHeart(int gatewayId,int clientId);
 
 }

@@ -2,6 +2,7 @@ package ac.cn.saya.mqtt.middle.repository;
 
 import ac.cn.saya.mqtt.middle.entity.IotGatewayEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -63,5 +64,12 @@ public interface IotGatewayDAO {
      * @return
      */
     public List<IotGatewayEntity> queryList(IotGatewayEntity entity);
+
+    /**
+     * 修改最后上报时间
+     * @param id 网关id
+     * @return
+     */
+    public int updateHeart(@Param("id") int id);
 
 }

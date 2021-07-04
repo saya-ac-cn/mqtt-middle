@@ -1,12 +1,13 @@
 package ac.cn.saya.mqtt.middle.controller;
 
-import ac.cn.saya.mqtt.middle.entity.IotClientEntity;
-import ac.cn.saya.mqtt.middle.entity.IotGatewayEntity;
-import ac.cn.saya.mqtt.middle.entity.IotGatewayTypeEntity;
-import ac.cn.saya.mqtt.middle.entity.IotIdentifyEntity;
+import ac.cn.saya.mqtt.middle.entity.*;
+import ac.cn.saya.mqtt.middle.service.CollectionService;
 import ac.cn.saya.mqtt.middle.service.DeviceService;
 import ac.cn.saya.mqtt.middle.tools.Result;
+import ac.cn.saya.mqtt.middle.tools.ResultEnum;
+import ac.cn.saya.mqtt.middle.tools.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,9 +26,12 @@ public class DeviceController {
     
     private final DeviceService deviceService;
 
+    private final CollectionService collectionService;
+
     @Autowired
-    public DeviceController(DeviceService deviceService) {
+    public DeviceController(DeviceService deviceService,CollectionService collectionService) {
         this.deviceService = deviceService;
+        this.collectionService = collectionService;
     }
 
     /**
@@ -187,6 +191,67 @@ public class DeviceController {
     @GetMapping(value = "client/select")
     public Result<List<IotClientEntity>> getClientSelectList(@RequestParam(value = "keyWord") String keyWord,HttpServletRequest request){
         return deviceService.getClientSelectList(request,keyWord);
+    }
+
+    /**
+     * @Title   绑定告警规则
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @PostMapping(value = "client/rules/{clientId}")
+    public Result<Integer> bindIotClientRule(@PathVariable("clientId") int clientId,@RequestBody List<Integer> ruleIds){
+        if (CollectionUtils.isEmpty(ruleIds)){
+            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
+        }
+        return collectionService.bindIotClientRule(clientId, ruleIds);
+    }
+
+    /***
+     * @Title   修改规则绑定
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @PutMapping(value = "client/rules")
+    public Result<Integer> editIotClientRule(@RequestBody IotClientRulesEntity param){
+        if (null == param){
+            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
+        }
+        return collectionService.editIotClientRule(param);
+    }
+
+    /**
+     * @Title   解除规则绑定
+     * @Params  [list]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @PostMapping(value = "client/rules")
+    public Result<Integer> deleteIotClientRule(@RequestBody List<IotClientRulesEntity> list){
+        if (CollectionUtils.isEmpty(list)){
+            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
+        }
+        return collectionService.deleteIotClientRule(list);
+    }
+
+    /**
+     * @Title    分页查看绑定的告警规则
+     * @Params  [entity]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @GetMapping(value = "client/rules")
+    public Result<Object> getIotClientRulePage(IotClientRulesEntity entity){
+        return collectionService.getIotClientRulePage(entity);
     }
     
 }

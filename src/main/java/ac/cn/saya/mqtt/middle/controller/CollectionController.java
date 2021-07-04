@@ -44,6 +44,19 @@ public class CollectionController {
     }
 
     /**
+     * @描述 查看所有的告警定义
+     * @参数
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2020/8/8
+     * @修改人和其它信息
+     */
+    @GetMapping(value = "system/rule")
+    public Result<Object> getRules(@RequestParam(value = "clientId",required = false) Integer clientId){
+        return collectionService.getWarningRule(clientId);
+    }
+
+    /**
      * @描述 分页查看采集信息
      * @参数  [entity]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
@@ -71,34 +84,34 @@ public class CollectionController {
 
     /**
      * @描述 添加告警规则
-     * @参数  [list]
+     * @参数  [param]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人  shmily
      * @创建时间  2020/8/8
      * @修改人和其它信息
      */
     @PostMapping(value = "warning/rules")
-    public Result<Integer> addIotWarningRules(@RequestBody List<IotWarningRulesEntity> list){
-        if (list.isEmpty()){
+    public Result<Integer> addIotWarningRules(@RequestBody IotWarningRulesEntity param){
+        if (null == param){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        return collectionService.addIotWarningRules(list);
+        return collectionService.addIotWarningRules(param);
     }
 
     /**
      * @描述 修改告警规则
-     * @参数  [list]
+     * @参数  [param]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人  shmily
      * @创建时间  2020/8/8
      * @修改人和其它信息
      */
     @PutMapping(value = "warning/rules")
-    public Result<Integer> editIotWarningRules(@RequestBody List<IotWarningRulesEntity> list){
-        if (list.isEmpty()){
+    public Result<Integer> editIotWarningRules(@RequestBody IotWarningRulesEntity param){
+        if (null == param){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        return collectionService.editIotWarningRules(list);
+        return collectionService.editIotWarningRules(param);
     }
 
     /**
@@ -109,12 +122,9 @@ public class CollectionController {
      * @创建时间  2020/8/8
      * @修改人和其它信息
      */
-    @DeleteMapping(value = "warning/rules")
-    public Result<Integer> deleteIotWarningRules(List<Integer> list){
-        if (list.isEmpty()){
-            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
-        }
-        return collectionService.deleteIotWarningRules(list);
+    @DeleteMapping(value = "warning/rules/{ruleId}")
+    public Result<Integer> deleteIotWarningRules(@PathVariable("ruleId") Integer ruleId){
+        return collectionService.deleteIotWarningRules(ruleId);
     }
 
     /**

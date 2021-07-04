@@ -1,7 +1,6 @@
 package ac.cn.saya.mqtt.middle;
 
 import ac.cn.saya.mqtt.middle.tools.CurrentLineInfo;
-import ac.cn.saya.mqtt.middle.tools.Log4jUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;

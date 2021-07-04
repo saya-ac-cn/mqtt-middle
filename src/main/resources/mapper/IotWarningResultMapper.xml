@@ -26,7 +26,7 @@
     <!--查询Iot告警结果-->
     <select id="query" resultMap="IotWarningResultMap">
         select
-          a.`id`, a.`client_id`,a.`rule_id`, a.`topic`, a.`content`, a.`create_time`
+          a.`id`, a.`client_id`,a.`rule_id`, a.`topic`, a.`content`, a.`create_time`,
           b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
           c.`name` as gatewayName,c.`address`,
           d.`name` as ruleName
@@ -34,9 +34,6 @@
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
-            </if>
-            <if test="name != null and name != ''">
-                and a.`name` = #{name}
             </if>
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
@@ -54,7 +51,7 @@
     <!--分页查询Iot告警结果-->
     <select id="queryPage" resultMap="IotWarningResultMap">
         select
-            a.`id`, a.`client_id`,a.`rule_id`, a.`topic`, a.`content`, a.`create_time`
+            a.`id`, a.`client_id`,a.`rule_id`, a.`topic`, a.`content`, a.`create_time`,
             b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
             c.`name` as gatewayName,c.`address`,
             d.`name` as ruleName
@@ -62,9 +59,6 @@
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
-            </if>
-            <if test="name != null and name != ''">
-                and a.`name` = #{name}
             </if>
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
@@ -81,16 +75,13 @@
     </select>
 
     <!--查询Iot告警结果数量-->
-    <select id="queryCount" resultMap="IotWarningResultMap">
+    <select id="queryCount" resultType="java.lang.Long">
         select
             count(*)
         from iot_warning_result a
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
-            </if>
-            <if test="name != null and name != ''">
-                and a.`name` = #{name}
             </if>
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}

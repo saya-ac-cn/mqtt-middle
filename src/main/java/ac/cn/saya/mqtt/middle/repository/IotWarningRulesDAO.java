@@ -13,6 +13,9 @@ import java.util.List;
 @Mapper
 public interface IotWarningRulesDAO {
 
+
+    public List<IotWarningRulesEntity> selector();
+
     /**
      * 查询Iot告警规则
      *

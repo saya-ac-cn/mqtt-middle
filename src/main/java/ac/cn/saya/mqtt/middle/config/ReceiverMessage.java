@@ -90,24 +90,29 @@ public class ReceiverMessage {
     public MessageHandler handler() {
         return message -> {
             // mqtt_receivedTopic固定，不要随意改
+            // 取出主题
             String topic = message.getHeaders().get("mqtt_receivedTopic").toString();
             String msg = message.getPayload().toString();
             System.out.println("----------------------------START---------------------------\n" +
                     "接收到订阅消息:\ntopic:" + topic + "\nmessage:" + msg +
                     "\n-----------------------------END----------------------------");
-
+            // 提取网关编号id
             String uuid = topic.substring(topic.lastIndexOf("/") + 1);
             JsonNode jsonNode = JackJsonUtil.readTree(msg);
             JsonNode serialNumNode = jsonNode.get("serialNum");
             int serialNum = -1;
+            // 检查数据是否完整（对于缺少序号的数据直接过滤）
             if (null == serialNumNode || -1 == (serialNum = serialNumNode.asInt(-1))){
                 return;
             }
+            // 在缓存中查询设备是否存在
             IotClientEntity client = metadata.getClients(new ClientParam(uuid, serialNum));
             if (null == client){
                 return;
             }
+            collectionService.updateDeviceHeart(client.getGatewayId(),client.getId());
             Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
+            // 提取上报数据
             List<IotCollectionEntity> datas = new ArrayList<>();
             while(fields.hasNext()) {
                 Map.Entry<String, JsonNode> node = fields.next();

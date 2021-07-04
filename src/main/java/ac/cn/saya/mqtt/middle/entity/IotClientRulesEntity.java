@@ -45,4 +45,15 @@ public class IotClientRulesEntity extends BaseEntity{
      */
     private IotClientEntity client;
 
+    /**
+     *  是否启用（非数据库字段）(1:启用,2:关闭)
+     */
+    private Integer enable;
+
+
+    public IotClientRulesEntity(Integer id, Integer clientId, Integer ruleId) {
+        this.id = id;
+        this.clientId = clientId;
+        this.ruleId = ruleId;
+    }
 }

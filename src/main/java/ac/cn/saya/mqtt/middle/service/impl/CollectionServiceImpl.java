@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +28,10 @@ import java.util.stream.Collectors;
 public class CollectionServiceImpl implements CollectionService {
 
     @Resource
-    private IotUnitsDAO iotUnitsDAO;
+    private IotGatewayDAO iotGatewayDAO;
+
+    @Resource
+    private IotClientDAO iotClientDAO;
 
     @Resource
     private IotClientRulesDAO iotClientRulesDAO;
@@ -68,6 +69,31 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     /**
+     * @描述 获取所有告警规则列表
+     * @参数
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人 shmily
+     * @创建时间 2020/6/20
+     * @修改人和其它信息
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public Result<Object> getWarningRule(Integer clientId) {
+        try {
+            List<IotWarningRulesEntity> allRules = iotWarningRulesDAO.selector();
+            List<IotWarningRulesEntity> alreadyBindRules = iotClientRulesDAO.queryByClient(clientId,null);
+            if (!CollectionUtils.isEmpty(allRules) && !CollectionUtils.isEmpty(alreadyBindRules)){
+                // 排除已经绑定的规则
+                allRules.removeAll(alreadyBindRules);
+            }
+            return ResultUtil.success(allRules);
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("获取所有告警规则列表发生异常", e, CollectionServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
+    /**
      * @描述 分页查看采集信息
      * @参数 [entity]
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
@@ -99,7 +125,7 @@ public class CollectionServiceImpl implements CollectionService {
     @Override
     public Result<Object> getIotWarningResultPage(IotWarningResultEntity entity) {
         try {
-            Long count = iotWarningResultDAO.queryCount(entity);
+            long count = iotWarningResultDAO.queryCount(entity);
             return PageTools.page(count, entity, (condition) -> iotWarningResultDAO.queryPage((IotWarningResultEntity) condition));
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("查询分页后的告警报告信息列表发生异常", e, CollectionServiceImpl.class);
@@ -116,12 +142,12 @@ public class CollectionServiceImpl implements CollectionService {
      * @修改人和其它信息
      */
     @Override
-    public Result<Integer> addIotWarningRules(List<IotWarningRulesEntity> list) {
-        if (list.isEmpty()) {
+    public Result<Integer> addIotWarningRules(IotWarningRulesEntity param) {
+        if (null == param) {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            iotWarningRulesDAO.insert(list);
+            iotWarningRulesDAO.insert(Collections.singletonList(param));
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("添加告警规则发生异常", e, CollectionServiceImpl.class);
@@ -138,14 +164,22 @@ public class CollectionServiceImpl implements CollectionService {
      * @修改人和其它信息
      */
     @Override
-    public Result<Integer> editIotWarningRules(List<IotWarningRulesEntity> list) {
-        if (list.isEmpty()) {
+    public Result<Integer> editIotWarningRules(IotWarningRulesEntity param) {
+        if (null == param){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            iotWarningRulesDAO.update(list);
+            iotWarningRulesDAO.update(Collections.singletonList(param));
             // 对于绑定到设备上的告警规则，还需要刷新到缓存
-            metadata.doRefreshRules(list);
+            // 查询本规则已经被关联到那些设备上
+            List<Integer> clientIds = iotClientRulesDAO.queryByRule(param.getId());
+            if (!CollectionUtils.isEmpty(clientIds)){
+                for (Integer clientId:clientIds) {
+                    List<IotWarningRulesEntity> rules = iotClientRulesDAO.queryByClient(clientId,1);
+                    metadata.removeRule(clientId);
+                    metadata.doRefreshRule(clientId,rules);
+                }
+            }
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("修改告警规则发生异常", e, CollectionServiceImpl.class);
@@ -162,14 +196,22 @@ public class CollectionServiceImpl implements CollectionService {
      * @修改人和其它信息
      */
     @Override
-    public Result<Integer> deleteIotWarningRules(List<Integer> list) {
-        if (list.isEmpty()) {
-            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
-        }
+    public Result<Integer> deleteIotWarningRules(Integer ruleId) {
         try {
-            iotWarningRulesDAO.deleteById(list);
+            // 查询本规则被绑定到了哪些设备
+            List<Integer> clientIds = iotClientRulesDAO.queryByRule(ruleId);
+            // 解绑设备
+            iotClientRulesDAO.deleteByRule(ruleId);
+            // 删除规则
+            iotWarningRulesDAO.deleteById(Collections.singletonList(ruleId));
             // 对于绑定到设备上的告警规则，还需要刷新到缓存
-            metadata.removeRules(list);
+            if (!CollectionUtils.isEmpty(clientIds)){
+                for (Integer clientId:clientIds) {
+                    List<IotWarningRulesEntity> rules = iotClientRulesDAO.queryByClient(clientId,1);
+                    metadata.removeRule(clientId);
+                    metadata.doRefreshRule(clientId,rules);
+                }
+            }
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("删除告警规则发生异常", e, CollectionServiceImpl.class);
@@ -225,7 +267,7 @@ public class CollectionServiceImpl implements CollectionService {
      */
     @Override
     public void checkRuleWarring(IotClientEntity client, List<IotCollectionEntity> datas) {
-        List<IotWarningRulesEntity> rules = metadata.getRuleByClient(client.getId());
+        List<IotWarningRulesEntity> rules = metadata.getRule(client.getId());
         if (CollectionUtils.isEmpty(rules)) {
             return;
         }
@@ -239,7 +281,7 @@ public class CollectionServiceImpl implements CollectionService {
             IotCollectionEntity item = collectData.get(0);
             boolean flag = SymbolCompareUtil.compare(rule.getSymbol(), rule.getValue1(), rule.getValue2(), item.getValue());
             System.out.println("告警结果：" + flag);
-            result.add(new IotWarningResultEntity(client.getId(), rule.getId(), "数据上报告警", rule.getUnits() + ":" + item.getValue()));
+            result.add(new IotWarningResultEntity(client.getId(), rule.getId(), "数据上报告警", rule.getUnitsName() + "=" + item.getValue()));
         }
         if (!CollectionUtils.isEmpty(result)) {
             iotWarningResultDAO.batchInsert(result);
@@ -276,12 +318,15 @@ public class CollectionServiceImpl implements CollectionService {
      * @修改人和其它信息
      */
     @Override
-    public Result<Integer> bindIotClientRule(List<IotClientRulesEntity> list) {
-        if (CollectionUtils.isEmpty(list)) {
+    public Result<Integer> bindIotClientRule(int clientId,List<Integer> ruleIds) {
+        if (CollectionUtils.isEmpty(ruleIds)) {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            iotClientRulesDAO.insert(list);
+            iotClientRulesDAO.insert(clientId,ruleIds);
+            List<IotWarningRulesEntity> rules = iotClientRulesDAO.queryByClient(clientId,1);
+            metadata.removeRule(clientId);
+            metadata.doRefreshRule(clientId,rules);
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("设备绑定告警规则发生异常", e, CollectionServiceImpl.class);
@@ -298,14 +343,15 @@ public class CollectionServiceImpl implements CollectionService {
      * @修改人和其它信息
      */
     @Override
-    public Result<Integer> editIotClientRule(List<IotClientRulesEntity> list) {
-        if (CollectionUtils.isEmpty(list)) {
+    public Result<Integer> editIotClientRule(IotClientRulesEntity param) {
+        if (null == param) {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            iotClientRulesDAO.update(list);
-            // 对于绑定到设备上的告警规则，还需要刷新到缓存
-            metadata.doRefreshRules(list);
+            iotClientRulesDAO.update(param);
+            List<IotWarningRulesEntity> rules = iotClientRulesDAO.queryByClient(param.getClientId(),1);
+            metadata.removeRule(param.getClientId());
+            metadata.doRefreshRule(param.getClientId(),rules);
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("修改绑定的告警规则发生异常", e, CollectionServiceImpl.class);
@@ -322,19 +368,38 @@ public class CollectionServiceImpl implements CollectionService {
      * @修改人和其它信息
      */
     @Override
-    public Result<Integer> deleteIotClientRule(List<Integer> list) {
+    public Result<Integer> deleteIotClientRule(List<IotClientRulesEntity> list) {
         if (CollectionUtils.isEmpty(list)) {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            iotClientRulesDAO.deleteById(list);
-            // 对于绑定到设备上的告警规则，还需要刷新到缓存
-            metadata.removeRules(list);
+            List<Integer> ruleIds = list.stream().map(IotClientRulesEntity::getId).collect(Collectors.toList());
+            iotClientRulesDAO.deleteById(ruleIds);
+            // 按照设备id进行分组，确定哪些设备的规则需要刷新
+            Map<Integer, List<IotClientRulesEntity>> clients = list.stream().collect(Collectors.groupingBy(IotClientRulesEntity::getClientId));
+            for (Map.Entry<Integer, List<IotClientRulesEntity>> item:clients.entrySet()) {
+                metadata.removeRule(item.getKey());
+                List<IotWarningRulesEntity> rules = iotClientRulesDAO.queryByClient(item.getKey(),1);
+                if (!CollectionUtils.isEmpty(rules)){
+                    metadata.doRefreshRule(item.getKey(),rules);
+                }
+            }
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("解绑设备告警规则发生异常", e, CollectionServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
+    }
+
+    /**
+     * 修改设备&网关的最后山包时间
+     * @param gatewayId
+     * @param clientId
+     */
+    @Override
+    public void updateDeviceHeart(int gatewayId,int clientId){
+        iotGatewayDAO.updateHeart(gatewayId);
+        iotClientDAO.updateHeart(clientId);
     }
 
 
