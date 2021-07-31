@@ -48,7 +48,7 @@ public class DeviceServiceImpl implements DeviceService {
     private Metadata metadata;
 
     /**
-     * @描述 获取Iot设备类型
+     * @描述 获取Iot网关类型
      * @参数
      * @返回值 IotGatewayTypeEntity 集合
      * @创建人 shmily

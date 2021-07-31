@@ -9,7 +9,7 @@ import lombok.Setter;
  * @ProjectName mqtt-middle
  * @Author shmily
  * @Date: 2020/7/18 21:17
- * @Description: iot 网关设备类型
+ * @Description: iot 网关网关类型
  */
 @NoArgsConstructor
 @Getter
@@ -20,12 +20,12 @@ public class IotGatewayTypeEntity extends BaseEntity{
     private static final long serialVersionUID = -9012309667725826022L;
 
     /**
-     * 设备类型id
+     * 网关类型id
      */
     private Integer id;
 
     /**
-     * 设备类型名
+     * 网关类型名
      */
     private String name;
 
