@@ -55,6 +55,16 @@ public class IotWarningRulesEntity extends BaseEntity{
     private Integer enable;
 
     /**
+     * 事件属性 产生告警后，联动事件
+     */
+    private String eventAttribute;
+
+    /**
+     * 事件属性值 产生告警后，联动事件下发的值
+     */
+    private String eventValue;
+
+    /**
      * 创建时间
      */
     private String createTime;
