@@ -28,6 +28,11 @@ public class IotClientEntity extends BaseEntity{
     private Integer gatewayId;
 
     /**
+     * 产品id
+     */
+    private Integer productId;
+
+    /**
      * 设备在网关上的唯一序列号
      */
     private Integer serialNum;

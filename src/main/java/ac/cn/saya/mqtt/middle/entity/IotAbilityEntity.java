@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Title: AbilityEntity
+ * @Title: IotAbilityEntity
  * @ProjectName mqtt-middle
  * @Description: TODO
  * @Author liunengkai
@@ -16,12 +16,17 @@ import java.util.Map;
  * @Description: 物模型属性
  */
 
-public class AbilityEntity extends BaseEntity{
+public class IotAbilityEntity extends BaseEntity{
 
 
     private static final long serialVersionUID = -4379644254454353199L;
 
     private Integer id;
+
+    /**
+     * 所属品类名（外键）
+     */
+    private Integer productId;
 
     /**
      * 属性符号
@@ -43,17 +48,13 @@ public class AbilityEntity extends BaseEntity{
      */
     private String scope;
 
-    /**
-     * 所属品类名
-     */
-    private Integer productId;
 
     /**
-     * 读写标志
+     * 读写标志（1：读，2：写，3：读写）
      */
     private Integer rwFlag;
 
-    public AbilityEntity() {
+    public IotAbilityEntity() {
     }
 
     public static long getSerialVersionUID() {
