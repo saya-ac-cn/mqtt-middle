@@ -23,6 +23,7 @@
         <typeAlias alias="iotClientRules" type="ac.cn.saya.mqtt.middle.entity.IotClientRulesEntity"/>
         <typeAlias alias="iotAppointment" type="ac.cn.saya.mqtt.middle.entity.IotAppointmentEntity"/>
         <typeAlias alias="iotUnits" type="ac.cn.saya.mqtt.middle.entity.IotUnitsEntity"/>
-
+        <typeAlias alias="iotProductType" type="ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity"/>
+        <typeAlias alias="iotAbility" type="ac.cn.saya.mqtt.middle.entity.IotAbilityEntity"/>
     </typeAliases>
 </configuration>
