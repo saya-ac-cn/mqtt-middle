@@ -2,25 +2,40 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="ac.cn.saya.mqtt.middle.repository.IotProductTypeDAO">
 
-    <resultMap type="iotCollection" id="IotCollectionMap">
+    <resultMap type="iotProductType" id="IotProductTypeMap">
         <result property="id" column="id"/>
-        <result property="clientId" column="client_id"/>
-        <result property="units" column="units"/>
-        <result property="value" column="value"/>
-        <result property="collectTime" column="collect_time"/>
-        <association property="iotClient" javaType="iotClient">
-            <result property="id" column="client_id"/>
-            <result property="name" column="clientName"/>
-            <result property="lastLinkTime" column="last_link_time"/>
-            <association property="gateway" javaType="IotGateway">
-                <id property="id" column="gateway_id" />
-                <result property="name" column="gatewayName"/>
-                <result property="address" column="address"/>
-            </association>
-        </association>
+        <result property="name" column="client_id"/>
+        <result property="status" column="units"/>
+        <collection property="properties" javaType="java.util.ArrayList" ofType="iotAbility">
+            <result property="id" column="abilityId"/>
+            <result property="productId" column="productId"/>
+            <result property="identifier" column="identifier"/>
+            <result property="name" column="abilityName"/>
+            <result property="type" column="type"/>
+            <result property="scope" column="scope"/>
+            <result property="rwFlag" column="rwFlag"/>
+        </collection>
     </resultMap>
 
-    <!--分页查询Iot采集信息-->
+    <select id="queryList" resultMap="IotProductTypeMap" parameterType="iotProductType">
+        select a.`id`,a.`name`,a.`status`,
+          b.`id` as abilityId,b.product_id as productId,b.identifier,
+          b.`name` as abilityName,b.type,b.scope,b.rw_flag as rwFlag
+        from iot_product_type a left join iot_ability b on a.id = b.product_id
+        <where>
+            <if test="null != id and 0 != id">
+                a.`id` = #{id}
+            </if>
+            <if test="null != status and 0 != status">
+                and a.`status` = #{status}
+            </if>
+            <if test="null != name and '' != name">
+                and a.`name` like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--分页查询产品信息-->
     <select id="queryPage" resultType="iotProductType">
         select
             a.`id`, a.`name`, a.`status`
@@ -40,7 +55,7 @@
         limit #{startLine},#{endLine}
     </select>
 
-    <!--查询Iot采集信息数量-->
+    <!--查询产品数量-->
     <select id="queryCount" resultType="java.lang.Long">
         select
             count(*)

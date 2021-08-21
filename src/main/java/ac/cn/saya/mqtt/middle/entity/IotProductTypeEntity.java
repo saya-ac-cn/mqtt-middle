@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * @Title: IotProductTypeEntity
  * @ProjectName mqtt-middle
@@ -36,4 +38,9 @@ public class IotProductTypeEntity extends BaseEntity{
      * 产品状态（1：正常；2：删除）
      */
     private Integer status;
+
+    /**
+     * 非数据库字段（产品数据），
+     */
+    private List<IotAbilityEntity> properties;
 }

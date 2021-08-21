@@ -17,6 +17,13 @@ import java.util.List;
 public interface IotProductTypeDAO {
 
     /**
+     * 获取产品下拉列表
+     * @param entity
+     * @return
+     */
+    public List<IotProductTypeEntity> queryList(IotProductTypeEntity entity);
+
+    /**
      * 添加产品信息
      * @param entity
      * @return
@@ -50,12 +57,5 @@ public interface IotProductTypeDAO {
      * @return
      */
     public Long queryCount(IotProductTypeEntity entity);
-
-    /**
-     * 获取产品下拉列表
-     * @param entity
-     * @return
-     */
-    public List<IotProductTypeEntity> queryList(IotProductTypeEntity entity);
 
 }
