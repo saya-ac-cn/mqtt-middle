@@ -48,6 +48,19 @@ public class DeviceController {
     }
 
     /**
+     * @Title   获取产品列表
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    @GetMapping(value = "product/list")
+    public Result<List<IotProductTypeEntity>> getIotGatewayType(IotProductTypeEntity param){
+        return deviceService.getIotProduct(param);
+    }
+
+    /**
      * @描述 添加网关
      * @参数  [entity]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>

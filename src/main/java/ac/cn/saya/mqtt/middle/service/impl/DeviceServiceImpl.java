@@ -1,20 +1,18 @@
 package ac.cn.saya.mqtt.middle.service.impl;
 
 import ac.cn.saya.mqtt.middle.entity.*;
+import ac.cn.saya.mqtt.middle.repository.*;
 import ac.cn.saya.mqtt.middle.tools.IOTException;
 import ac.cn.saya.mqtt.middle.service.DeviceService;
 import ac.cn.saya.mqtt.middle.tools.*;
 import ac.cn.saya.mqtt.middle.meta.Metadata;
-import ac.cn.saya.mqtt.middle.repository.IotClientDAO;
-import ac.cn.saya.mqtt.middle.repository.IotGatewayDAO;
-import ac.cn.saya.mqtt.middle.repository.IotGatewayTypeDAO;
-import ac.cn.saya.mqtt.middle.repository.IotIdentifyDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -45,15 +43,18 @@ public class DeviceServiceImpl implements DeviceService {
     private IotClientDAO iotClientDAO;
 
     @Resource
+    private IotProductTypeDAO iotProductTypeDAO;
+
+    @Resource
     private Metadata metadata;
 
     /**
-     * @描述 获取Iot网关类型
-     * @参数
-     * @返回值 IotGatewayTypeEntity 集合
-     * @创建人 shmily
-     * @创建时间 2020/7/29
-     * @修改人和其它信息
+     * @Title   获取Iot网关类型
+     * @Params  [par]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotGatewayTypeEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
      */
     @Transactional(readOnly = true)
     @Override
@@ -66,6 +67,28 @@ public class DeviceServiceImpl implements DeviceService {
             return ResultUtil.error(ResultEnum.NOT_EXIST);
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("获取Iot设备类型异常",e,DeviceServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
+    /**
+     * @Title   获取iot产品列表
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    @Override
+    public Result<List<IotProductTypeEntity>> getIotProduct(IotProductTypeEntity param) {
+        try {
+            List<IotProductTypeEntity> result = iotProductTypeDAO.queryList(null);
+            if (CollectionUtils.isEmpty(result)){
+                return ResultUtil.error(ResultEnum.NOT_EXIST);
+            }
+            return ResultUtil.success(result);
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("获取Iot产品异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -399,6 +422,126 @@ public class DeviceServiceImpl implements DeviceService {
             return ResultUtil.success(result);
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("获取下拉列表显示Iot终端发生异常",e,DeviceServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
+    /**
+     * @描述 创建iot产品
+     * @参数 [entity]
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人 shmily
+     * @创建时间 2020/8/1
+     * @修改人和其它信息
+     * TODO 创建产品不需要加入到缓存中
+     */
+    @Override
+    public Result<Integer> addIotProduct(IotProductTypeEntity entity) {
+        if (null == entity || StringUtils.isEmpty(entity.getName())){
+            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
+        }
+        try {
+            List<IotProductTypeEntity> checkResult = iotProductTypeDAO.queryList(entity);
+            if (CollectionUtils.isEmpty(checkResult)){
+                // TODO 创建时默认启用
+                entity.setStatus(1);
+                iotProductTypeDAO.insert(entity);
+                return ResultUtil.success();
+            }
+            return ResultUtil.error(ResultEnum.ERROR.getCode(),"该产品名称已经存在了，请换一个吧");
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("添加iot产品发生异常",e,DeviceServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
+    /**
+     * @描述 修改iot产品(当前只允许修改产品的名称)
+     * @参数 [entity]
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人 shmily
+     * @创建时间 2020/8/1
+     * @修改人和其它信息
+     * TODO 修改产品名称不需要更新缓存
+     */
+    @Override
+    public Result<Integer> editIotProduct(IotProductTypeEntity entity) {
+        if (null == entity || entity.getId()== null || StringUtils.isEmpty(entity.getName())){
+            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
+        }
+        try {
+            IotProductTypeEntity checkWhere = new IotProductTypeEntity();
+            checkWhere.setName(entity.getName());
+            List<IotProductTypeEntity> checkResult = iotProductTypeDAO.queryList(checkWhere);
+            boolean checkFlag = true;
+            for (IotProductTypeEntity item:checkResult) {
+                if ((entity.getName()).equals(item.getName()) && (entity.getId()).equals(item.getId())){
+                    // 要修该的产品名和已有的产品名冲突
+                    checkFlag = false;
+                }
+            }
+            if (!checkFlag){
+                return ResultUtil.error(ResultEnum.ERROR.getCode(),"该产品名称已经存在了，请换一个吧");
+            }
+            // TODO 由于当前只允许修改产品的名称，为了防止用户在这一步修改产品的状态，在这里将产品的状态临时置位null
+            entity.setStatus(null);
+            iotProductTypeDAO.update(entity);
+            return ResultUtil.success();
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("修改产品发生异常", e,DeviceServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
+    /**
+     * @描述 删除设备
+     * @参数 [id]
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人 shmily
+     * @创建时间 2020/8/1
+     * @修改人和其它信息
+     */
+    @Override
+    public Result<Integer> deleteIotClient(Integer id) {
+        if (null == id || id <= 0){
+            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
+        }
+        try {
+            IotClientEntity clientEntity = iotClientDAO.query(new IotClientEntity(id));
+            if (null == clientEntity){
+                return ResultUtil.error(ResultEnum.NOT_EXIST);
+            }
+            // 值为删除状态
+            clientEntity.setRemove(2);
+            if (iotClientDAO.update(clientEntity) >= 0){
+                metadata.removeClient(clientEntity);
+                return ResultUtil.success();
+            }
+            return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除设备异常");
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("删除设备发生异常", e,DeviceServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
+    /**
+     * @描述 设备分页
+     * @参数 [entity]
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人 shmily
+     * @创建时间 2020/8/1
+     * @修改人和其它信息
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public Result<Object> getIotClientPage(IotClientEntity entity) {
+        // 是否移除,1=正常;2=已移除
+        entity.setRemove(1);
+        try {
+            Long count = iotClientDAO.queryCount(entity);
+            return PageTools.page(count, entity, (condition) -> iotClientDAO.queryPage((IotClientEntity) condition));
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的设备分页发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
