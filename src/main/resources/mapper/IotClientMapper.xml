@@ -12,6 +12,8 @@
         <result property="remove" column="remove"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="productId" column="productId"/>
+        <result property="productName" column="productName"/>
         <association property="gateway" javaType="IotGateway">
             <id property="id" column="gateway_id" />
             <result property="uuid" column="uuid"/>
@@ -41,8 +43,10 @@
     <select id="query" resultMap="IotClientMap">
         select
           a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
-          b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
+          b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`,
+          c.id as productId,c.`name` as productName
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
+        left join iot_product_type c on c.id = a.product_id
         <where>
             <if test="id != null and id != 0">
                 and a.`id` = #{id}
@@ -70,8 +74,10 @@
     <select id="queryByGatewayId" resultMap="IotClientMap">
         select
             a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
-            b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
+            b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`,
+            c.`id` as productId,c.`name` as productName
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
+        left join iot_product_type c on c.id = a.product_id
         where a.`gateway_id` = #{gatewayId}
     </select>
 
@@ -79,8 +85,10 @@
     <select id="queryPage" resultMap="IotClientMap">
         select
             a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
-            b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
+            b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`,
+            c.`id` as productId,c.`name` as productName
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
+        left join iot_product_type c on c.id = a.product_id
         <where>
             <if test="id != null and id != 0">
                 and a.`id` = #{id}
@@ -132,8 +140,8 @@
 
     <!--新增Iot终端-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="iotClient">
-        insert into iot_client(`gateway_id`, `serial_num`,`name`, `enable`, `create_time`)
-        values (#{gatewayId},#{serialNum}, #{name}, #{enable}, now())
+        insert into iot_client(`gateway_id`, `product_id`,`serial_num`,`name`, `enable`, `create_time`)
+        values (#{gatewayId},#{productId},#{serialNum}, #{name}, #{enable}, now())
     </insert>
 
     <!--修改Iot终端-->
@@ -142,6 +150,9 @@
         <set>
             <if test="gatewayId != null and gatewayId != 0">
                 `gateway_id` = #{gatewayId},
+            </if>
+            <if test="null != productId and '' != productId">
+                `product_id` = #{productId}
             </if>
             <if test="name != null and name != ''">
                 `name` = #{name},
@@ -169,6 +180,9 @@
         <set>
             <if test="name != null and name != ''">
                 `name` = #{name},
+            </if>
+            <if test="null != productId and '' != productId">
+                `product_id` = #{productId}
             </if>
             <if test="serialNum != null and serialNum != 0">
                 `serial_num` = #{serialNum},

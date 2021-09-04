@@ -1,8 +1,6 @@
 package ac.cn.saya.mqtt.middle.service;
 
-import ac.cn.saya.mqtt.middle.entity.IotClientEntity;
-import ac.cn.saya.mqtt.middle.entity.IotGatewayEntity;
-import ac.cn.saya.mqtt.middle.entity.IotGatewayTypeEntity;
+import ac.cn.saya.mqtt.middle.entity.*;
 import ac.cn.saya.mqtt.middle.tools.Result;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +26,16 @@ public interface DeviceService {
      * @修改人和其它信息
      */
     public Result<List<IotGatewayTypeEntity>> getIotGatewayType();
+
+    /**
+     * @Title   获取iot产品列表
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    public Result<List<IotProductTypeEntity>> getIotProduct(IotProductTypeEntity param);
 
     /**
      * @描述 添加网关
@@ -141,5 +149,85 @@ public interface DeviceService {
      * keyWord 通过关键词，按照网关名或者设备名检索
      */
     public Result<List<IotClientEntity>> getClientSelectList(HttpServletRequest request,String keyWord);
+
+    /**
+     * @描述 创建iot产品
+     * @参数  [entity]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Integer> addIotProduct(IotProductTypeEntity entity);
+
+    /**
+     * @描述 修改iot产品
+     * @参数  [entity]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Integer> editIotProduct(IotProductTypeEntity entity);
+
+    /**
+     * @描述 删除iot产品
+     * @参数  [id]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Integer> deleteIotProduct(Integer id);
+
+    /**
+     * @描述 产品分页
+     * @参数  [entity]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Object> getIotProductPage(IotProductTypeEntity entity);
+
+    /**
+     * @描述 添加iot产品物模型
+     * @参数  [entity]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Integer> addIotProductAbility(IotAbilityEntity entity);
+
+    /**
+     * @描述 修改iot产品物模型
+     * @参数  [entity]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Integer> editIotProductAbility(IotAbilityEntity entity);
+
+    /**
+     * @描述 删除iot产品物模型
+     * @参数  [id]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Integer> deleteIotProductAbility(Integer id);
+
+    /**
+     * @描述 iot产品物模型列表
+     * @参数  [entity]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2020/8/1
+     * @修改人和其它信息
+     */
+    public Result<Object> getIotProductAbilityPage(IotAbilityEntity entity);
 
 }

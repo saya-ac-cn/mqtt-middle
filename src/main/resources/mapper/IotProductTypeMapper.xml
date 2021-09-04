@@ -17,10 +17,26 @@
         </collection>
     </resultMap>
 
-    <select id="queryList" resultMap="IotProductTypeMap" parameterType="iotProductType">
+    <select id="queryList" parameterType="iotProductType" resultType="iotProductType">
+        select a.`id`,a.`name`,a.`status`
+        from iot_product_type a
+        <where>
+            <if test="null != id and 0 != id">
+                a.`id` = #{id}
+            </if>
+            <if test="null != status and 0 != status">
+                and a.`status` = #{status}
+            </if>
+            <if test="null != name and '' != name">
+                and a.`name` like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="queryProductDetail" resultMap="IotProductTypeMap" parameterType="iotProductType">
         select a.`id`,a.`name`,a.`status`,
-          b.`id` as abilityId,b.product_id as productId,b.identifier,
-          b.`name` as abilityName,b.type,b.scope,b.rw_flag as rwFlag
+        b.`id` as abilityId,b.product_id as productId,b.identifier,
+        b.`name` as abilityName,b.type,b.scope,b.rw_flag as rwFlag
         from iot_product_type a left join iot_ability b on a.id = b.product_id
         <where>
             <if test="null != id and 0 != id">

@@ -73,6 +73,11 @@ public class IotClientEntity extends BaseEntity{
      */
     private IotGatewayEntity gateway;
 
+    /**
+     * 非数据库字段，外键关联的产品名
+     */
+    private String productName;
+
     public IotClientEntity(Integer id) {
         this.id = id;
     }
