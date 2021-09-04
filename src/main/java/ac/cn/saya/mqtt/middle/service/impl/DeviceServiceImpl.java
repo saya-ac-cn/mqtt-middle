@@ -494,15 +494,16 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     /**
-     * @描述 删除设备
+     * @描述 删除iot产品
      * @参数 [id]
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人 shmily
      * @创建时间 2020/8/1
      * @修改人和其它信息
+     * TODO 删除iot产品需要同步缓存
      */
     @Override
-    public Result<Integer> deleteIotClient(Integer id) {
+    public Result<Integer> deleteIotProduct(Integer id) {
         if (null == id || id <= 0){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
@@ -525,7 +526,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     /**
-     * @描述 设备分页
+     * @描述 产品分页
      * @参数 [entity]
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
      * @创建人 shmily
@@ -534,7 +535,7 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Transactional(readOnly = true)
     @Override
-    public Result<Object> getIotClientPage(IotClientEntity entity) {
+    public Result<Object> getIotProductPage(IotProductTypeEntity entity) {
         // 是否移除,1=正常;2=已移除
         entity.setRemove(1);
         try {
