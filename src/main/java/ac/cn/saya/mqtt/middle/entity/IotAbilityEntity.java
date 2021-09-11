@@ -16,7 +16,7 @@ import java.util.Map;
  * @Description: 物模型属性
  */
 
-public class IotAbilityEntity extends BaseEntity{
+public class IotAbilityEntity extends BaseEntity {
 
 
     private static final long serialVersionUID = -4379644254454353199L;
@@ -41,7 +41,7 @@ public class IotAbilityEntity extends BaseEntity{
     /**
      * 属性类型（1：数值类型，2：状态类型）
      */
-    private Integer type;
+    private Integer type = 1;
 
     /**
      * 属性值范围
@@ -52,7 +52,7 @@ public class IotAbilityEntity extends BaseEntity{
     /**
      * 读写标志（1：读，2：写，3：读写）
      */
-    private Integer rwFlag;
+    private Integer rwFlag = 1;
 
     public IotAbilityEntity() {
     }
@@ -94,22 +94,22 @@ public class IotAbilityEntity extends BaseEntity{
     }
 
     public AbilityScopeParam getScope() {
-        if (StringUtils.isEmpty(scope)){
+        if (StringUtils.isEmpty(scope)) {
             return null;
         }
         // 将阈值数据（json对象）转换成java类型
         Map<String, Object> map = JackJsonUtil.objectToMap(scope);
-        if (1 == type){
+        if (1 == type) {
             // 返回数值类型的范围
-            if (map.containsKey("begin") && map.containsKey("end")){
-                return new AbilityScopeParam(String.valueOf(map.get("begin")),String.valueOf(map.get("end")));
+            if (map.containsKey("begin") && map.containsKey("end")) {
+                return new AbilityScopeParam(String.valueOf(map.get("begin")), String.valueOf(map.get("end")));
             }
-        }else {
+        } else {
             // 返回状态类型的数据
             Map<Integer, String> status = new HashMap<>(map.size());
-            for (Map.Entry<String,Object> item :map.entrySet()) {
+            for (Map.Entry<String, Object> item : map.entrySet()) {
                 item.getKey();
-                status.put(Integer.valueOf(item.getKey()),String.valueOf(item.getValue()));
+                status.put(Integer.valueOf(item.getKey()), String.valueOf(item.getValue()));
             }
             return new AbilityScopeParam(status);
         }

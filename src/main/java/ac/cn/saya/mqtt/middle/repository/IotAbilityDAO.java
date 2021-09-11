@@ -2,6 +2,7 @@ package ac.cn.saya.mqtt.middle.repository;
 
 import ac.cn.saya.mqtt.middle.entity.IotAbilityEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,11 +18,11 @@ import java.util.List;
 public interface IotAbilityDAO {
 
     /**
-     * 添加物模型属性信息
-     * @param entity
+     * 批量添加物模型属性信息
+     * @param list
      * @return
      */
-    public Integer insert(IotAbilityEntity entity);
+    public void batchInsert(@Param("list") List<IotAbilityEntity> list);
 
     /**
      * 修改物模型属性信息
@@ -42,7 +43,7 @@ public interface IotAbilityDAO {
      * @param productId
      * @return
      */
-    public List<IotAbilityEntity> queryPage(int productId);
+    public List<IotAbilityEntity> queryAbilityByProductId(int productId);
 
 
 }

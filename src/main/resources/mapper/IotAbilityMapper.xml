@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.IotAbilityDAO">
+
+    <resultMap type="iotAbility" id="IotAbilityMap">
+        <result property="id" column="id"/>
+        <result property="productId" column="productId"/>
+        <result property="identifier" column="identifier"/>
+        <result property="name" column="abilityName"/>
+        <result property="type" column="type"/>
+        <result property="scope" column="scope"/>
+        <result property="rwFlag" column="rwFlag"/>
+    </resultMap>
+
+    <!--根据产品id查看相关的属性-->
+    <select id="queryAbilityByProductId" resultType="iotAbility">
+        select
+            a.`id`, a.`product_id` as productId, a.`identifier`,a.`name`,a.`type`,a.`scope`,a.`rw_flag` as rwFlag
+        from iot_ability a
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="status != null and status != 0">
+                and a.`status` = #{status}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+        </where>
+    </select>
+
+    <!--批量添加物模型属性信息-->
+    <insert id="batchInsert" parameterType="list">
+        insert into iot_ability(`product_id`, `identifier`, `name`, `type`,`scope`,`rw_flag`)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.productId}, #{item.identifier}, #{item.name}, #{item.type},#{item.scope},#{item.rwFlag})
+        </foreach>
+    </insert>
+
+    <!--修改物模型属性信息-->
+    <update id="update" parameterType="iotAbility">
+        update iot_ability
+        <set>
+            <if test="identifier != null and identifier != ''">
+                `identifier` = #{identifier},
+            </if>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="type != null and type != 0">
+                `type` = #{type}
+            </if>
+            <if test="scope != null and scope != ''">
+                `scope` = #{scope},
+            </if>
+            <if test="rwFlag != null and rwFlag != 0">
+                `rw_flag` = #{rwFlag}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--删除物模型属性信息-->
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from iot_ability where id = #{id}
+    </delete>
+
+
+</mapper>

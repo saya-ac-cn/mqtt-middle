@@ -198,7 +198,7 @@ public interface DeviceService {
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> addIotProductAbility(IotAbilityEntity entity);
+    public Result<Integer> addIotProductAbiliy(List<IotAbilityEntity> entity);
 
     /**
      * @描述 修改iot产品物模型

@@ -6,8 +6,6 @@ import ac.cn.saya.mqtt.middle.tools.IOTException;
 import ac.cn.saya.mqtt.middle.service.DeviceService;
 import ac.cn.saya.mqtt.middle.tools.*;
 import ac.cn.saya.mqtt.middle.meta.Metadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,6 +16,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Title: DeviceServiceImpl
@@ -193,7 +192,7 @@ public class DeviceServiceImpl implements DeviceService {
                 return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除设备信息异常");
             }
             // 查询出设备信息，并从元数据中删除
-            List<IotClientEntity> clientEntities = iotClientDAO.queryByGatewayId(id);
+            List<IotClientEntity> clientEntities = iotClientDAO.queryClientByGatewayId(id);
             metadata.removeClients(clientEntities);
             // 删除认证信息
             if (iotIdentifyDAO.delete(query.getUuid()) < 0){
@@ -504,23 +503,23 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public Result<Integer> deleteIotProduct(Integer id) {
+        // 对于已经关联设备的产品不予删除
         if (null == id || id <= 0){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            IotClientEntity clientEntity = iotClientDAO.query(new IotClientEntity(id));
-            if (null == clientEntity){
-                return ResultUtil.error(ResultEnum.NOT_EXIST);
+            List<IotClientEntity> clientEntity = iotClientDAO.queryClientByProductId(id);
+            if (!CollectionUtils.isEmpty(clientEntity)){
+                return ResultUtil.error(ResultEnum.ERROR.getCode(),"该产品已经关联了其它设备，不允许删除");
             }
-            // 值为删除状态
-            clientEntity.setRemove(2);
-            if (iotClientDAO.update(clientEntity) >= 0){
-                metadata.removeClient(clientEntity);
-                return ResultUtil.success();
-            }
-            return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除设备异常");
+            IotProductTypeEntity entity = new IotProductTypeEntity();
+            entity.setId(id);
+            entity.setStatus(2);
+            iotProductTypeDAO.update(entity);
+            // TODO 需要更新缓存
+            return ResultUtil.success();
         } catch (Exception e) {
-            CurrentLineInfo.printCurrentLineInfo("删除设备发生异常", e,DeviceServiceImpl.class);
+            CurrentLineInfo.printCurrentLineInfo("删除产品发生异常", e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -536,13 +535,13 @@ public class DeviceServiceImpl implements DeviceService {
     @Transactional(readOnly = true)
     @Override
     public Result<Object> getIotProductPage(IotProductTypeEntity entity) {
-        // 是否移除,1=正常;2=已移除
-        entity.setRemove(1);
+        // 只显示正常的产品
+        entity.setStatus(1);
         try {
-            Long count = iotClientDAO.queryCount(entity);
-            return PageTools.page(count, entity, (condition) -> iotClientDAO.queryPage((IotClientEntity) condition));
+            Long count = iotProductTypeDAO.queryCount(entity);
+            return PageTools.page(count, entity, (condition) -> iotProductTypeDAO.queryPage((IotProductTypeEntity) condition));
         } catch (Exception e) {
-            CurrentLineInfo.printCurrentLineInfo("查询分页后的设备分页发生异常",e,DeviceServiceImpl.class);
+            CurrentLineInfo.printCurrentLineInfo("查询分页后的产品分页发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -557,8 +556,10 @@ public class DeviceServiceImpl implements DeviceService {
      * TODO 需要写入缓存
      */
     @Override
-    public Result<Integer> addIotProductAbility(IotAbilityEntity entity) {
-        if (null == entity || StringUtils.isEmpty(entity.getName())){
+    public Result<Integer> addIotProductAbility(List<IotAbilityEntity> entity) {
+        boolean flag = (null == entity || StringUtils.isEmpty(entity.getName()) || Objects.isNull(entity.getProductId())
+                || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getIdentifier()) );
+        if (flag){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {

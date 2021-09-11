@@ -71,7 +71,7 @@
     </select>
 
     <!--通过网关查询Iot终端-->
-    <select id="queryByGatewayId" resultMap="IotClientMap">
+    <select id="queryClientByGatewayId" resultMap="IotClientMap">
         select
             a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
             b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`,
@@ -79,6 +79,16 @@
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         left join iot_product_type c on c.id = a.product_id
         where a.`gateway_id` = #{gatewayId}
+    </select>
+
+    <select id="queryClientByProductId" resultMap="IotClientMap">
+        select
+            a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
+            b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`,
+            c.`id` as productId,c.`name` as productName
+        from iot_client a left join iot_gateway b on b.id = a.gateway_id
+        left join iot_product_type c on c.id = a.product_id
+        where a.product_id = #{productId}
     </select>
 
     <!--分页查询Iot终端 -->

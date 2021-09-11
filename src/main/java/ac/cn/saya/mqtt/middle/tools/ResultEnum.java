@@ -5,7 +5,7 @@ package ac.cn.saya.mqtt.middle.tools;
  */
 public enum ResultEnum {
 
-    FILE_TOO_BIG(-9, "文件太大"),
+    FILE_TOO_BIG(-10, "文件太大"),
     FILE_TYPE_ERROR(-9, "文件类型错误"),
     DB_ERROR(-8, "数据库读写失败"),
     NOT_CHECKING(-7, "未登录"),

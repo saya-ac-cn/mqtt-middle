@@ -35,7 +35,7 @@ public interface IotClientDAO {
      * @param gatewayId
      * @return 实例对象
      */
-    public List<IotClientEntity> queryByGatewayId(@Param("gatewayId") Integer gatewayId);
+    public List<IotClientEntity> queryClientByGatewayId(@Param("gatewayId") Integer gatewayId);
 
     /**
      * 分页查询Iot终端
@@ -44,6 +44,14 @@ public interface IotClientDAO {
      * @return 对象列表
      */
     public List<IotClientEntity> queryPage(IotClientEntity entity);
+
+
+    /**
+     * 通过产品id查询设备信息
+     * @param productId
+     * @return
+     */
+    public List<IotClientEntity> queryClientByProductId(@Param("productId")int productId);
 
 
     /**
