@@ -12,9 +12,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +47,11 @@ public class DeviceServiceImpl implements DeviceService {
     private IotProductTypeDAO iotProductTypeDAO;
 
     @Resource
+    private IotAbilityDAO iotAbilityDAO;
+
+    @Resource
     private Metadata metadata;
+
 
     /**
      * @Title   获取Iot网关类型
@@ -556,23 +562,25 @@ public class DeviceServiceImpl implements DeviceService {
      * TODO 需要写入缓存
      */
     @Override
-    public Result<Integer> addIotProductAbility(List<IotAbilityEntity> entity) {
-        boolean flag = (null == entity || StringUtils.isEmpty(entity.getName()) || Objects.isNull(entity.getProductId())
-                || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getIdentifier()) );
-        if (flag){
-            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
-        }
+    public Result<Integer> addIotProductAbility(List<IotAbilityEntity> entities) {
+        List<IotAbilityEntity> params = new ArrayList<>(entities.size());
         try {
-            List<IotProductTypeEntity> checkResult = iotProductTypeDAO.queryList(entity);
-            if (CollectionUtils.isEmpty(checkResult)){
-                // TODO 创建时默认启用
-                entity.setStatus(1);
-                iotProductTypeDAO.insert(entity);
-                return ResultUtil.success();
+            for (IotAbilityEntity entity:entities) {
+                boolean flag = (null == entity || StringUtils.isEmpty(entity.getName()) || Objects.isNull(entity.getProductId())
+                        || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getIdentifier()) );
+                if (flag){
+                    continue;
+                }
+                params.add(entity);
             }
-            return ResultUtil.error(ResultEnum.ERROR.getCode(),"该产品名称已经存在了，请换一个吧");
+            if (CollectionUtils.isEmpty(params)){
+                return ResultUtil.error(ResultEnum.NOT_PARAMETER);
+            }
+            iotAbilityDAO.batchInsert(params);
+            // TODO 插入到缓存
+            return ResultUtil.success();
         } catch (Exception e) {
-            CurrentLineInfo.printCurrentLineInfo("添加iot产品发生异常",e,DeviceServiceImpl.class);
+            CurrentLineInfo.printCurrentLineInfo("添加iot产品物模型发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -588,29 +596,19 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public Result<Integer> editIotProductAbility(IotAbilityEntity entity) {
-        if (null == entity || entity.getId()== null || StringUtils.isEmpty(entity.getName())){
+        boolean flag = (null == entity || StringUtils.isEmpty(entity.getName()) || Objects.isNull(entity.getProductId())
+                || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getIdentifier()) );
+        if (flag){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            IotProductTypeEntity checkWhere = new IotProductTypeEntity();
-            checkWhere.setName(entity.getName());
-            List<IotProductTypeEntity> checkResult = iotProductTypeDAO.queryList(checkWhere);
-            boolean checkFlag = true;
-            for (IotProductTypeEntity item:checkResult) {
-                if ((entity.getName()).equals(item.getName()) && (entity.getId()).equals(item.getId())){
-                    // 要修该的产品名和已有的产品名冲突
-                    checkFlag = false;
-                }
+            if (iotAbilityDAO.update(entity) >= 0){
+                // TODO 更新缓存
+                return ResultUtil.success();
             }
-            if (!checkFlag){
-                return ResultUtil.error(ResultEnum.ERROR.getCode(),"该产品名称已经存在了，请换一个吧");
-            }
-            // TODO 由于当前只允许修改产品的名称，为了防止用户在这一步修改产品的状态，在这里将产品的状态临时置位null
-            entity.setStatus(null);
-            iotProductTypeDAO.update(entity);
-            return ResultUtil.success();
+            return ResultUtil.error(ResultEnum.ERROR.getCode(),"修改iot产品物模型异常");
         } catch (Exception e) {
-            CurrentLineInfo.printCurrentLineInfo("修改产品发生异常", e,DeviceServiceImpl.class);
+            CurrentLineInfo.printCurrentLineInfo("修改iot产品物模型发生异常", e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -630,17 +628,11 @@ public class DeviceServiceImpl implements DeviceService {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
-            IotClientEntity clientEntity = iotClientDAO.query(new IotClientEntity(id));
-            if (null == clientEntity){
-                return ResultUtil.error(ResultEnum.NOT_EXIST);
-            }
-            // 值为删除状态
-            clientEntity.setRemove(2);
-            if (iotClientDAO.update(clientEntity) >= 0){
-                metadata.removeClient(clientEntity);
+            if (iotAbilityDAO.delete(id) >= 0){
+                // TODO 更新缓存
                 return ResultUtil.success();
             }
-            return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除设备异常");
+            return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除iot产品物模型异常");
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("删除设备发生异常", e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
@@ -657,14 +649,11 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Transactional(readOnly = true)
     @Override
-    public Result<Object> getIotProductAbilityPage(IotAbilityEntity entity) {
-        // 是否移除,1=正常;2=已移除
-        entity.setRemove(1);
+    public Result<List<IotAbilityEntity>> getIotProductAbilityPage(Integer id) {
         try {
-            Long count = iotClientDAO.queryCount(entity);
-            return PageTools.page(count, entity, (condition) -> iotClientDAO.queryPage((IotClientEntity) condition));
+            return ResultUtil.success(iotAbilityDAO.queryAbilityByProductId(id));
         } catch (Exception e) {
-            CurrentLineInfo.printCurrentLineInfo("查询分页后的设备分页发生异常",e,DeviceServiceImpl.class);
+            CurrentLineInfo.printCurrentLineInfo("查询iot产品物模型列表发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }

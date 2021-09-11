@@ -198,7 +198,7 @@ public interface DeviceService {
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> addIotProductAbiliy(List<IotAbilityEntity> entity);
+    public Result<Integer> addIotProductAbility(List<IotAbilityEntity> entities);
 
     /**
      * @描述 修改iot产品物模型
@@ -212,7 +212,7 @@ public interface DeviceService {
 
     /**
      * @描述 删除iot产品物模型
-     * @参数  [id]
+     * @参数  [id] 主键
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人  shmily
      * @创建时间  2020/8/1
@@ -222,12 +222,12 @@ public interface DeviceService {
 
     /**
      * @描述 iot产品物模型列表
-     * @参数  [entity]
+     * @参数  [id] 产品id
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
      * @创建人  shmily
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Object> getIotProductAbilityPage(IotAbilityEntity entity);
+    public Result<List<IotAbilityEntity>> getIotProductAbilityPage(Integer id);
 
 }
