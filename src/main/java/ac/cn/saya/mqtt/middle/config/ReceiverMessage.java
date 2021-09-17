@@ -1,5 +1,6 @@
 package ac.cn.saya.mqtt.middle.config;
 
+import ac.cn.saya.mqtt.middle.entity.IotAbilityEntity;
 import ac.cn.saya.mqtt.middle.entity.IotClientEntity;
 import ac.cn.saya.mqtt.middle.entity.IotCollectionEntity;
 import ac.cn.saya.mqtt.middle.meta.ClientParam;
@@ -96,38 +97,49 @@ public class ReceiverMessage {
             System.out.println("----------------------------START---------------------------\n" +
                     "接收到订阅消息:\ntopic:" + topic + "\nmessage:" + msg +
                     "\n-----------------------------END----------------------------");
-            // 提取网关编号id
+            // 提取网关唯一编号id
             String uuid = topic.substring(topic.lastIndexOf("/") + 1);
             JsonNode jsonNode = JackJsonUtil.readTree(msg);
-            JsonNode serialNumNode = jsonNode.get("serialNum");
-            int serialNum = -1;
-            // 检查数据是否完整（对于缺少序号的数据直接过滤）
-            if (null == serialNumNode || -1 == (serialNum = serialNumNode.asInt(-1))){
-                return;
-            }
-            // 在缓存中查询设备是否存在
-            IotClientEntity client = metadata.getClients(new ClientParam(uuid, serialNum));
-            if (null == client){
-                return;
-            }
-            collectionService.updateDeviceHeart(client.getGatewayId(),client.getId());
-            Iterator<Map.Entry<String, JsonNode>> fields = jsonNode.fields();
+            // 遍历处理本网关上报上来的各设备数据
+            Iterator<Map.Entry<String, JsonNode>> deviceReport = jsonNode.fields();
             // 提取上报数据
             List<IotCollectionEntity> datas = new ArrayList<>();
-            while(fields.hasNext()) {
-                Map.Entry<String, JsonNode> node = fields.next();
-                String key = node.getKey();
-                if ("serialNum".equals(key)){
+            while(deviceReport.hasNext()) {
+                Map.Entry<String, JsonNode> reports = deviceReport.next();
+                int serialNum = Integer.parseInt(reports.getKey());
+                // 在缓存中查询设备是否存在
+                IotClientEntity client = metadata.getClients(new ClientParam(uuid, serialNum));
+                if (null == client){
                     continue;
                 }
-                JsonNode nodeValue = node.getValue();
-                datas.add(new IotCollectionEntity(client.getId(),key,nodeValue.asText("")));
+                // 修改上报时间
+                collectionService.updateDeviceHeart(client.getId());
+                // 通过产品id，拿到本产品下物模型
+                Map<String, IotAbilityEntity> abilities = metadata.getProduct(client.getProductId());
+                if (CollectionUtils.isEmpty(abilities)){
+                    continue;
+                }
+                // 处理本序号下的上报数据
+                JsonNode reportsValue = reports.getValue();
+                Iterator<Map.Entry<String, JsonNode>> propertyReport = reportsValue.fields();
+                while(propertyReport.hasNext()) {
+                    Map.Entry<String, JsonNode> node = propertyReport.next();
+                    // 本设备上报数据属性key
+                    String property = node.getKey();
+                    IotAbilityEntity ability = abilities.getOrDefault(property, null);
+                    if (Objects.isNull(ability)){
+                        // 上报的数据不再物模型中时，不予加工处理
+                    }
+
+                    // 本设备上报数据值value
+                    JsonNode nodeValue = node.getValue();
+                    datas.add(new IotCollectionEntity(client.getId(),ability.getId(),nodeValue.asText("")));
+                }
             }
-            if (CollectionUtils.isEmpty(datas)){
-                return;
-            }
+            // 修改网关的上报时间
+            collectionService.updateGatewayHeart(uuid);
             collectionService.insertCollectionData(datas);
-            collectionService.checkRuleWarring(client,datas);
+            collectionService.checkRuleWarring(datas);
         };
     }
 
