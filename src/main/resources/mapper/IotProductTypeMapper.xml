@@ -52,7 +52,7 @@
     </select>
 
     <!--分页查询产品信息-->
-    <select id="queryPage" resultType="iotProductType">
+    <select id="queryPage" parameterType="iotProductType" resultType="iotProductType">
         select
             a.`id`, a.`name`, a.`status`
         from iot_product_type a
@@ -72,7 +72,7 @@
     </select>
 
     <!--查询产品数量-->
-    <select id="queryCount" resultType="java.lang.Long">
+    <select id="queryCount" parameterType="iotProductType" resultType="java.lang.Long">
         select
             count(*)
         from iot_product_type a

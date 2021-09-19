@@ -5,18 +5,24 @@
     <resultMap type="iotAbility" id="IotAbilityMap">
         <result property="id" column="id"/>
         <result property="productId" column="productId"/>
-        <result property="identifier" column="identifier"/>
-        <result property="name" column="abilityName"/>
+        <result property="property" column="property"/>
+        <result property="standardId" column="standardId"/>
         <result property="type" column="type"/>
         <result property="scope" column="scope"/>
         <result property="rwFlag" column="rwFlag"/>
+        <association property="standardUnit" javaType="iotStandardUnit">
+            <result property="id" column="standardId"/>
+            <result property="name" column="name"/>
+            <result property="symbol" column="symbol"/>
+        </association>
     </resultMap>
 
     <!--根据产品id查看相关的属性-->
     <select id="queryAbilityByProductId" resultType="iotAbility">
         select
-            a.`id`, a.`product_id` as productId, a.`identifier`,a.`name`,a.`type`,a.`scope`,a.`rw_flag` as rwFlag
-        from iot_ability a
+          a.`id`, a.`product_id` as productId, a.`property`,a.`standard_id` as standardId,a.`type`,a.`scope`,a.`rw_flag` as rwFlag,
+          b.`name`,b.`symbol`
+        from iot_ability a left join iot_standard_unit b on a.`standard_id` = b.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
@@ -32,22 +38,23 @@
 
     <!--批量添加物模型属性信息-->
     <insert id="batchInsert" parameterType="list">
-        insert into iot_ability(`product_id`, `identifier`, `name`, `type`,`scope`,`rw_flag`)
+        insert into iot_ability(`product_id`, `property`, `standard_id`, `type`,`scope`,`rw_flag`)
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.productId}, #{item.identifier}, #{item.name}, #{item.type},#{item.scope},#{item.rwFlag})
+            (#{item.productId}, #{item.property}, #{item.standardId}, #{item.type},#{item.scope},#{item.rwFlag})
         </foreach>
     </insert>
+
 
     <!--修改物模型属性信息-->
     <update id="update" parameterType="iotAbility">
         update iot_ability
         <set>
-            <if test="identifier != null and identifier != ''">
-                `identifier` = #{identifier},
+            <if test="property != null and property != ''">
+                `property` = #{property},
             </if>
-            <if test="name != null and name != ''">
-                `name` = #{name},
+            <if test="standardId != null and standardId != ''">
+                `standard_id` = #{standardId},
             </if>
             <if test="type != null and type != 0">
                 `type` = #{type}

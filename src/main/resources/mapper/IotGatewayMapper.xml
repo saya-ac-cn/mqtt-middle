@@ -212,7 +212,7 @@
 
     <!--修改最后上报时间-->
     <update id="updateHeart">
-        update iot_gateway set `last_heartbeat` = now() where id = #{id}
+        update iot_gateway set `last_heartbeat` = now() where uuid = #{uuid}
     </update>
 
 </mapper>

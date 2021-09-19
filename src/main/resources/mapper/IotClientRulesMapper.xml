@@ -91,7 +91,6 @@
           c.`id` as rule_id, c.`name` as rule_name, c.`units`,c.`symbol`, c.`value1`,c.`value2`, c.`enable`, c.`create_time`, c.`update_time`,d.`name` as units_name
         from iot_client_rules a left join iot_client b on a.client_id = b.id
         left join iot_warning_rules c on a.rule_id = c.id
-        left join iot_units d on c.`units` = d.`symbol`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}

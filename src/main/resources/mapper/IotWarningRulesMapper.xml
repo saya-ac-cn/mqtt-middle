@@ -5,28 +5,51 @@
     <resultMap type="iotWarningRules" id="IotWarningRulesMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
-        <result property="units" column="units"/>
-        <result property="unitsName" column="units_name"/>
+        <result property="abilityId" column="abilityId"/>
         <result property="symbol" column="symbol"/>
         <result property="value1" column="value1"/>
         <result property="value2" column="value2"/>
         <result property="enable" column="enable"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <association property="abilityEntity" javaType="iotAbility">
+            <result property="id" column="ability_id"/>
+            <result property="productId" column="productId"/>
+            <result property="property" column="property"/>
+            <result property="standardId" column="standardId"/>
+            <result property="type" column="type"/>
+            <result property="scope" column="scope"/>
+            <result property="rwFlag" column="rwFlag"/>
+            <association property="standardUnit" javaType="iotStandardUnit">
+                <result property="id" column="standardId"/>
+                <result property="name" column="unitName"/>
+                <result property="symbol" column="unitSymbol"/>
+            </association>
+        </association>
     </resultMap>
 
     <!--查询所有告警规则-->
     <select id="selector" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
-        from iot_warning_rules a left join iot_units b on a.`units` = b.`symbol`
+          a.`id`, a.`name`, a.`ability_id`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,
+		  b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
+          c.`name` as unitName,c.`symbol` as unitSymbol
+        from
+        iot_warning_rules a
+		left join iot_ability b on a.`ability_id` = b.`id`
+		left join iot_standard_unit c on b.`standard_id` = c.`id`
     </select>
 
     <!--查询Iot告警规则-->
     <select id="query" resultMap="IotWarningRulesMap">
         select
-        a.`id`, a.`name`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
-        from iot_warning_rules a left join iot_units b on a.`units` = b.`symbol`
+          a.`id`, a.`name`, a.`ability_id`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,
+          b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
+          c.`name` as unitName,c.`symbol` as unitSymbol
+        from
+        iot_warning_rules a
+        left join iot_ability b on a.`ability_id` = b.`id`
+        left join iot_standard_unit c on b.`standard_id` = c.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
@@ -44,8 +67,13 @@
     <!--分页查询Iot告警规则-->
     <select id="queryPage" resultMap="IotWarningRulesMap">
         select
-            a.`id`, a.`name`, a.`units`, a.`symbol`,a.`value1`, a.`value2`,a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
-        from iot_warning_rules a left join iot_units b on a.`units` = b.`symbol`
+          a.`id`, a.`name`, a.`ability_id`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,
+		  b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
+          c.`name` as unitName,c.`symbol` as unitSymbol
+        from
+        iot_warning_rules a
+		left join iot_ability b on a.`ability_id` = b.`id`
+		left join iot_standard_unit c on b.`standard_id` = c.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
@@ -87,10 +115,10 @@
 
     <!--新增Iot告警规则-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
-        insert into iot_warning_rules(`name`, `units`,`symbol`, `value1`, `value2`,`enable`,create_time)
+        insert into iot_warning_rules(`name`, `ability_id`,`symbol`, `value1`, `value2`,`enable`,create_time)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.name}, #{item.units},#{item.symbol}, #{item.value1},#{item.value2}, #{item.enable},now())
+            (#{item.name}, #{item.abilityId},#{item.symbol}, #{item.value1},#{item.value2}, #{item.enable},now())
         </foreach>
     </insert>
 
@@ -102,8 +130,8 @@
                 <if test="item.name != null and item.name != ''">
                     `name` = #{item.name},
                 </if>
-                <if test="item.units != null and item.units != ''">
-                    `units` = #{item.units},
+                <if test="item.abilityId != null and item.abilityId != 0">
+                    `ability_id` = #{item.abilityId},
                 </if>
                 <if test="item.symbol != null and item.symbol != ''">
                     `symbol` = #{item.symbol},
