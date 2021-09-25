@@ -30,9 +30,9 @@ public class IotWarningRulesEntity extends BaseEntity{
     private String name;
 
     /**
-     * 基本物理量
+     * 物模型（外键）
      */
-    private String units;
+    private Integer abilityId;
 
     /**
      * 运算符
@@ -77,7 +77,7 @@ public class IotWarningRulesEntity extends BaseEntity{
     /**
      * 物理量名称（非数据库字段）
      */
-    private String unitsName;
+    private IotAbilityEntity abilityEntity;
 
     @Override
     public boolean equals(Object o) {

@@ -29,9 +29,9 @@ public class IotCollectionEntity extends BaseEntity{
     private Integer clientId;
 
     /**
-     * 量的名称
+     * 物模型属性(外键)
      */
-    private String units;
+    private Integer abilityId;
 
     /**
      * 值
@@ -49,9 +49,14 @@ public class IotCollectionEntity extends BaseEntity{
      */
     private IotClientEntity iotClient;
 
-    public IotCollectionEntity(Integer clientId, String units, String value) {
+    /**
+     * 所属的物模型信息，非数据字段
+     */
+    private IotAbilityEntity abilities;
+
+    public IotCollectionEntity(Integer clientId, Integer abilityId, String value) {
         this.clientId = clientId;
-        this.units = units;
+        this.abilityId = abilityId;
         this.value = value;
     }
 }

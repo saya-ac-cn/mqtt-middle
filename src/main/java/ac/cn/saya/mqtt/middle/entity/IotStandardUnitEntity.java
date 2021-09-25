@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * @Title: IotStandardUnit
+ * @Title: IotStandardUnitEntity
  * @ProjectName mqtt-middle
  * @Description: TODO
  * @Author liunengkai
@@ -15,12 +15,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class IotStandardUnit {
+public class IotStandardUnitEntity {
 
     private Integer id;
 
     /**
-     * 符号
+     * 单位
      */
     private String name;
 

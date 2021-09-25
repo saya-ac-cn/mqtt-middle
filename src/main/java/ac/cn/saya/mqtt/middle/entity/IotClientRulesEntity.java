@@ -41,11 +41,6 @@ public class IotClientRulesEntity extends BaseEntity{
     private IotWarningRulesEntity rule;
 
     /**
-     * 设备信息（非数据库字段）
-     */
-    private IotClientEntity client;
-
-    /**
      *  是否启用（非数据库字段）(1:启用,2:关闭)
      */
     private Integer enable;

@@ -29,14 +29,14 @@ public class IotAbilityEntity extends BaseEntity {
     private Integer productId;
 
     /**
-     * 属性符号
+     * 属性字段
      */
-    private String identifier;
+    private String property;
 
     /**
-     * 属性名称
+     * 单位物理量(外键)
      */
-    private String name;
+    private String standardId;
 
     /**
      * 属性类型（1：数值类型，2：状态类型）
@@ -54,6 +54,11 @@ public class IotAbilityEntity extends BaseEntity {
      */
     private Integer rwFlag = 1;
 
+    /**
+     * 物模型关联的标准物理量（非数据库字段）
+     */
+    private IotStandardUnitEntity standardUnit;
+
     public IotAbilityEntity() {
     }
 
@@ -69,20 +74,20 @@ public class IotAbilityEntity extends BaseEntity {
         this.id = id;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getProperty() {
+        return property;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setProperty(String property) {
+        this.property = property;
     }
 
-    public String getName() {
-        return name;
+    public String getStandardId() {
+        return standardId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setStandardId(String standardId) {
+        this.standardId = standardId;
     }
 
     public Integer getType() {
@@ -105,7 +110,7 @@ public class IotAbilityEntity extends BaseEntity {
                 return new AbilityScopeParam(String.valueOf(map.get("begin")), String.valueOf(map.get("end")));
             }
         } else {
-            // 返回状态类型的数据
+            // 返回状态类型（枚举）的数据
             Map<Integer, String> status = new HashMap<>(map.size());
             for (Map.Entry<String, Object> item : map.entrySet()) {
                 item.getKey();
@@ -134,5 +139,13 @@ public class IotAbilityEntity extends BaseEntity {
 
     public void setRwFlag(Integer rwFlag) {
         this.rwFlag = rwFlag;
+    }
+
+    public IotStandardUnitEntity getStandardUnit() {
+        return standardUnit;
+    }
+
+    public void setStandardUnit(IotStandardUnitEntity standardUnit) {
+        this.standardUnit = standardUnit;
     }
 }

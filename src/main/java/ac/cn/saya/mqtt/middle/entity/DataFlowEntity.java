@@ -35,7 +35,7 @@ public class DataFlowEntity extends BaseEntity{
     /**
      * 单位
      */
-    private IotStandardUnit unit;
+    private IotStandardUnitEntity unit;
 
     /**
      * 类别【1：系统级（不允许删除修改），2：用户级别（可以操作）】
