@@ -20,16 +20,6 @@ import java.util.Map;
 public interface CollectionService {
 
     /**
-     * @描述 获取基本物理量
-     * @参数
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
-     * @创建人 shmily
-     * @创建时间 2020/8/2
-     * @修改人和其它信息
-     */
-    public Result<Object> getSymbolUnits();
-
-    /**
      * @描述 获取所有告警规则列表
      * @参数
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
@@ -111,13 +101,13 @@ public interface CollectionService {
 
     /**
      * @Title 根据采集的数据校验是否产生异常告警
-     * @Params  [client, datas]
+     * @Params  [datas]
      * @Return  void
      * @Author  saya.ac.cn-刘能凯
      * @Date  4/11/21
      * @Description
      */
-    public void checkRuleWarring(IotClientEntity client,List<IotCollectionEntity> datas);
+    public void checkRuleWarring(List<IotCollectionEntity> datas);
 
     /**
      * @Title 分页查看设备已经绑定的告警报告信息
@@ -160,13 +150,23 @@ public interface CollectionService {
     public Result<Integer> deleteIotClientRule(List<IotClientRulesEntity> list);
 
     /**
-     * @Title 修改设备最后上报时间
-     * @Params  [gatewayId, clientId]
+     * @Title 修改网关的最后上报时间
+     * @Params  [gatewayId]
      * @Return  void
      * @Author  saya.ac.cn-刘能凯
      * @Date  6/26/21
      * @Description
      */
-    public void updateDeviceHeart(int gatewayId,int clientId);
+    public void updateGatewayHeart(String uuid);
+
+    /**
+     * @Title 修改设备最后上报时间
+     * @Params  [clientId]
+     * @Return  void
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/26/21
+     * @Description
+     */
+    public void updateDeviceHeart(int clientId);
 
 }

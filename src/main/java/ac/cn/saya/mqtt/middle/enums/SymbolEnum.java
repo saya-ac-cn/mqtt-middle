@@ -20,6 +20,10 @@ public enum SymbolEnum {
 
     private final String descript;
 
+    public String getDescript() {
+        return descript;
+    }
+
     SymbolEnum(String descript) {
         this.descript = descript;
     }

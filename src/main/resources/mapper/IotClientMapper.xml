@@ -221,5 +221,8 @@
         update iot_client set `last_link_time` = now() where id = #{id}
     </update>
 
+    <select id="queryUsedSerialNum" resultType="iotClient">
+        select `name`,`serial_num` as serialNum from iot_client where gateway_id = #{gatewayId} order by serial_num
+    </select>
 
 </mapper>

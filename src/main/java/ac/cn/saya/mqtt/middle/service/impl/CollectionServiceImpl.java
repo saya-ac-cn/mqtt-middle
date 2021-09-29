@@ -1,6 +1,7 @@
 package ac.cn.saya.mqtt.middle.service.impl;
 
 import ac.cn.saya.mqtt.middle.entity.*;
+import ac.cn.saya.mqtt.middle.enums.SymbolEnum;
 import ac.cn.saya.mqtt.middle.meta.Metadata;
 import ac.cn.saya.mqtt.middle.repository.*;
 import ac.cn.saya.mqtt.middle.service.CollectionService;
@@ -47,26 +48,6 @@ public class CollectionServiceImpl implements CollectionService {
 
     @Resource
     private Metadata metadata;
-
-    /**
-     * @描述 获取基本物理量
-     * @参数
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
-     * @创建人 shmily
-     * @创建时间 2020/8/2
-     * @修改人和其它信息
-     */
-    @Transactional(readOnly = true)
-    @Override
-    public Result<Object> getSymbolUnits() {
-        try {
-            Map<String, String> units = metadata.getUnits();
-            return ResultUtil.success(units);
-        } catch (Exception e) {
-            CurrentLineInfo.printCurrentLineInfo("获取基本物理量发生异常", e, CollectionServiceImpl.class);
-            throw new IOTException(ResultEnum.ERROR);
-        }
-    }
 
     /**
      * @描述 获取所有告警规则列表
@@ -250,6 +231,9 @@ public class CollectionServiceImpl implements CollectionService {
     @Override
     public void insertCollectionData(List<IotCollectionEntity> datas) {
         try {
+            if (CollectionUtils.isEmpty(datas)){
+                return;
+            }
             iotCollectionDAO.batchInsert(datas);
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("批量写入采集数据发生异常", e, CollectionServiceImpl.class);
@@ -257,31 +241,42 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     /**
-     * @param client 设备信息
+     * 根据采集的数据校验是否产生异常告警
      * @param datas  采集数据
-     * @Title根据采集的数据校验是否产生异常告警
      * @Return
      * @Author saya.ac.cn-刘能凯
      * @Date 4/11/21
      * @Description
      */
     @Override
-    public void checkRuleWarring(IotClientEntity client, List<IotCollectionEntity> datas) {
-        List<IotWarningRulesEntity> rules = metadata.getRule(client.getId());
-        if (CollectionUtils.isEmpty(rules)) {
+    public void checkRuleWarring(List<IotCollectionEntity> datas) {
+        if (CollectionUtils.isEmpty(datas)) {
+            CurrentLineInfo.printCurrentLineInfo("跳过告警检查：", CollectionServiceImpl.class,"由于本批次数据为空，所以跳过检查");
             return;
         }
+
         List<IotWarningResultEntity> result = new ArrayList<>(datas.size());
-        for (IotWarningRulesEntity rule : rules) {
-            List<IotCollectionEntity> collectData = datas.stream().filter(e -> (rule.getUnits()).equals(e.getUnits())).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(collectData)) {
-                continue;
+        // 第一次遍历上报数据
+        for (IotCollectionEntity record:datas) {
+            List<IotWarningRulesEntity> rules = metadata.getRule(record.getClientId());
+            if (CollectionUtils.isEmpty(rules)) {
+                return;
             }
-            // 在指定规则下，只能对应一种上报的数据类型（终端设备上报的数据中，各种类型的数据只有一条）。
-            IotCollectionEntity item = collectData.get(0);
-            boolean flag = SymbolCompareUtil.compare(rule.getSymbol(), rule.getValue1(), rule.getValue2(), item.getValue());
-            System.out.println("告警结果：" + flag);
-            result.add(new IotWarningResultEntity(client.getId(), rule.getId(), "数据上报告警", rule.getUnitsName() + "=" + item.getValue()));
+            // 针对这条数据依次去拿告警规则进行比对
+            for (IotWarningRulesEntity rule : rules) {
+                // 判断当前的数据字段是否为本告警规则字段
+                if (!Objects.equals(record.getAbilityId(),rule.getAbilityId())){
+                    continue;
+                }
+                SymbolEnum op = SymbolEnum.valueOf(rule.getSymbol());
+                if (Objects.isNull(op)){
+                    CurrentLineInfo.printCurrentLineInfo("获取运算符失败：", CollectionServiceImpl.class,rule.getSymbol()+"无效");
+                    continue;
+                }
+                boolean flag = SymbolCompareUtil.compare(op, rule.getValue1(), rule.getValue2(), record.getValue());
+                System.out.println("告警结果：" + flag);
+                result.add(new IotWarningResultEntity(record.getClientId(), rule.getId(), "数据上报告警", rule.getAbilityEntity().getProperty() + op.getDescript() + record.getValue()));
+            }
         }
         if (!CollectionUtils.isEmpty(result)) {
             iotWarningResultDAO.batchInsert(result);
@@ -392,13 +387,21 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     /**
-     * 修改设备&网关的最后山包时间
-     * @param gatewayId
-     * @param clientId
+     * 修改网关的最后上报时间
+     * @param uuid 网关唯一编码
      */
     @Override
-    public void updateDeviceHeart(int gatewayId,int clientId){
-        iotGatewayDAO.updateHeart(gatewayId);
+    public void updateGatewayHeart(String uuid){
+        iotGatewayDAO.updateHeart(uuid);
+        metadata.addOnlineGateway(uuid);
+    }
+
+    /**
+     * 修改设备的最后上报时间
+     * @param clientId 设备id
+     */
+    @Override
+    public void updateDeviceHeart(int clientId){
         iotClientDAO.updateHeart(clientId);
     }
 

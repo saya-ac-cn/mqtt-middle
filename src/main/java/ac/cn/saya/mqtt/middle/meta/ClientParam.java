@@ -23,7 +23,7 @@ public class ClientParam {
     private String uuid;
 
     /**
-     * 设备在网关上的唯一序列号
+     * 设备在网关上的序号
      */
     private Integer serialNum;
 

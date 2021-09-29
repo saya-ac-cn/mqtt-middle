@@ -103,4 +103,14 @@ public interface IotClientDAO {
      */
     public int updateHeart(@Param("id") int id);
 
+    /**
+     * 查看指定网关下已用的序号
+     * @param gatewayId 网关
+     * @return  已使用的序号列表
+     * @author  saya.ac.cn-刘能凯
+     * @date  9/20/21
+     * @description
+     */
+    public List<IotClientEntity> queryUsedSerialNum(@Param("gatewayId") Integer gatewayId);
+
 }

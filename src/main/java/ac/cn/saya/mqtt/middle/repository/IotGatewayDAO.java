@@ -67,9 +67,9 @@ public interface IotGatewayDAO {
 
     /**
      * 修改最后上报时间
-     * @param id 网关id
+     * @param uuid 网关唯一编号
      * @return
      */
-    public int updateHeart(@Param("id") int id);
+    public int updateHeart(@Param("uuid") String uuid);
 
 }

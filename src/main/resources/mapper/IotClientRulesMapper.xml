@@ -4,50 +4,66 @@
 
     <resultMap type="iotClientRules" id="IotClientRulesMap">
         <result property="id" column="id"/>
-        <result property="clientId" column="client_id"/>
-        <result property="ruleId" column="rule_id"/>
-        <association property="client" javaType="iotClient">
-            <result property="id" column="client_id"/>
-            <result property="name" column="client_name"/>
-            <result property="lastLinkTime" column="last_link_time"/>
-        </association>
+        <result property="clientId" column="clientId"/>
+        <result property="ruleId" column="ruleId"/>
         <association property="rule" javaType="iotWarningRules">
-            <result property="id" column="rule_id"/>
-            <result property="name" column="rule_name"/>
-            <result property="units" column="units"/>
-            <result property="unitsName" column="units_name"/>
+            <result property="id" column="ruleId"/>
+            <result property="name" column="name"/>
+            <result property="abilityId" column="abilityId"/>
             <result property="symbol" column="symbol"/>
             <result property="value1" column="value1"/>
             <result property="value2" column="value2"/>
             <result property="enable" column="enable"/>
             <result property="createTime" column="create_time"/>
             <result property="updateTime" column="update_time"/>
+            <association property="abilityEntity" javaType="iotAbility">
+                <result property="id" column="abilityId"/>
+                <result property="productId" column="productId"/>
+                <result property="property" column="property"/>
+                <result property="standardId" column="standardId"/>
+                <result property="type" column="type"/>
+                <result property="scope" column="scope"/>
+                <result property="rwFlag" column="rwFlag"/>
+            </association>
         </association>
     </resultMap>
 
     <resultMap type="iotWarningRules" id="IotWarningRulesMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
-        <result property="units" column="units"/>
-        <result property="unitsName" column="units_name"/>
+        <result property="abilityId" column="abilityId"/>
         <result property="symbol" column="symbol"/>
         <result property="value1" column="value1"/>
         <result property="value2" column="value2"/>
         <result property="enable" column="enable"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <association property="abilityEntity" javaType="iotAbility">
+            <result property="id" column="ability_id"/>
+            <result property="productId" column="productId"/>
+            <result property="property" column="property"/>
+            <result property="standardId" column="standardId"/>
+            <result property="type" column="type"/>
+            <result property="scope" column="scope"/>
+            <result property="rwFlag" column="rwFlag"/>
+        </association>
     </resultMap>
 
     <!-- 查询指定设备关联的规则列表 -->
     <select id="queryByClient" resultMap="IotWarningRulesMap">
-        select  a.`id`, a.`name`, a.`units`,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,b.`name` as units_name
-        from iot_client_rules z left join iot_warning_rules a on z.rule_id = a.id left join iot_units b on a.`units` = b.`symbol`
+        select
+            a.`id`,b.`name`, b.`ability_id`,b.`symbol`, b.`value1`,b.`value2`, b.`enable`, b.`create_time`, b.`update_time`,
+            c.`product_id` as productId, c.`property`,c.`standard_id` as standardId,c.`type`,c.`scope`,c.`rw_flag` as rwFlag
+        from
+            iot_client_rules a
+            left join iot_warning_rules b on a.rule_id= b.id
+            left join iot_ability c on b.`ability_id` = c.`id`
         <where>
             <if test="clientId != null and clientId != 0">
-                z.client_id = ${clientId}
+                a.client_id = ${clientId}
             </if>
             <if test="enable != null and enable != 0">
-                and a.`enable` = #{enable}
+                and b.`enable` = #{enable}
             </if>
         </where>
     </select>
@@ -60,13 +76,15 @@
     </select>
 
     <!--查询设备绑定的告警规则-->
-    <select id="query" resultMap="IotClientRulesMap">
-        select
-          a.id,b.id as client_id,b.`name` as client_name,b.last_link_time,
-          c.`id` as rule_id, c.`name` as rule_name, c.`units`,c.`symbol`, c.`value1`,c.`value2`, c.`enable`, c.`create_time`, c.`update_time`,d.`name` as units_name
-        from iot_client_rules a left join iot_client b on a.client_id = b.id
-        left join iot_warning_rules c on a.rule_id = c.id
-        left join iot_units d on c.`units` = d.`symbol`
+    <select id="query" parameterType="iotClientRules" resultMap="IotClientRulesMap">
+    select
+        a.`id`,a.`client_id` as clientId,a.`rule_id` as ruleId,
+        b.`name`, b.`ability_id`,b.`symbol`, b.`value1`,b.`value2`, b.`enable`, b.`create_time`, b.`update_time`,
+        c.`product_id` as productId, c.`property`,c.`standard_id` as standardId,c.`type`,c.`scope`,c.`rw_flag` as rwFlag
+    from
+        iot_client_rules a
+        left join iot_warning_rules b on a.rule_id= b.id
+        left join iot_ability c on b.`ability_id` = c.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
@@ -78,44 +96,47 @@
                 and a.`rule_id` = #{ruleId}
             </if>
             <if test="enable != null and enable != 0">
-                and c.`enable` = #{enable}
+                and b.`enable` = #{enable}
             </if>
         </where>
         limit 1
     </select>
 
     <!--分页查询设备绑定的告警规则-->
-    <select id="queryPage" resultMap="IotClientRulesMap">
+    <select id="queryPage" parameterType="iotClientRules" resultMap="IotClientRulesMap">
         select
-          a.id,b.id as client_id,b.`name` as client_name,b.last_link_time,
-          c.`id` as rule_id, c.`name` as rule_name, c.`units`,c.`symbol`, c.`value1`,c.`value2`, c.`enable`, c.`create_time`, c.`update_time`,d.`name` as units_name
-        from iot_client_rules a left join iot_client b on a.client_id = b.id
-        left join iot_warning_rules c on a.rule_id = c.id
-        <where>
-            <if test="id != null and id != 0">
-                a.`id` = #{id}
-            </if>
-            <if test="clientId != null and clientId != 0">
-                and a.`client_id` = #{clientId}
-            </if>
-            <if test="ruleId != null and ruleId != 0">
-                and a.`rule_id` = #{ruleId}
-            </if>
-            <if test="enable != null and enable != 0">
-                and c.`enable` = #{enable}
-            </if>
-        </where>
+            a.`id`,a.`client_id` as clientId,a.`rule_id` as ruleId,
+            b.`name`, b.`ability_id` as abilityId,b.`symbol`, b.`value1`,b.`value2`, b.`enable`, b.`create_time`, b.`update_time`,
+            c.`product_id` as productId, c.`property`,c.`standard_id` as standardId,c.`type`,c.`scope`,c.`rw_flag` as rwFlag
+        from
+            iot_client_rules a
+            left join iot_warning_rules b on a.rule_id= b.id
+            left join iot_ability c on b.`ability_id` = c.`id`
+            <where>
+                <if test="id != null and id != 0">
+                    a.`id` = #{id}
+                </if>
+                <if test="clientId != null and clientId != 0">
+                    and a.`client_id` = #{clientId}
+                </if>
+                <if test="ruleId != null and ruleId != 0">
+                    and a.`rule_id` = #{ruleId}
+                </if>
+                <if test="enable != null and enable != 0">
+                    and b.`enable` = #{enable}
+                </if>
+            </where>
         order by a.`id` desc
         limit #{startLine},#{endLine}
     </select>
 
     <!--查询设备绑定的告警规则数量-->
-    <select id="queryCount" resultType="java.lang.Long">
+    <select id="queryCount" parameterType="iotClientRules" resultType="java.lang.Long">
         select
             count(*)
         from iot_client_rules a
         <if test="enable != null and enable != 0">
-            left join iot_warning_rules c on a.rule_id = c.id
+            left join iot_warning_rules b on a.rule_id= b.id
         </if>
         <where>
             <if test="id != null and id != 0">
@@ -128,7 +149,7 @@
                 and a.`rule_id` = #{ruleId}
             </if>
             <if test="enable != null and enable != 0">
-                and c.`enable` = #{enable}
+                and b.`enable` = #{enable}
             </if>
         </where>
     </select>

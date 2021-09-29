@@ -22,8 +22,8 @@
         <typeAlias alias="iotWarningResult" type="ac.cn.saya.mqtt.middle.entity.IotWarningResultEntity"/>
         <typeAlias alias="iotClientRules" type="ac.cn.saya.mqtt.middle.entity.IotClientRulesEntity"/>
         <typeAlias alias="iotAppointment" type="ac.cn.saya.mqtt.middle.entity.IotAppointmentEntity"/>
-        <typeAlias alias="iotUnits" type="ac.cn.saya.mqtt.middle.entity.IotUnitsEntity"/>
         <typeAlias alias="iotProductType" type="ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity"/>
         <typeAlias alias="iotAbility" type="ac.cn.saya.mqtt.middle.entity.IotAbilityEntity"/>
+        <typeAlias alias="iotStandardUnit" type="ac.cn.saya.mqtt.middle.entity.IotStandardUnitEntity"/>
     </typeAliases>
 </configuration>

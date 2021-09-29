@@ -21,12 +21,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @修改人和其它信息：
  */
 
-//// 移除 @SpringBootApplication and @ComponentScan, 用 @EnableAutoConfiguration 来替代
-//@SpringBootApplication
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = {"ac.cn.saya.mqtt.middle"})
-@EnableTransactionManagement //开启声明式事务
+@EnableTransactionManagement
 @EnableScheduling
 public class MqttMiddleApplication {
 

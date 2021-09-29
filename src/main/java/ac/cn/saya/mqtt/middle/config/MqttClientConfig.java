@@ -3,6 +3,7 @@ package ac.cn.saya.mqtt.middle.config;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 
@@ -18,8 +19,8 @@ import java.util.List;
  * @Date: 2020/7/8 22:07
  * @Description: Mqtt
  */
-//@Configuration
-/// @IntegrationComponentScan
+@Configuration
+@IntegrationComponentScan
 public class MqttClientConfig {
 
     @Resource

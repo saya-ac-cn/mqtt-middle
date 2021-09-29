@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Title: DeviceServiceImpl
@@ -150,6 +149,7 @@ public class DeviceServiceImpl implements DeviceService {
      * @创建人 shmily
      * @创建时间 2020/7/29
      * @修改人和其它信息
+     * 网关启禁后，设备上同步更新这个状态
      */
     @Override
     public Result<Integer> editIotGateway(IotGatewayEntity entity,HttpServletRequest request) {
@@ -160,8 +160,31 @@ public class DeviceServiceImpl implements DeviceService {
         entity.setSource(userSession.getAccount());
         IotIdentifyEntity authenInfo = entity.getAuthenInfo();
         try {
-            if (null != authenInfo || null != entity.getUuid()){
+            if (null != authenInfo && !StringUtils.isEmpty(authenInfo.getUsername())){
+                // 未修改前的网关状态
+                IotIdentifyEntity oldStatus = iotIdentifyDAO.query(authenInfo);
                 iotIdentifyDAO.update(authenInfo);
+                // 对于改变过网关的是否启用状态，还需要处理缓存数据
+                if (!Objects.equals(oldStatus.getEnable(),authenInfo.getEnable())){
+                    // 发生过状态的变更
+                    List<IotClientEntity> clientEntities = iotClientDAO.queryClientByGatewayId(entity.getId());
+                    IotClientEntity clientEntity = new IotClientEntity();
+                    clientEntity.setGatewayId(entity.getId());
+                    clientEntity.setEnable(authenInfo.getEnable());
+                    // 先通过网关id修改启用关闭信息
+                    if (iotClientDAO.updateByGatewayId(clientEntity) < 0){
+                        throw new IOTException(ResultEnum.ERROR.getCode(),"启禁设备异常");
+                    }
+                    if (2 == authenInfo.getEnable()){
+                        // 改为禁用状态需要删除网关在线信息，
+                        metadata.removeOnlineGateway(oldStatus.getUuid());
+                        // 查询出设备信息，并从元数据中删除
+                        metadata.removeClients(clientEntities);
+                    }else{
+                        // 将设备缓存作上线处理
+                        metadata.doRefreshClients(clientEntities);
+                    }
+                }
             }
             iotGatewayDAO.update(entity);
             return ResultUtil.success();
@@ -178,6 +201,7 @@ public class DeviceServiceImpl implements DeviceService {
      * @创建人 shmily
      * @创建时间 2020/8/1
      * @修改人和其它信息
+     * 网关删除后，设备级联同步删除
      */
     @Override
     public Result<Integer> deleteIotGateway(Integer id) {
@@ -200,6 +224,8 @@ public class DeviceServiceImpl implements DeviceService {
             // 查询出设备信息，并从元数据中删除
             List<IotClientEntity> clientEntities = iotClientDAO.queryClientByGatewayId(id);
             metadata.removeClients(clientEntities);
+            // 删除在线信息
+            metadata.removeOnlineGateway(query.getUuid());
             // 删除认证信息
             if (iotIdentifyDAO.delete(query.getUuid()) < 0){
                 return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除认证信息异常");
@@ -295,6 +321,29 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     /**
+     * 查看指定网关下可用的设备序号
+     * @param  gatewayId 网关
+     * @return  序号map
+     * @author  saya.ac.cn-刘能凯
+     * @date  9/20/21
+     * @description
+     */
+    @Override
+    public Result<Object> getAvailableSerialNum(Integer gatewayId){
+        List<IotClientEntity> usedSerialNum = iotClientDAO.queryUsedSerialNum(gatewayId);
+        Map<Integer, String> usedSerialNumMap = usedSerialNum.stream().collect(Collectors.toMap(IotClientEntity::getSerialNum, IotClientEntity::getName));
+        Map<Integer, String> result = new HashMap<>();
+        for (int i = 0; i < 12; i++) {
+            if (usedSerialNumMap.containsKey(i)){
+                result.put(i,usedSerialNumMap.get(i));
+            }else{
+                result.put(i,null);
+            }
+        }
+        return ResultUtil.success(result);
+    }
+
+    /**
      * @描述 添加设备
      * @参数 [entity]
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
@@ -304,11 +353,13 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public Result<Integer> addIotClient(IotClientEntity entity) {
-        if (null == entity || entity.getGatewayId() == null || StringUtils.isEmpty(entity.getName())|| entity.getSerialNum() == null){
+        if (null == entity || entity.getGatewayId() == null || entity.getProductId() == null ||StringUtils.isEmpty(entity.getName())|| entity.getSerialNum() == null){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
             if (iotClientDAO.insert(entity) >= 0){
+                entity = iotClientDAO.query(entity);
+                // 添加网关需要将设备加入缓存
                 metadata.doRefreshClient(entity);
                 return ResultUtil.success();
             }
@@ -566,8 +617,9 @@ public class DeviceServiceImpl implements DeviceService {
         List<IotAbilityEntity> params = new ArrayList<>(entities.size());
         try {
             for (IotAbilityEntity entity:entities) {
-                boolean flag = (null == entity || StringUtils.isEmpty(entity.getName()) || Objects.isNull(entity.getProductId())
-                        || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getIdentifier()) );
+                boolean flag = (null == entity || StringUtils.isEmpty(entity.getProperty()) || Objects.isNull(entity.getProductId())
+                        || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getProperty())
+                || Objects.isNull(entity.getStandardId()));
                 if (flag){
                     continue;
                 }
@@ -596,8 +648,9 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public Result<Integer> editIotProductAbility(IotAbilityEntity entity) {
-        boolean flag = (null == entity || StringUtils.isEmpty(entity.getName()) || Objects.isNull(entity.getProductId())
-                || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getIdentifier()) );
+        boolean flag = (null == entity || StringUtils.isEmpty(entity.getProperty()) || Objects.isNull(entity.getProductId())
+                || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getProperty())
+                || Objects.isNull(entity.getStandardId()));
         if (flag){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }

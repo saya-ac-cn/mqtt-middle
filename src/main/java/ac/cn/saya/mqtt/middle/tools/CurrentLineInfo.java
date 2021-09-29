@@ -57,4 +57,14 @@ public class CurrentLineInfo {
         logger.error(errorString.toString());
     }
 
+
+    public static void printCurrentLineInfo(String warnTitle,Class c,String ...tags){
+        Logger logger = LoggerFactory.getLogger(c);
+        StringBuffer warnString = new StringBuffer(warnTitle);
+        for (int i = 0; i < tags.length; i++) {
+            warnString.append(",").append(tags[i]);
+        }
+        logger.warn(warnString.toString());
+    }
+
 }

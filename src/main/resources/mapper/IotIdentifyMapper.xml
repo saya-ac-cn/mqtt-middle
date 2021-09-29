@@ -20,12 +20,12 @@
                 enable = #{enable}
             </if>
         </set>
-        where `uuid` = #{uuid}
+        where `username` = #{username}
     </update>
 
     <!--删除用户认证信息-->
-    <delete id="delete" parameterType="java.lang.Integer">
-        delete from iot_identify where uuid = #{uuid}
+    <delete id="delete" parameterType="java.lang.String">
+        update iot_identify set enable = 2 where uuid = #{uuid}
     </delete>
 
     <!-- 查询用户认证信息-->

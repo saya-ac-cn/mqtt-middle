@@ -142,6 +142,19 @@ public class DeviceController {
     }
 
     /**
+     * 查看指定网关下的设备序号
+     * @param  gatewayId 网关id
+     * @return  设备序号
+     * @author  saya.ac.cn-刘能凯
+     * @date  9/20/21
+     * @description
+     */
+    @GetMapping(value = "client/serialNum/{gatewayId}")
+    public Result<Object> getAvailableSerialNum(@PathVariable(value = "gatewayId") Integer gatewayId){
+        return deviceService.getAvailableSerialNum(gatewayId);
+    }
+
+    /**
      * @描述 添加设备
      * @参数  [entity]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>

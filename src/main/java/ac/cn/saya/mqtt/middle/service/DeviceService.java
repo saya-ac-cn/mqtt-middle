@@ -99,6 +99,16 @@ public interface DeviceService {
 
 
     /**
+     * 查看指定网关下可用的设备序号
+     * @param  gatewayId 网关
+     * @return  序号map
+     * @author  saya.ac.cn-刘能凯
+     * @date  9/20/21
+     * @description
+     */
+    public Result<Object> getAvailableSerialNum(Integer gatewayId);
+
+    /**
      * @描述 添加设备
      * @参数  [entity]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>

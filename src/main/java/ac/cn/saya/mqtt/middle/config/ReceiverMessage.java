@@ -6,6 +6,7 @@ import ac.cn.saya.mqtt.middle.entity.IotCollectionEntity;
 import ac.cn.saya.mqtt.middle.meta.ClientParam;
 import ac.cn.saya.mqtt.middle.meta.Metadata;
 import ac.cn.saya.mqtt.middle.service.CollectionService;
+import ac.cn.saya.mqtt.middle.tools.IOTException;
 import ac.cn.saya.mqtt.middle.tools.JackJsonUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +21,9 @@ import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -33,7 +37,7 @@ import java.util.*;
  * @Description: 处理消息
  */
 
-//@Configuration
+@Configuration
 public class ReceiverMessage {
 
     @Resource
@@ -88,6 +92,7 @@ public class ReceiverMessage {
      */
     @Bean
     @ServiceActivator(inputChannel = "mqttInputChannel")
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.SERIALIZABLE, rollbackFor = IOTException.class)
     public MessageHandler handler() {
         return message -> {
             // mqtt_receivedTopic固定，不要随意改
@@ -106,6 +111,7 @@ public class ReceiverMessage {
             List<IotCollectionEntity> datas = new ArrayList<>();
             while(deviceReport.hasNext()) {
                 Map.Entry<String, JsonNode> reports = deviceReport.next();
+                // 设备在网关山的序号
                 int serialNum = Integer.parseInt(reports.getKey());
                 // 在缓存中查询设备是否存在
                 IotClientEntity client = metadata.getClients(new ClientParam(uuid, serialNum));
@@ -121,20 +127,28 @@ public class ReceiverMessage {
                 }
                 // 处理本序号下的上报数据
                 JsonNode reportsValue = reports.getValue();
-                Iterator<Map.Entry<String, JsonNode>> propertyReport = reportsValue.fields();
-                while(propertyReport.hasNext()) {
-                    Map.Entry<String, JsonNode> node = propertyReport.next();
-                    // 本设备上报数据属性key
-                    String property = node.getKey();
-                    IotAbilityEntity ability = abilities.getOrDefault(property, null);
-                    if (Objects.isNull(ability)){
-                        // 上报的数据不再物模型中时，不予加工处理
+                // 本设备下的所有上报数据
+                Iterator<JsonNode> clientIterator = reportsValue.elements();
+                while(clientIterator.hasNext()) {
+                    // 当前传感器上报的数据
+                    JsonNode sensor = clientIterator.next();
+                    // 处理本传感器上报的所有数据
+                    Iterator<Map.Entry<String, JsonNode>> propertyReport = sensor.fields();
+                    while(propertyReport.hasNext()) {
+                        Map.Entry<String, JsonNode> node = propertyReport.next();
+                        // 本传感器上报数据属性key
+                        String property = node.getKey();
+                        IotAbilityEntity ability = abilities.getOrDefault(property, null);
+                        if (Objects.isNull(ability)){
+                            // 上报的数据不在物模型中时，不予加工处理
+                            continue;
+                        }
+                        // 本设备上报数据值value
+                        JsonNode nodeValue = node.getValue();
+                        datas.add(new IotCollectionEntity(client.getId(),ability.getId(),nodeValue.asText("")));
                     }
-
-                    // 本设备上报数据值value
-                    JsonNode nodeValue = node.getValue();
-                    datas.add(new IotCollectionEntity(client.getId(),ability.getId(),nodeValue.asText("")));
                 }
+
             }
             // 修改网关的上报时间
             collectionService.updateGatewayHeart(uuid);

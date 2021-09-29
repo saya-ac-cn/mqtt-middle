@@ -31,19 +31,6 @@ public class CollectionController {
     }
 
     /**
-     * @描述 查看所有的基本物理量
-     * @参数
-     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
-     * @创建人  shmily
-     * @创建时间  2020/8/8
-     * @修改人和其它信息
-     */
-    @GetMapping(value = "symbol/units")
-    public Result<Object> getSymbolUnits(){
-        return collectionService.getSymbolUnits();
-    }
-
-    /**
      * @描述 查看所有的告警定义
      * @参数
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>

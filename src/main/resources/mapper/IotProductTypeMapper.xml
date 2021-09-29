@@ -9,11 +9,16 @@
         <collection property="properties" javaType="java.util.ArrayList" ofType="iotAbility">
             <result property="id" column="abilityId"/>
             <result property="productId" column="productId"/>
-            <result property="identifier" column="identifier"/>
-            <result property="name" column="abilityName"/>
+            <result property="property" column="property"/>
+            <result property="standardId" column="standardId"/>
             <result property="type" column="type"/>
             <result property="scope" column="scope"/>
             <result property="rwFlag" column="rwFlag"/>
+            <association property="standardUnit" javaType="iotStandardUnit">
+                <result property="id" column="standardId"/>
+                <result property="name" column="unitName"/>
+                <result property="symbol" column="unitSymbol"/>
+            </association>
         </collection>
     </resultMap>
 
@@ -34,10 +39,15 @@
     </select>
 
     <select id="queryProductDetail" resultMap="IotProductTypeMap" parameterType="iotProductType">
-        select a.`id`,a.`name`,a.`status`,
-        b.`id` as abilityId,b.product_id as productId,b.identifier,
-        b.`name` as abilityName,b.type,b.scope,b.rw_flag as rwFlag
-        from iot_product_type a left join iot_ability b on a.id = b.product_id
+        select
+        a.`id`,a.`name`,a.`status`,
+        b.`id` as abilityId,b.product_id as productId,b.`property`,
+        b.type,b.scope,b.rw_flag as rwFlag,b.`standard_id` as standardId,
+        c.`name` as unitName,c.`symbol` as unitSymbol
+        from
+          iot_product_type a
+          left join iot_ability b on a.id = b.product_id
+          left join iot_standard_unit c on b.`standard_id` = c.`id`
         <where>
             <if test="null != id and 0 != id">
                 a.`id` = #{id}

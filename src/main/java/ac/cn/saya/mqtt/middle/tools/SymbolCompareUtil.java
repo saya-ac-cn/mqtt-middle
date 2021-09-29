@@ -4,6 +4,7 @@ import ac.cn.saya.mqtt.middle.enums.SymbolEnum;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @Title: SymbolCompareUtil
@@ -18,20 +19,16 @@ public class SymbolCompareUtil {
 
     /**
      * 根据symbol执行相应的比较
-     * @param symbol 运算符
+     * @param op 运算符
      * @param ruleValue1 规则参数1
      * @param ruleValue2 规则参数2
      * @param realValue 实际形参
      * @return
      */
-    public static final boolean compare(String symbol,String ruleValue1,String ruleValue2,String realValue){
+    public static final boolean compare(SymbolEnum op,String ruleValue1,String ruleValue2,String realValue){
         try {
-            if (StringUtils.isEmpty(symbol) || StringUtils.isEmpty(realValue)){
+            if (Objects.isNull(op) || StringUtils.isEmpty(realValue)){
                 throw new NullPointerException("无效参数");
-            }
-            SymbolEnum op = SymbolEnum.valueOf(symbol);
-            if (null == op){
-                throw new NullPointerException("获取运算符失败");
             }
             // 第一参数为空，或者是范围比较时第二参数为空
             if (StringUtils.isEmpty(ruleValue1) || ((SymbolEnum.RANGE == op && StringUtils.isEmpty(ruleValue2)))){
