@@ -359,7 +359,7 @@ public class DeviceServiceImpl implements DeviceService {
         try {
             if (iotClientDAO.insert(entity) >= 0){
                 entity = iotClientDAO.query(entity);
-                // 添加网关需要将设备加入缓存
+                // 添加设备需要将设备加入缓存
                 metadata.doRefreshClient(entity);
                 return ResultUtil.success();
             }
@@ -574,6 +574,7 @@ public class DeviceServiceImpl implements DeviceService {
             entity.setStatus(2);
             iotProductTypeDAO.update(entity);
             // TODO 需要更新缓存
+            metadata.removeProduct(id);
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("删除产品发生异常", e,DeviceServiceImpl.class);
@@ -604,7 +605,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     /**
-     * @描述 添加iot产品物模型
+     * @描述 添加iot产品物模型（同一批次下的添加，产品id应该是一致的）
      * @参数 [entity]
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人 shmily
@@ -638,7 +639,7 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     /**
-     * @描述 修改iot产品物模型
+     * @描述 修改iot产品物模型（同一批次下的修改，产品id应该是一致的）
      * @参数 [entity]
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人 shmily

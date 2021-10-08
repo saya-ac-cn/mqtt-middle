@@ -163,6 +163,13 @@ public class Metadata {
         param.forEach(this::removeClient);
     }
 
+    public void removeProduct(Integer productId){
+        if (null == productId) {
+            return;
+        }
+        productMap.remove(productId);
+    }
+
     public void removeRules(List<Integer> param) {
         if (param.isEmpty()) {
             return;
