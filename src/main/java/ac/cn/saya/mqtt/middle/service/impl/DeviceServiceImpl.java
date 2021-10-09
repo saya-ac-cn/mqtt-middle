@@ -631,6 +631,8 @@ public class DeviceServiceImpl implements DeviceService {
             }
             iotAbilityDAO.batchInsert(params);
             // TODO 插入到缓存
+            // 当前批次的模型对于的是一个批次下的产品，找到第一个模型下的产品id，然后在数据库里面找到这个产品下面所有的模型放入内存即可
+
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("添加iot产品物模型发生异常",e,DeviceServiceImpl.class);
@@ -658,6 +660,7 @@ public class DeviceServiceImpl implements DeviceService {
         try {
             if (iotAbilityDAO.update(entity) >= 0){
                 // TODO 更新缓存
+                // 同添加
                 return ResultUtil.success();
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"修改iot产品物模型异常");
@@ -684,6 +687,7 @@ public class DeviceServiceImpl implements DeviceService {
         try {
             if (iotAbilityDAO.delete(id) >= 0){
                 // TODO 更新缓存
+                // 同删除
                 return ResultUtil.success();
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"删除iot产品物模型异常");
