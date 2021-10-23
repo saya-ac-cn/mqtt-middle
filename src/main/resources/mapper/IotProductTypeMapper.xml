@@ -33,7 +33,7 @@
                 and a.`status` = #{status}
             </if>
             <if test="null != name and '' != name">
-                and a.`name` like concat('%',#{name},'%')
+                and a.`name` like concat('%',#{name})
             </if>
         </where>
     </select>
