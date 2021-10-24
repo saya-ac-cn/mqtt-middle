@@ -43,7 +43,7 @@ public interface IotAbilityDAO {
      * @param productId
      * @return
      */
-    public List<IotAbilityEntity> queryAbilityByProductId(int productId);
+    public List<IotAbilityEntity> queryAbilityByProductId(@Param("productId") int productId);
 
 
 }
