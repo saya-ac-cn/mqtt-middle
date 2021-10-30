@@ -10,6 +10,8 @@
         <result property="value1" column="value1"/>
         <result property="value2" column="value2"/>
         <result property="enable" column="enable"/>
+        <result property="eventAttribute" column="event_attribute"/>
+        <result property="eventValue" column="event_value"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <association property="abilityEntity" javaType="iotAbility">
@@ -31,7 +33,7 @@
     <!--查询所有告警规则-->
     <select id="selector" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,
+          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
 		  b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
           c.`name` as unitName,c.`symbol` as unitSymbol
         from
@@ -43,7 +45,7 @@
     <!--查询Iot告警规则-->
     <select id="query" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,
+          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
           b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
           c.`name` as unitName,c.`symbol` as unitSymbol
         from
@@ -67,7 +69,7 @@
     <!--分页查询Iot告警规则-->
     <select id="queryPage" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,
+          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
 		  b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
           c.`name` as unitName,c.`symbol` as unitSymbol
         from
@@ -115,10 +117,10 @@
 
     <!--新增Iot告警规则-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
-        insert into iot_warning_rules(`name`, `ability_id`,`symbol`, `value1`, `value2`,`enable`,create_time)
+        insert into iot_warning_rules(`name`, `ability_id`,`symbol`, `value1`, `value2`,`enable`,`event_attribute`,`event_value`,`create_time`)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.name}, #{item.abilityId},#{item.symbol}, #{item.value1},#{item.value2}, #{item.enable},now())
+            (#{item.name}, #{item.abilityId},#{item.symbol}, #{item.value1},#{item.value2}, #{item.enable},#{item.eventAttribute}, #{item.eventValue},now())
         </foreach>
     </insert>
 
@@ -141,6 +143,12 @@
                 </if>
                 <if test="item.value2 != null and item.value2 != ''">
                     `value2` = #{item.value2},
+                </if>
+                <if test="item.eventAttribute != null and item.eventAttribute != ''">
+                    `event_attribute` = #{item.eventAttribute},
+                </if>
+                <if test="item.eventValue != null and item.eventValue != ''">
+                    `event_value` = #{item.eventValue},
                 </if>
                 `update_time` = now()
             </set>
