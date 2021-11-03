@@ -2,7 +2,7 @@ package ac.cn.saya.mqtt.middle.meta;
 
 import ac.cn.saya.mqtt.middle.entity.*;
 import ac.cn.saya.mqtt.middle.repository.IotClientDAO;
-import ac.cn.saya.mqtt.middle.repository.IotClientRulesDAO;
+import ac.cn.saya.mqtt.middle.repository.IotProductRulesDAO;
 import ac.cn.saya.mqtt.middle.repository.IotProductTypeDAO;
 import ac.cn.saya.mqtt.middle.tools.DateUtils;
 import org.springframework.stereotype.Component;
@@ -28,7 +28,7 @@ public class Metadata {
     private IotClientDAO iotClientDAO;
 
     @Resource
-    private IotClientRulesDAO iotClientRulesDAO;
+    private IotProductRulesDAO iotProductRulesDAO;
 
     @Resource
     private IotProductTypeDAO iotProductTypeDAO;
@@ -40,12 +40,12 @@ public class Metadata {
     private final Map<ClientParam, IotClientEntity> clients = new ConcurrentHashMap<>();
 
     /**
-     * 设备绑定的告警规则数据 内存元数据
+     * 产品绑定的告警规则数据 内存元数据，key->产品id，value->这个产品下的告警规则
      */
     private final Map<Integer, List<IotWarningRulesEntity>> rules = new ConcurrentHashMap<>();
 
     /**
-     * 在线的网关设备 内存元数据
+     * 在线的网关设备 内存元数据，key->网关编码
      */
     private final Map<String, String> onlineGatewayMap = new ConcurrentHashMap<>();
 
@@ -55,7 +55,7 @@ public class Metadata {
     private final Map<String, String> units = new ConcurrentHashMap<>();
 
     /**
-     * 产品以及下属的物模型内存元数据
+     * 产品以及下属的物模型内存元数据 key-> productId
      */
     private final Map<Integer,Map<String,IotAbilityEntity>> productMap = new ConcurrentHashMap<>();
 
@@ -96,11 +96,11 @@ public class Metadata {
         clients.put(new ClientParam(uuid, serialNum), newParam);
     }
 
-    public void doRefreshRule(int clientId,List<IotWarningRulesEntity> param) {
+    public void doRefreshRule(int productId,List<IotWarningRulesEntity> param) {
         if (CollectionUtils.isEmpty(param)) {
             return;
         }
-        rules.put(clientId,param);
+        rules.put(productId,param);
     }
 
 
@@ -149,11 +149,11 @@ public class Metadata {
         clients.remove(new ClientParam(uuid, clientId));
     }
 
-    public void removeRule(Integer param) {
-        if (null == param) {
+    public void removeRule(Integer productId) {
+        if (null == productId) {
             return;
         }
-        rules.remove(param);
+        rules.remove(productId);
     }
 
     public void removeClients(List<IotClientEntity> param) {
@@ -170,11 +170,11 @@ public class Metadata {
         productMap.remove(productId);
     }
 
-    public void removeRules(List<Integer> param) {
-        if (param.isEmpty()) {
+    public void removeRules(List<Integer> products) {
+        if (products.isEmpty()) {
             return;
         }
-        param.forEach(this::removeRule);
+        products.forEach(this::removeRule);
     }
 
     public IotClientEntity getClient(IotClientEntity param) {
@@ -226,8 +226,8 @@ public class Metadata {
         return clients.get(key);
     }
 
-    public List<IotWarningRulesEntity> getRule(int clientId){
-        return rules.get(clientId);
+    public List<IotWarningRulesEntity> getRule(int productId){
+        return rules.get(productId);
     }
 
 ////    public List<IotWarningRulesEntity> getRuleByClient(int clientId){
@@ -279,19 +279,19 @@ public class Metadata {
             clients.clear();
         }
         // 写入告警规则到设备
-        IotClientRulesEntity ruleEntity = new IotClientRulesEntity();
+        IotProductRulesEntity ruleEntity = new IotProductRulesEntity();
         ruleEntity.setEnable(1);
-        Long ruleCount = iotClientRulesDAO.queryCount(ruleEntity);
+        Long ruleCount = iotProductRulesDAO.queryCount(ruleEntity);
         if (clientCount > 0) {
             ruleEntity.setStartLine(0);
             ruleEntity.setEndLine(ruleCount.intValue());
-            List<IotClientRulesEntity> ruleList = iotClientRulesDAO.queryPage(ruleEntity);
+            List<IotProductRulesEntity> ruleList = iotProductRulesDAO.queryPage(ruleEntity);
             if (!CollectionUtils.isEmpty(ruleList)){
-                // 按设备id进行分组，确定每个设备关联的规则
-                Map<Integer, List<IotClientRulesEntity>> groupByClientRuleMap = ruleList.stream().collect(Collectors.groupingBy(IotClientRulesEntity::getClientId));
-                for (Map.Entry<Integer, List<IotClientRulesEntity>> item:groupByClientRuleMap.entrySet()) {
-                    List<IotClientRulesEntity> clentBindRules = item.getValue();
-                    List<IotWarningRulesEntity> rules = clentBindRules.stream().map(e -> e.getRule()).collect(Collectors.toList());
+                // 按产品id进行分组，确定每个产品关联的规则
+                Map<Integer, List<IotProductRulesEntity>> groupByClientRuleMap = ruleList.stream().collect(Collectors.groupingBy(IotProductRulesEntity::getProductId));
+                for (Map.Entry<Integer, List<IotProductRulesEntity>> item:groupByClientRuleMap.entrySet()) {
+                    List<IotProductRulesEntity> clentBindRules = item.getValue();
+                    List<IotWarningRulesEntity> rules = clentBindRules.stream().map(IotProductRulesEntity::getRule).collect(Collectors.toList());
                     // 缓存
                     doRefreshRule(item.getKey(),rules);
                 }
