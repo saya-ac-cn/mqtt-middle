@@ -2,6 +2,7 @@ package ac.cn.saya.mqtt.middle.entity;
 
 import ac.cn.saya.mqtt.middle.meta.AbilityScopeParam;
 import ac.cn.saya.mqtt.middle.tools.JackJsonUtil;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -34,9 +35,14 @@ public class IotAbilityEntity extends BaseEntity {
     private String property;
 
     /**
+     * 温度
+     */
+    private String name;
+
+    /**
      * 单位物理量(外键)
      */
-    private String standardId;
+    private Integer standardId;
 
     /**
      * 属性类型（1：数值类型，2：状态类型）
@@ -58,6 +64,11 @@ public class IotAbilityEntity extends BaseEntity {
      * 物模型关联的标准物理量（非数据库字段）
      */
     private IotStandardUnitEntity standardUnit;
+
+    /**
+     * 属性值范围（非数据库字段）
+     */
+    private AbilityScopeParam scopeParam;
 
     public IotAbilityEntity() {
     }
@@ -82,11 +93,11 @@ public class IotAbilityEntity extends BaseEntity {
         this.property = property;
     }
 
-    public String getStandardId() {
+    public Integer getStandardId() {
         return standardId;
     }
 
-    public void setStandardId(String standardId) {
+    public void setStandardId(Integer standardId) {
         this.standardId = standardId;
     }
 
@@ -98,12 +109,18 @@ public class IotAbilityEntity extends BaseEntity {
         this.type = type;
     }
 
-    public AbilityScopeParam getScope() {
+    public String getScope(){
+        return scope;
+    }
+    public AbilityScopeParam scopeToString() {
         if (StringUtils.isEmpty(scope)) {
             return null;
         }
         // 将阈值数据（json对象）转换成java类型
         Map<String, Object> map = JackJsonUtil.objectToMap(scope);
+        if (CollectionUtils.isEmpty(map)){
+            return null;
+        }
         if (1 == type) {
             // 返回数值类型的范围
             if (map.containsKey("begin") && map.containsKey("end")) {
@@ -113,7 +130,6 @@ public class IotAbilityEntity extends BaseEntity {
             // 返回状态类型（枚举）的数据
             Map<Integer, String> status = new HashMap<>(map.size());
             for (Map.Entry<String, Object> item : map.entrySet()) {
-                item.getKey();
                 status.put(Integer.valueOf(item.getKey()), String.valueOf(item.getValue()));
             }
             return new AbilityScopeParam(status);
@@ -133,6 +149,14 @@ public class IotAbilityEntity extends BaseEntity {
         this.productId = productId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Integer getRwFlag() {
         return rwFlag;
     }
@@ -147,5 +171,13 @@ public class IotAbilityEntity extends BaseEntity {
 
     public void setStandardUnit(IotStandardUnitEntity standardUnit) {
         this.standardUnit = standardUnit;
+    }
+
+    public AbilityScopeParam getScopeParam() {
+        return scopeParam;
+    }
+
+    public void setScopeParam(AbilityScopeParam scopeParam) {
+        this.scopeParam = scopeParam;
     }
 }

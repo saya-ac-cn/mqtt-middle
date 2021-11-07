@@ -5,18 +5,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * @Title: IotClientRulesEntity
+ * @Title: IotProductRulesEntity
  * @ProjectName mqtt-middle
  * @Description: TODO
  * @Author liunengkai
  * @Date: 6/5/21 21:39
- * @Description: 设备告警规则绑定表
+ * @Description: 产品告警规则绑定表
  */
 
 @NoArgsConstructor
 @Getter
 @Setter
-public class IotClientRulesEntity extends BaseEntity{
+public class IotProductRulesEntity extends BaseEntity{
 
     private static final long serialVersionUID = 6423083410584714078L;
 
@@ -26,9 +26,9 @@ public class IotClientRulesEntity extends BaseEntity{
     private Integer id;
 
     /**
-     * 终端设备号
+     * 产品id
      */
-    private Integer clientId;
+    private Integer productId;
 
     /**
      * 规则id
@@ -46,9 +46,9 @@ public class IotClientRulesEntity extends BaseEntity{
     private Integer enable;
 
 
-    public IotClientRulesEntity(Integer id, Integer clientId, Integer ruleId) {
+    public IotProductRulesEntity(Integer id, Integer productId, Integer ruleId) {
         this.id = id;
-        this.clientId = clientId;
+        this.productId = productId;
         this.ruleId = ruleId;
     }
 }

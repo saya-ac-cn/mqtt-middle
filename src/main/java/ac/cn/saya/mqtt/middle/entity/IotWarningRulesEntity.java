@@ -79,6 +79,11 @@ public class IotWarningRulesEntity extends BaseEntity{
      */
     private IotAbilityEntity abilityEntity;
 
+    /**
+     * 产品id（非数据库字段）
+     */
+    private Integer productId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
