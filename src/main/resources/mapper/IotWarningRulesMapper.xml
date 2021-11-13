@@ -76,6 +76,7 @@
         iot_warning_rules a
 		left join iot_ability b on a.`ability_id` = b.`id`
 		left join iot_standard_unit c on b.`standard_id` = c.`id`
+        left join iot_product_rules e on `e.rule_id` = a.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
@@ -88,6 +89,9 @@
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="productId != null and 0 != productId">
+                and e.`product_id` = #{productId}
             </if>
         </where>
         order by a.`id` desc
@@ -99,6 +103,7 @@
         select
             count(*)
         from iot_warning_rules a
+        left join iot_product_rules e on `e.rule_id` = a.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
@@ -111,6 +116,9 @@
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="productId != null and 0 != productId">
+                and e.`product_id` = #{productId}
             </if>
         </where>
     </select>
