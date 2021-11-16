@@ -61,6 +61,19 @@ public class DeviceController {
     }
 
     /**
+     * @Title   获取标准物理量
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotStandardUnitEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    @GetMapping(value = "standard")
+    public Result<List<IotStandardUnitEntity>> getStandardList(){
+        return deviceService.getStandardList();
+    }
+
+    /**
      * @描述 添加网关
      * @参数  [entity]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
@@ -220,35 +233,35 @@ public class DeviceController {
     }
 
     /**
-     * @Title   绑定告警规则
+     * @Title   产品绑定告警规则
      * @Params  [param]
      * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @Author  saya.ac.cn-刘能凯
      * @Date  6/20/21
      * @Description
      */
-    @PostMapping(value = "client/rules/{clientId}")
-    public Result<Integer> bindIotClientRule(@PathVariable("clientId") int clientId,@RequestBody List<Integer> ruleIds){
+    @PostMapping(value = "product/rules/{productId}")
+    public Result<Integer> bindIotProductRule(@PathVariable("productId") int productId,@RequestBody List<Integer> ruleIds){
         if (CollectionUtils.isEmpty(ruleIds)){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        return collectionService.bindIotClientRule(clientId, ruleIds);
+        return collectionService.bindIotProductRule(productId, ruleIds);
     }
 
     /***
-     * @Title   修改规则绑定
+     * @Title   修改产品规则绑定
      * @Params  [param]
      * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @Author  saya.ac.cn-刘能凯
      * @Date  6/20/21
      * @Description
      */
-    @PutMapping(value = "client/rules")
-    public Result<Integer> editIotClientRule(@RequestBody IotClientRulesEntity param){
+    @PutMapping(value = "product/rules")
+    public Result<Integer> editIotProductRule(@RequestBody IotProductRulesEntity param){
         if (null == param){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        return collectionService.editIotClientRule(param);
+        return collectionService.editIotProductRule(param);
     }
 
     /**
@@ -259,25 +272,129 @@ public class DeviceController {
      * @Date  6/20/21
      * @Description
      */
-    @PostMapping(value = "client/rules")
-    public Result<Integer> deleteIotClientRule(@RequestBody List<IotClientRulesEntity> list){
+    @PostMapping(value = "product/rules")
+    public Result<Integer> deleteIotProductRule(@RequestBody List<IotProductRulesEntity> list){
         if (CollectionUtils.isEmpty(list)){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        return collectionService.deleteIotClientRule(list);
+        return collectionService.deleteIotProductRule(list);
     }
 
     /**
-     * @Title    分页查看绑定的告警规则
+     * @Title    分页查看产品绑定的告警规则
      * @Params  [entity]
      * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
      * @Author  saya.ac.cn-刘能凯
      * @Date  6/20/21
      * @Description
      */
-    @GetMapping(value = "client/rules")
-    public Result<Object> getIotClientRulePage(IotClientRulesEntity entity){
-        return collectionService.getIotClientRulePage(entity);
+    @GetMapping(value = "product/rules")
+    public Result<Object> getIotProductRulePage(IotProductRulesEntity entity){
+        return collectionService.getIotProductRulePage(entity);
     }
-    
+
+    /**
+     * @Title   创建产品
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @PostMapping(value = "product")
+    public Result<Integer> addIotProduct(@RequestBody IotProductTypeEntity product){
+        return deviceService.addIotProduct(product);
+    }
+
+    /***
+     * @Title   修改产品
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @PutMapping(value = "product")
+    public Result<Integer> editIotClientRule(@RequestBody IotProductTypeEntity product){
+        return deviceService.editIotProduct(product);
+    }
+
+    /**
+     * @Title   删除产品
+     * @Params  [list]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @DeleteMapping(value = "product/{productId}")
+    public Result<Integer> deleteIotProduct(@PathVariable(value = "productId") Integer productId){
+        return deviceService.deleteIotProduct(productId);
+    }
+
+    /**
+     * @Title    获取产品列表
+     * @Params  [entity]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @GetMapping(value = "product")
+    public Result<List<IotProductTypeEntity>> getIotClientRulePage(IotProductTypeEntity param){
+        return deviceService.getIotProduct(param);
+    }
+
+    /**
+     * @Title   批量添加产品物模型
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @PostMapping(value = "product/ability")
+    public Result<Integer> addIotProductAbility(@RequestBody List<IotAbilityEntity> params){
+        return deviceService.addIotProductAbility(params);
+    }
+
+    /***
+     * @Title   修改产品物模型
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @PutMapping(value = "product/ability")
+    public Result<Integer> editIotProductAbility(@RequestBody IotAbilityEntity product){
+        return deviceService.editIotProductAbility(product);
+    }
+
+    /**
+     * @Title   删除产品物模型
+     * @Params  [list]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @DeleteMapping(value = "product/ability/{id}")
+    public Result<Integer> deleteIotProductAbility(@PathVariable(value = "id") Integer id){
+        return deviceService.deleteIotProductAbility(id);
+    }
+
+    /**
+     * @Title    获取产品物模型列表
+     * @Params  [entity]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  6/20/21
+     * @Description
+     */
+    @GetMapping(value = "product/ability/{id}")
+    public Result<List<IotAbilityEntity>> getIotProductAbilityPage(@PathVariable(value = "id") Integer id){
+        return deviceService.getIotProductAbilityPage(id);
+    }
+
 }

@@ -8,6 +8,7 @@ import ac.cn.saya.mqtt.middle.tools.Result;
 import ac.cn.saya.mqtt.middle.tools.ResultEnum;
 import ac.cn.saya.mqtt.middle.tools.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -78,8 +79,8 @@ public class CollectionController {
      * @修改人和其它信息
      */
     @PostMapping(value = "warning/rules")
-    public Result<Integer> addIotWarningRules(@RequestBody IotWarningRulesEntity param){
-        if (null == param){
+    public Result<Integer> addIotWarningRules(@RequestBody List<IotWarningRulesEntity> param){
+        if (CollectionUtils.isEmpty(param)){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         return collectionService.addIotWarningRules(param);
