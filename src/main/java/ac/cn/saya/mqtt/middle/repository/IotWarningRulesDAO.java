@@ -2,6 +2,8 @@ package ac.cn.saya.mqtt.middle.repository;
 
 import ac.cn.saya.mqtt.middle.entity.IotWarningRulesEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -44,25 +46,25 @@ public interface IotWarningRulesDAO {
     /**
      * 新增Iot告警规则
      *
-     * @param list 实例对象
+     * @param rule 实例对象
      * @return 影响行数
      */
-    public int insert(List<IotWarningRulesEntity> list);
+    public int insert(IotWarningRulesEntity rule);
 
     /**
      * 修改告警规则
      *
-     * @param list 实例对象
+     * @param rule 实例对象
      * @return 影响行数
      */
-    public int update(List<IotWarningRulesEntity> list);
+    public int update(IotWarningRulesEntity rule);
 
     /**
      * 删除告警规则
      *
-     * @param list 主键
+     * @param ruleId 主键
      * @return 影响行数
      */
-    public int deleteById(List<Integer> list);
+    public int deleteById(@Param("ruleId") int ruleId);
 
 }

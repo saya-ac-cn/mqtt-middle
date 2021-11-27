@@ -5,6 +5,7 @@
     <resultMap type="iotWarningRules" id="IotWarningRulesMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="productId" column="productId"/>
         <result property="abilityId" column="abilityId"/>
         <result property="symbol" column="symbol"/>
         <result property="value1" column="value1"/>
@@ -33,7 +34,7 @@
     <!--查询所有告警规则-->
     <select id="selector" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
+          a.`id`, a.`name`,a.`product_id` as productId, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
 		  b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
           c.`name` as unitName,c.`symbol` as unitSymbol
         from
@@ -45,8 +46,8 @@
     <!--查询Iot告警规则-->
     <select id="query" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
-          b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
+          a.`id`, a.`name`, a.`product_id` as productId, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
+          b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
           c.`name` as unitName,c.`symbol` as unitSymbol
         from
         iot_warning_rules a
@@ -55,6 +56,9 @@
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
+            </if>
+            <if test="productId != null and productId != 0">
+                a.`product_id` = #{productId}
             </if>
             <if test="name != null and name != ''">
                 and a.`name` = #{name}
@@ -69,17 +73,19 @@
     <!--分页查询Iot告警规则-->
     <select id="queryPage" resultMap="IotWarningRulesMap">
         select
-          a.`id`, a.`name`, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
-		  b.`product_id` as productId, b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
+          a.`id`, a.`name`, a.`product_id` as productId, a.`ability_id` as abilityId,a.`symbol`, a.`value1`,a.`value2`, a.`enable`, a.`create_time`, a.`update_time`,a.`event_attribute`,a.`event_value`,
+		  b.`property`,b.`standard_id` as standardId,b.`type`,b.`scope`,b.`rw_flag` as rwFlag,
           c.`name` as unitName,c.`symbol` as unitSymbol
         from
         iot_warning_rules a
 		left join iot_ability b on a.`ability_id` = b.`id`
 		left join iot_standard_unit c on b.`standard_id` = c.`id`
-        left join iot_product_rules e on `e.rule_id` = a.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
+            </if>
+            <if test="productId != null and productId != 0">
+                and a.`product_id` = #{productId}
             </if>
             <if test="name != null and name != ''">
                 and a.`name` = #{name}
@@ -89,9 +95,6 @@
             </if>
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
-            </if>
-            <if test="productId != null and 0 != productId">
-                and e.`product_id` = #{productId}
             </if>
         </where>
         order by a.`id` desc
@@ -103,10 +106,12 @@
         select
             count(*)
         from iot_warning_rules a
-        left join iot_product_rules e on `e.rule_id` = a.`id`
         <where>
             <if test="id != null and id != 0">
                 a.`id` = #{id}
+            </if>
+            <if test="productId != null and productId != 0">
+                and a.`product_id` = #{productId}
             </if>
             <if test="name != null and name != ''">
                 and a.`name` = #{name}
@@ -117,59 +122,51 @@
             <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
                 and date_format(a.`create_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
             </if>
-            <if test="productId != null and 0 != productId">
-                and e.`product_id` = #{productId}
-            </if>
         </where>
     </select>
 
     <!--新增Iot告警规则-->
-    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="java.util.List">
-        insert into iot_warning_rules(`name`, `ability_id`,`symbol`, `value1`, `value2`,`enable`,`event_attribute`,`event_value`,`create_time`)
-        values
-        <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.name}, #{item.abilityId},#{item.symbol}, #{item.value1},#{item.value2}, #{item.enable},#{item.eventAttribute}, #{item.eventValue},now())
-        </foreach>
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="iotWarningRules">
+        insert into iot_warning_rules(`name`, `product_id`, `ability_id`,`symbol`, `value1`, `value2`,`enable`,`event_attribute`,`event_value`,`create_time`)
+        values (#{name}, #{productId},#{abilityId},#{symbol}, #{value1},#{value2}, #{enable},#{eventAttribute}, #{eventValue},now())
     </insert>
 
     <!--修改告警规则-->
-    <update id="update" parameterType="java.util.List">
-        <foreach collection="list" item="item" index="index" separator=";">
-            update iot_warning_rules
-            <set>
-                <if test="item.name != null and item.name != ''">
-                    `name` = #{item.name},
-                </if>
-                <if test="item.abilityId != null and item.abilityId != 0">
-                    `ability_id` = #{item.abilityId},
-                </if>
-                <if test="item.symbol != null and item.symbol != ''">
-                    `symbol` = #{item.symbol},
-                </if>
-                <if test="item.value1 != null and item.value1 != ''">
-                    `value1` = #{item.value1},
-                </if>
-                <if test="item.value2 != null and item.value2 != ''">
-                    `value2` = #{item.value2},
-                </if>
-                <if test="item.eventAttribute != null and item.eventAttribute != ''">
-                    `event_attribute` = #{item.eventAttribute},
-                </if>
-                <if test="item.eventValue != null and item.eventValue != ''">
-                    `event_value` = #{item.eventValue},
-                </if>
-                `update_time` = now()
-            </set>
-            where `id` = #{item.id}
-        </foreach>
+    <update id="update" parameterType="iotWarningRules">
+        update iot_warning_rules
+        <set>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="productId != null and productId != 0">
+                `product_id` = #{productId},
+            </if>
+            <if test="abilityId != null and abilityId != 0">
+                `ability_id` = #{abilityId},
+            </if>
+            <if test="symbol != null and symbol != ''">
+                `symbol` = #{symbol},
+            </if>
+            <if test="value1 != null and value1 != ''">
+                `value1` = #{value1},
+            </if>
+            <if test="value2 != null and value2 != ''">
+                `value2` = #{value2},
+            </if>
+            <if test="eventAttribute != null and eventAttribute != ''">
+                `event_attribute` = #{eventAttribute},
+            </if>
+            <if test="eventValue != null and eventValue != ''">
+                `event_value` = #{eventValue},
+            </if>
+            `update_time` = now()
+        </set>
+        where `id` = #{id}
     </update>
 
     <!--删除告警规则-->
-    <delete id="deleteById" parameterType = "java.util.List">
-        delete from iot_warning_rules where `id` in
-        <foreach collection="list"  item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+    <delete id="deleteById">
+        delete from iot_warning_rules where `id` = #{ruleId}
     </delete>
 
 </mapper>

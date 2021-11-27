@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Title: CollectionController
@@ -29,19 +30,6 @@ public class CollectionController {
     @Autowired
     public CollectionController(CollectionService collectionService) {
         this.collectionService = collectionService;
-    }
-
-    /**
-     * @描述 查看所有的告警定义
-     * @参数
-     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
-     * @创建人  shmily
-     * @创建时间  2020/8/8
-     * @修改人和其它信息
-     */
-    @GetMapping(value = "system/rule")
-    public Result<Object> getRules(@RequestParam(value = "clientId",required = false) Integer clientId){
-        return collectionService.getWarningRule(clientId);
     }
 
     /**
@@ -79,10 +67,7 @@ public class CollectionController {
      * @修改人和其它信息
      */
     @PostMapping(value = "warning/rules")
-    public Result<Integer> addIotWarningRules(@RequestBody List<IotWarningRulesEntity> param){
-        if (CollectionUtils.isEmpty(param)){
-            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
-        }
+    public Result<Integer> addIotWarningRules(@RequestBody IotWarningRulesEntity param){
         return collectionService.addIotWarningRules(param);
     }
 
@@ -96,9 +81,6 @@ public class CollectionController {
      */
     @PutMapping(value = "warning/rules")
     public Result<Integer> editIotWarningRules(@RequestBody IotWarningRulesEntity param){
-        if (null == param){
-            return ResultUtil.error(ResultEnum.NOT_PARAMETER);
-        }
         return collectionService.editIotWarningRules(param);
     }
 
@@ -110,22 +92,22 @@ public class CollectionController {
      * @创建时间  2020/8/8
      * @修改人和其它信息
      */
-    @DeleteMapping(value = "warning/rules/{ruleId}")
-    public Result<Integer> deleteIotWarningRules(@PathVariable("ruleId") Integer ruleId){
-        return collectionService.deleteIotWarningRules(ruleId);
+    @DeleteMapping(value = "warning/rules")
+    public Result<Integer> deleteIotWarningRules(IotWarningRulesEntity param){
+        return collectionService.deleteIotWarningRules(param);
     }
 
     /**
-     * @描述 分页查看终端告警规则
+     * @描述
      * @参数  [entity]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
      * @创建人  shmily
      * @创建时间  2020/8/8
      * @修改人和其它信息
      */
-    @GetMapping(value = "warning/rules")
-    public Result<Object> getIotWarningRulesPage(IotWarningRulesEntity entity){
-        return collectionService.getIotWarningRulesPage(entity);
+    @GetMapping(value = "warning/rules/{productId}")
+    public Result<Object> getIotWarningRules(@PathVariable(value = "productId") int productId){
+        return collectionService.getIotWarningRules(productId);
     }
     
 }

@@ -21,6 +21,7 @@
         <association property="abilities" javaType="iotAbility">
             <result property="id" column="ability_id"/>
             <result property="productId" column="productId"/>
+            <result property="name" column="abilityName"/>
             <result property="property" column="property"/>
             <result property="standardId" column="standardId"/>
             <association property="standardUnit" javaType="iotStandardUnit">
@@ -68,12 +69,12 @@
     </select>
 
     <!--分页查询Iot采集信息-->
-    <select id="queryPage" resultMap="IotCollectionMap">
+    <select id="queryPage" parameterType="iotCollection" resultMap="IotCollectionMap">
         select
             a.`id`, a.`client_id`, a.`ability_id`, a.`value`, a.`collect_time`,
             b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
             c.`name` as gatewayName,c.`address`,
-            d.`product_id` as productId, d.`property`,d.`standard_id` as standardId,
+            d.`product_id` as productId, d.`name` as abilityName,d.`property`,d.`standard_id` as standardId,
             e.`name` as unitName,e.`symbol` as unitSymbol
         from (
           select * from iot_collection
@@ -84,9 +85,6 @@
                 <if test="clientId != null and clientId != 0">
                     and `client_id` = #{clientId}
                 </if>
-                <if test="units != null and units != ''">
-                    and `units` = #{units}
-                </if>
                 <if test="value != null and value != ''">
                     and `value` = #{value}
                 </if>
@@ -94,7 +92,7 @@
                     and date_format(`collect_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
                 </if>
             </where>
-            order by a.`id` desc
+            order by `id` desc
             limit #{startLine},#{endLine}
         ) a
         left join iot_client b on a.`client_id` = b.`id`
@@ -104,7 +102,7 @@
     </select>
 
     <!--查询Iot采集信息数量-->
-    <select id="queryCount" resultType="java.lang.Long">
+    <select id="queryCount" parameterType="iotCollection" resultType="java.lang.Long">
         select
             count(*)
         from iot_collection a
@@ -114,9 +112,6 @@
             </if>
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
-            </if>
-            <if test="units != null and units != ''">
-                and a.`units` = #{units}
             </if>
             <if test="value != null and value != ''">
                 and a.`value` = #{value}

@@ -38,6 +38,16 @@ public interface DeviceService {
     public Result<List<IotProductTypeEntity>> getIotProduct(IotProductTypeEntity param);
 
     /**
+     * @Title   获取iot标准物理量
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotStandardUnitEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    public Result<List<IotStandardUnitEntity>> getStandardList();
+
+    /**
      * @描述 添加网关
      * @参数
      * @返回值
@@ -233,7 +243,7 @@ public interface DeviceService {
     /**
      * @描述 iot产品物模型列表
      * @参数  [id] 产品id
-     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotAbilityEntity>>
      * @创建人  shmily
      * @创建时间  2020/8/1
      * @修改人和其它信息

@@ -1,6 +1,8 @@
 package ac.cn.saya.mqtt.middle.tools;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -74,6 +76,22 @@ public class JackJsonUtil {
             }
         }
         return map;
+    }
+
+    /**
+     * 将JSON字符串转化成Map对象
+     *
+     * @param val
+     * @return
+     * @throws IllegalAccessException
+     */
+    public static Map<String, Object> objectToMap(String val) {
+        try {
+            return (JackJsonUtil.getInstance().objectMapper).readValue(val, new TypeReference<Map<String,Object>>() { });
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

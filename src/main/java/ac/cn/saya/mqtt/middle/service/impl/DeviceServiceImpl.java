@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +46,9 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Resource
     private IotAbilityDAO iotAbilityDAO;
+
+    @Resource
+    private IotStandardDAO iotStandardDAO;
 
     @Resource
     private Metadata metadata;
@@ -86,13 +88,37 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Result<List<IotProductTypeEntity>> getIotProduct(IotProductTypeEntity param) {
         try {
-            List<IotProductTypeEntity> result = iotProductTypeDAO.queryList(null);
+            param.setStatus(1);
+            List<IotProductTypeEntity> result = iotProductTypeDAO.queryList(param);
             if (CollectionUtils.isEmpty(result)){
                 return ResultUtil.error(ResultEnum.NOT_EXIST);
             }
             return ResultUtil.success(result);
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("获取Iot产品异常",e,DeviceServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
+
+    /**
+     * @Title   获取iot标准物理量
+     * @Params  [param]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotStandardUnitEntity>>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    @Override
+    public Result<List<IotStandardUnitEntity>> getStandardList(){
+        try {
+            List<IotStandardUnitEntity> result = iotStandardDAO.findAll();
+            if (CollectionUtils.isEmpty(result)){
+                return ResultUtil.error(ResultEnum.NOT_EXIST);
+            }
+            return ResultUtil.success(result);
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("获取Iot标准物理量异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);
         }
     }
@@ -497,10 +523,10 @@ public class DeviceServiceImpl implements DeviceService {
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         try {
+            // TODO 创建时默认启用
+            entity.setStatus(1);
             List<IotProductTypeEntity> checkResult = iotProductTypeDAO.queryList(entity);
             if (CollectionUtils.isEmpty(checkResult)){
-                // TODO 创建时默认启用
-                entity.setStatus(1);
                 iotProductTypeDAO.insert(entity);
                 return ResultUtil.success();
             }
@@ -574,7 +600,8 @@ public class DeviceServiceImpl implements DeviceService {
             entity.setStatus(2);
             iotProductTypeDAO.update(entity);
             // TODO 需要更新缓存
-            metadata.removeProduct(id);
+            metadata.removeProductAbility(id);
+            metadata.removeProductRule(id);
             return ResultUtil.success();
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("删除产品发生异常", e,DeviceServiceImpl.class);
@@ -619,8 +646,8 @@ public class DeviceServiceImpl implements DeviceService {
         try {
             for (IotAbilityEntity entity:entities) {
                 boolean flag = (null == entity || StringUtils.isEmpty(entity.getProperty()) || Objects.isNull(entity.getProductId())
-                        || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getProperty())
-                || Objects.isNull(entity.getStandardId()));
+                        || StringUtils.isEmpty(entity.getScope()) || Objects.isNull(entity.getType())|| StringUtils.isEmpty(entity.getName())
+                        || Objects.isNull(entity.getRwFlag() )|| Objects.isNull(entity.getStandardId()));
                 if (flag){
                     continue;
                 }
@@ -634,7 +661,7 @@ public class DeviceServiceImpl implements DeviceService {
             // 当前批次的模型对于的是一个批次下的产品，找到第一个模型下的产品id，然后在数据库里面找到这个产品下面所有的模型放入内存即可
             List<IotAbilityEntity> planWrite = iotAbilityDAO.queryAbilityByProductId(params.get(0).getProductId());
             if (!CollectionUtils.isEmpty(planWrite)){
-                metadata.doRefreshProduct(params.get(0).getProductId(),planWrite);
+                metadata.doRefreshProductAbility(params.get(0).getProductId(),planWrite);
             }
             return ResultUtil.success();
         } catch (Exception e) {
@@ -655,8 +682,8 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Result<Integer> editIotProductAbility(IotAbilityEntity entity) {
         boolean flag = (null == entity || StringUtils.isEmpty(entity.getProperty()) || Objects.isNull(entity.getProductId())
-                || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getProperty())
-                || Objects.isNull(entity.getStandardId()));
+                || StringUtils.isEmpty(entity.getScope()) || StringUtils.isEmpty(entity.getName())|| Objects.isNull(entity.getProductId())
+                || Objects.isNull(entity.getRwFlag() ) || Objects.isNull(entity.getStandardId()));
         if (flag){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
@@ -665,7 +692,7 @@ public class DeviceServiceImpl implements DeviceService {
                 // TODO 更新缓存
                 List<IotAbilityEntity> planWrite = iotAbilityDAO.queryAbilityByProductId(entity.getProductId());
                 if (!CollectionUtils.isEmpty(planWrite)){
-                    metadata.doRefreshProduct(entity.getProductId(),planWrite);
+                    metadata.doRefreshProductAbility(entity.getProductId(),planWrite);
                 }
                 // 同添加
                 return ResultUtil.success();
@@ -696,7 +723,7 @@ public class DeviceServiceImpl implements DeviceService {
                 // TODO 更新缓存
                 List<IotAbilityEntity> planWrite = iotAbilityDAO.queryAbilityByProductId(id);
                 if (!CollectionUtils.isEmpty(planWrite)){
-                    metadata.doRefreshProduct(id,planWrite);
+                    metadata.doRefreshProductAbility(id,planWrite);
                 }
                 return ResultUtil.success();
             }
@@ -710,7 +737,7 @@ public class DeviceServiceImpl implements DeviceService {
     /**
      * @描述 iot产品物模型列表
      * @参数 [entity]
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotAbilityEntity>>
      * @创建人 shmily
      * @创建时间 2020/8/1
      * @修改人和其它信息
@@ -719,7 +746,15 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Result<List<IotAbilityEntity>> getIotProductAbilityPage(Integer id) {
         try {
-            return ResultUtil.success(iotAbilityDAO.queryAbilityByProductId(id));
+            List<IotAbilityEntity> result = iotAbilityDAO.queryAbilityByProductId(id);
+            if (CollectionUtils.isEmpty(result)){
+                return ResultUtil.success(Collections.EMPTY_LIST);
+            }
+            // 序列化scope
+            for (IotAbilityEntity item:result) {
+                item.setScopeParam(item.scopeToString());
+            }
+            return ResultUtil.success(result);
         } catch (Exception e) {
             CurrentLineInfo.printCurrentLineInfo("查询iot产品物模型列表发生异常",e,DeviceServiceImpl.class);
             throw new IOTException(ResultEnum.ERROR);

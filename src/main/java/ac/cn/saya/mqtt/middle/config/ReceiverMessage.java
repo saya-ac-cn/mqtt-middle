@@ -11,7 +11,6 @@ import ac.cn.saya.mqtt.middle.tools.JackJsonUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageProducer;
@@ -20,7 +19,6 @@ import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannel
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +35,7 @@ import java.util.*;
  * @Description: 处理消息
  */
 
-@Configuration
+//@Configuration
 public class ReceiverMessage {
 
     @Resource
@@ -121,7 +119,7 @@ public class ReceiverMessage {
                 // 修改上报时间
                 collectionService.updateDeviceHeart(client.getId());
                 // 通过产品id，拿到本产品下物模型
-                Map<String, IotAbilityEntity> abilities = metadata.getProduct(client.getProductId());
+                Map<String, IotAbilityEntity> abilities = metadata.getProductAbility(client.getProductId());
                 if (CollectionUtils.isEmpty(abilities)){
                     continue;
                 }

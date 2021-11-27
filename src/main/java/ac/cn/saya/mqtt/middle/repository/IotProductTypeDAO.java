@@ -24,12 +24,18 @@ public interface IotProductTypeDAO {
     public List<IotProductTypeEntity> queryList(IotProductTypeEntity entity);
 
     /**
-     * 获取产品详情
+     * 获取产品物模型详情
      * @param entity
      * @return
-     * TODO 可能有问题
      */
-    public List<IotProductTypeEntity> queryProductDetail(IotProductTypeEntity entity);
+    public List<IotProductTypeEntity> queryProductProperties(IotProductTypeEntity entity);
+
+    /**
+     * 获取产品物模型详情
+     * @param entity
+     * @return
+     */
+    public List<IotProductTypeEntity> queryProductRules(IotProductTypeEntity entity);
 
     /**
      * 添加产品信息

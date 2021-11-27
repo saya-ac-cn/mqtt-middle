@@ -30,6 +30,11 @@ public class IotWarningRulesEntity extends BaseEntity{
     private String name;
 
     /**
+     * 所属产品id
+     */
+    private Integer productId;
+
+    /**
      * 物模型（外键）
      */
     private Integer abilityId;
@@ -79,10 +84,6 @@ public class IotWarningRulesEntity extends BaseEntity{
      */
     private IotAbilityEntity abilityEntity;
 
-    /**
-     * 产品id（非数据库字段）
-     */
-    private Integer productId;
 
     @Override
     public boolean equals(Object o) {

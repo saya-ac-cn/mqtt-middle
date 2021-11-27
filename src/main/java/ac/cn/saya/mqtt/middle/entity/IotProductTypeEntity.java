@@ -40,7 +40,12 @@ public class IotProductTypeEntity extends BaseEntity{
     private Integer status;
 
     /**
-     * 非数据库字段（产品数据），
+     * 非数据库字段（产品数据）
      */
     private List<IotAbilityEntity> properties;
+
+    /**
+     * 非数据库字段（产品告警规则）
+     */
+    private List<IotWarningRulesEntity> rules;
 }
