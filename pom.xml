@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.4.RELEASE</version>
+        <version>2.5.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ac.cn.saya</groupId>
@@ -17,16 +17,14 @@
     <properties>
         <!-- 基本属性 -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <java.version>11</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
         <skipTests>true</skipTests>
         <project.build.directory>mqtt-middle</project.build.directory>
-        <!-- 版本属性 -->
-        <druid.version>1.2.2</druid.version>
         <mysql.version>8.0.18</mysql.version>
         <mybatis.version>2.1.2</mybatis.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <integration.version>5.2.7.RELEASE</integration.version>
         <jackson.version>2.11.2</jackson.version>
     </properties>
@@ -59,12 +57,6 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${mybatis.version}</version>
-        </dependency>
-        <!--引入阿里数据库连接池-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <version>${druid.version}</version>
         </dependency>
         <!--引入数据库连接驱动-->
         <dependency>
@@ -138,8 +130,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

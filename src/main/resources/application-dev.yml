@@ -44,28 +44,26 @@ spring:
   datasource:
     # Druid连接池配置，官方配置参考：1、https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter
     # 优化配置2、https://blog.csdn.net/qq_42235671/article/details/84592028
-    type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://1.15.81.148:3306/iot?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&rewriteBatchedStatements=true
-    username: saya
-    password: shmily520
+    type: com.zaxxer.hikari.HikariDataSource
+
     # 升级数据连接，url连接参数需加入serverTimezone=UTC
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # Druid其他配置
-    druid:
-      filter:
-        stat:
-          slow-sql-millis: 2000
-          log-slow-sql: true
-      # 初始配置 最小、最大连接
-      initial-size: 2
-      min-idle: 4
-      max-active: 6
-      # 配置获取连接等待超时的时间
-      max-wait: 60000
-      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
-      time-between-eviction-runs-millis: 60000
-      # 配置一个连接在池中最小生存的时间，单位是毫秒
-      min-evictable-idle-time-millis: 300000
+    # Hikari其他配置
+    hikari:
+      minimum-idle: 4
+      # 空闲连接存活最大时间，默认600000（10分钟）
+      idle-timeout: 180000
+      # 连接池最大连接数，默认是10
+      maximum-pool-size: 10
+      # 此属性控制从池返回的连接的默认自动提交行为,默认值：true
+      auto-commit: true
+      # 连接池名称
+      pool-name: Hikari-CP
+      # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      max-lifetime: 1800000
+      # 数据库连接超时时间,默认30秒，即30000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
 
 mybatis:
   config-location: classpath:mybatis-config.xml
