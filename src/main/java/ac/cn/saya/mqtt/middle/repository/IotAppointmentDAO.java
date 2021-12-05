@@ -15,6 +15,14 @@ import java.util.List;
 public interface IotAppointmentDAO {
 
     /**
+     * 通过code查询Iot预约
+     *
+     * @param code
+     * @return 实例对象
+     */
+    public IotAppointmentEntity queryByCode(@Param("code") String code);
+
+    /**
      * 查询Iot预约
      *
      * @param entity
@@ -58,18 +66,17 @@ public interface IotAppointmentDAO {
     /**
      * 删除预约
      *
-     * @param id 主键
+     * @param code 主键
      * @return 影响行数
      */
-    public int deleteById(@Param(value = "id") Integer id);
+    public int deleteByCode(@Param(value = "code") String code);
 
     /**
      * 查询即将要下发的指令
      *
-     * @param beginTime 开始时间
-     * @param endTime 开始时间
+     * @param entity 查询条件
      * @return 对象列表
      */
-    public List<IotAppointmentEntity> queryEnable(@Param("beginTime") String beginTime,@Param("endTime") String endTime);
+    public List<IotAppointmentEntity> queryList(IotAppointmentEntity entity);
 
 }

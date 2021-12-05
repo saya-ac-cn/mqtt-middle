@@ -1,9 +1,15 @@
 package ac.cn.saya.mqtt.middle.meta;
 
+import ac.cn.saya.mqtt.middle.config.AppointmentScheduledPoolTask;
 import ac.cn.saya.mqtt.middle.entity.*;
+import ac.cn.saya.mqtt.middle.job.AppointmentThread;
+import ac.cn.saya.mqtt.middle.repository.IotAppointmentDAO;
 import ac.cn.saya.mqtt.middle.repository.IotClientDAO;
 import ac.cn.saya.mqtt.middle.repository.IotProductTypeDAO;
 import ac.cn.saya.mqtt.middle.tools.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -11,6 +17,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -27,8 +34,13 @@ public class Metadata {
     private IotClientDAO iotClientDAO;
 
     @Resource
+    private IotAppointmentDAO iotAppointmentDAO;
+
+    @Resource
     private IotProductTypeDAO iotProductTypeDAO;
 
+    @Resource
+    private ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
     /**
      * 终端设备数据 内存元数据
@@ -261,6 +273,39 @@ public class Metadata {
         }else {
             for (IotProductTypeEntity item:productRules) {
                 this.doRefreshProductRule(item.getId(),item.getRules());
+            }
+        }
+    }
+
+    /**
+     * @描述 初始化预约执行指令到Scheduled定时任务队列
+     * @参数  []
+     * @返回值  void
+     * @创建人  shmily
+     * @创建时间  2021/12/4
+     * @修改人和其它信息
+     */
+    public synchronized void initAppointmentScheduled(){
+        List<IotAppointmentEntity> appointments = iotAppointmentDAO.queryList(new IotAppointmentEntity());
+        if (CollectionUtils.isEmpty(appointments)){
+            return;
+        }
+        for (IotAppointmentEntity appointment:appointments) {
+            IotClientEntity iotClient = appointment.getIotClient();
+            if (Objects.isNull(iotClient)){
+                continue;
+            }
+            // 网关，设备id，定时cron，物模型字段，指令值都不能为空
+            boolean flag = Objects.isNull(iotClient.getGatewayId()) || Objects.isNull(appointment.getClientId()) || StringUtils.isEmpty(appointment.getCron()) || Objects.isNull(appointment.getAbilityId()) || Objects.isNull(appointment.getCommand());
+            if (flag){
+                continue;
+            }
+            AppointmentThread task = new AppointmentThread(appointment);
+            try {
+                ScheduledFuture<?> schedule = threadPoolTaskScheduler.schedule(task, new CronTrigger(appointment.getCron()));
+                AppointmentScheduledPoolTask.SCHEDULED_MAP.put(appointment.getCode(),schedule);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

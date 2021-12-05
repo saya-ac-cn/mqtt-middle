@@ -47,13 +47,13 @@ public interface CommandService {
 
     /**
      * @描述 删除终端规则预约信息
-     * @参数  [id]
+     * @参数  [code]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人  shmily
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> deleteIotAppointment(Integer id);
+    public Result<Integer> deleteIotAppointment(String code);
 
     /**
      * @描述 终端规则预约信息分页

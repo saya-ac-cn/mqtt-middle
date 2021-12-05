@@ -20,7 +20,10 @@ public class MetaStartupRunner implements CommandLineRunner {
     private Metadata metadata;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args){
+        // 刷新设备元数据
         metadata.refresh();
+        // 初始化预约执行指令到Scheduled定时任务队列
+        metadata.initAppointmentScheduled();
     }
 }

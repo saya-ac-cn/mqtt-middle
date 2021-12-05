@@ -51,7 +51,7 @@ public class CommandController {
      */
     @PostMapping(value = "appointment")
     public Result<Integer> addIotAppointment(@RequestBody IotAppointmentEntity entity){
-        if (null == entity || entity.getClientId() == null || StringUtils.isEmpty(entity.getName()) || StringUtils.isEmpty(entity.getExcuteTime()) || entity.getCommand() == null){
+        if (null == entity || entity.getClientId() == null || entity.getAbilityId() == null ||StringUtils.isEmpty(entity.getName()) || StringUtils.isEmpty(entity.getCron()) || entity.getCommand() == null){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         return commandService.addIotAppointment(entity);
@@ -67,7 +67,7 @@ public class CommandController {
      */
     @PutMapping(value = "appointment")
     public Result<Integer> editIotAppointment(@RequestBody IotAppointmentEntity entity){
-        if (null == entity || entity.getId() == null){
+        if (null == entity && entity.getClientId() == null && entity.getAbilityId() == null && StringUtils.isEmpty(entity.getName()) && StringUtils.isEmpty(entity.getCron()) && entity.getCommand() == null){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         return commandService.editIotAppointment(entity);
@@ -81,12 +81,12 @@ public class CommandController {
      * @创建时间  2020/8/8
      * @修改人和其它信息
      */
-    @DeleteMapping(value = "appointment/{id}")
-    public Result<Integer> deleteIotAppointment(@PathVariable(value = "id")  Integer id){
-        if (null == id || id <= 0){
+    @DeleteMapping(value = "appointment/{code}")
+    public Result<Integer> deleteIotAppointment(@PathVariable(value = "code") String code){
+        if (StringUtils.isEmpty(code)){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        return commandService.deleteIotAppointment(id);
+        return commandService.deleteIotAppointment(code);
     }
 
     /**

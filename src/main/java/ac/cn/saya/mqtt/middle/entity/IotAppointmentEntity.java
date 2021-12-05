@@ -19,9 +19,9 @@ public class IotAppointmentEntity extends BaseEntity{
     private static final long serialVersionUID = -8021656870371155403L;
 
     /**
-     *
+     * 定时任务code
      */
-    private Integer id;
+    private String code;
 
     /**
      * 外键,终端id
@@ -34,9 +34,14 @@ public class IotAppointmentEntity extends BaseEntity{
     private String name;
 
     /**
-     * 执行时间
+     * 物模型属性(外键)
      */
-    private String excuteTime;
+    private Integer abilityId;
+
+    /**
+     * 定时任务执行表达式
+     */
+    private String cron;
 
     /**
      * 命令
