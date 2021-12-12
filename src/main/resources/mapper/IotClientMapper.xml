@@ -26,7 +26,7 @@
     <!--下拉列表显示Iot终端-->
     <select id="querySelectList" resultMap="IotClientMap">
         select
-        a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,
+        a.`id`, a.`gateway_id`, a.`name`, a.`serial_num`, a.`last_link_time`, a.`enable`,a.`remove`, a.`product_id` as productId,a.`create_time`, a.`update_time`,
         b.`uuid`,b.`name` as gatewayName,b.`address`,b.`source`
         from iot_client a left join iot_gateway b on b.id = a.gateway_id
         <where>

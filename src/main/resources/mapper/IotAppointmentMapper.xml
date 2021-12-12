@@ -3,18 +3,29 @@
 <mapper namespace="ac.cn.saya.mqtt.middle.repository.IotAppointmentDAO">
 
     <resultMap type="iotAppointment" id="IotAppointmentMap">
-        <result property="id" column="id"/>
+        <result property="code" column="code"/>
         <result property="clientId" column="client_id"/>
         <result property="name" column="name"/>
-        <result property="excuteTime" column="excute_time"/>
+        <result property="abilityId" column="ability_id"/>
+        <result property="cron" column="cron"/>
         <result property="command" column="command"/>
         <result property="status" column="status"/>
+        <result property="executeTime" column="executeTime"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <association property="iotAbility" javaType="iotAbility">
+            <result property="id" column="ability_id"/>
+            <result property="name" column="abilityName"/>
+            <result property="property" column="property"/>
+            <result property="type" column="abilityType"/>
+            <result property="scope" column="scope"/>
+        </association>
         <association property="iotClient" javaType="iotClient">
             <result property="id" column="client_id"/>
             <result property="name" column="clientName"/>
             <result property="lastLinkTime" column="last_link_time"/>
+            <result property="gatewayId" column="gateway_id"/>
+            <result property="productId" column="productId"/>
             <association property="gateway" javaType="IotGateway">
                 <id property="id" column="gateway_id" />
                 <result property="name" column="gatewayName"/>
@@ -23,16 +34,28 @@
         </association>
     </resultMap>
 
+    <!--通过code查询Iot预约-->
+    <select id="queryByCode" resultMap="IotAppointmentMap">
+        select
+        a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`,a.`execute_time` as executeTime, a.`create_time`, a.`update_time`,
+        b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,b.`product_id` as productId,
+        c.`name` as gatewayName,c.`address`
+        from iot_appointment a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
+        where a.`code` = #{code}
+        limit 1
+    </select>
+
     <!--查询Iot预约-->
     <select id="query" resultMap="IotAppointmentMap">
         select
-          a.`id`, a.`client_id`, a.`name`, a.`excute_time`, a.`command`, a.`status`, a.`create_time`, a.`update_time`,
-          b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
-          c.`name` as gatewayName,c.`address`
-        from iot_appointment a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
+          a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`, a.`execute_time` as executeTime, a.`create_time`, a.`update_time`,
+          b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,b.`product_id` as productId,
+          c.`name` as gatewayName,c.`address`,
+          d.`name` as abilityName,d.`property`,d.`scope`,d.`type` as abilityType
+        from iot_appointment a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id` left join iot_ability d on a.`ability_id` = d.`id`
         <where>
-            <if test="id != null and id != 0">
-                a.`id` = #{id}
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
             </if>
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
@@ -53,13 +76,14 @@
     <!--分页查询Iot预约-->
     <select id="queryPage" resultMap="IotAppointmentMap">
         select
-            a.`id`, a.`client_id`, a.`name`, a.`excute_time`, a.`command`, a.`status`, a.`create_time`, a.`update_time`,
-            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
-            c.`name` as gatewayName,c.`address`
-        from iot_appointment a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
+            a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`, a.`execute_time` as executeTime, a.`create_time`, a.`update_time`,
+            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,b.`product_id` as productId,
+            c.`name` as gatewayName,c.`address`,
+            d.`name` as abilityName,d.`property`,d.`scope`,d.`type` as abilityType
+        from iot_appointment a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id` left join iot_ability d on a.`ability_id` = d.`id`
         <where>
-            <if test="id != null and id != 0">
-                a.`id` = #{id}
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
             </if>
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
@@ -74,7 +98,7 @@
                 and a.`status` = #{status}
             </if>
         </where>
-        order by a.`status` asc,a.`id` desc
+        order by a.`status` asc,a.`create_time` desc
         limit #{startLine},#{endLine}
     </select>
 
@@ -84,8 +108,8 @@
             count(*)
         from iot_appointment a
         <where>
-            <if test="id != null and id != 0">
-                a.`id` = #{id}
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
             </if>
             <if test="clientId != null and clientId != 0">
                 and a.`client_id` = #{clientId}
@@ -103,9 +127,9 @@
     </select>
 
     <!--新增Iot预约-->
-    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into iot_appointment(client_id, name, excute_time, command, create_time)
-        values (#{clientId}, #{name}, #{excuteTime}, #{command}, now())
+    <insert id="insert">
+        insert into iot_appointment(code,client_id, name, ability_id, cron,command, create_time)
+        values (#{code},#{clientId}, #{name}, #{abilityId}, #{cron},#{command}, now())
     </insert>
 
     <!--修改预约-->
@@ -118,34 +142,54 @@
             <if test="name != null and name != ''">
                 `name` = #{name},
             </if>
-            <if test="excuteTime != null and excuteTime != ''">
-                `excute_time` = #{excuteTime},
+            <if test="abilityId != null and abilityId != 0">
+                `ability_id` = #{abilityId},
             </if>
-            <if test="command != null and command != 0">
+            <if test="cron != null and cron != ''">
+                `cron` = #{cron},
+            </if>
+            <if test="command != null">
                 `command` = #{command},
+            </if>
+            <if test="executeTime != null and executeTime != ''">
+                `executeTime` = #{executeTime}
             </if>
             <if test="status != null and status != 0">
                 `status` = #{status},
             </if>
             `update_time` = #{updateTime}
         </set>
-        where `id` = #{id} and `status` = 1
+        where `code` = #{code}
     </update>
 
     <!--删除预约-->
-    <delete id="deleteById">
-        delete from iot_appointment where id = #{id}
+    <delete id="deleteByCode">
+        delete from iot_appointment where code = #{code}
     </delete>
 
-    <select id="queryEnable" resultMap="IotAppointmentMap">
+    <select id="queryList" resultMap="IotAppointmentMap">
         select
-            a.`id`, a.`client_id`, a.`name`, a.`excute_time`, a.`command`, a.`status`, a.`create_time`, a.`update_time`,
+            a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`, a.`create_time`, a.`update_time`,
             b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
             c.`name` as gatewayName,c.`address`
         from iot_appointment a left join iot_client b on a.`client_id` = b.`id` left join iot_gateway c on b.`gateway_id` = c.`id`
-        where
-            date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
-            and a.`status` = 1
+        <where>
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="status != null and status != 0">
+                and a.`status` = #{status}
+            </if>
+        </where>
     </select>
 
 </mapper>
