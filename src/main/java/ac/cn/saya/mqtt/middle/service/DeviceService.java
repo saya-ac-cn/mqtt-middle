@@ -18,16 +18,6 @@ import java.util.List;
 public interface DeviceService {
 
     /**
-     * @描述 获取Iot设备类型
-     * @参数
-     * @返回值 IotGatewayTypeEntity 集合
-     * @创建人  shmily
-     * @创建时间  2020/7/29
-     * @修改人和其它信息
-     */
-    public Result<List<IotGatewayTypeEntity>> getIotGatewayType();
-
-    /**
      * @Title   获取iot产品列表
      * @Params  [param]
      * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity>>
@@ -35,7 +25,7 @@ public interface DeviceService {
      * @Date  2021/8/22
      * @Description
      */
-    public Result<List<IotProductTypeEntity>> getIotProduct(IotProductTypeEntity param);
+    public Result<List<IotProductEntity>> getIotProduct(IotProductEntity param);
 
     /**
      * @Title   获取iot标准物理量
@@ -48,95 +38,24 @@ public interface DeviceService {
     public Result<List<IotStandardUnitEntity>> getStandardList();
 
     /**
-     * @描述 添加网关
-     * @参数
-     * @返回值
-     * @创建人  shmily
-     * @创建时间  2020/7/29
-     * @修改人和其它信息
-     */
-    public Result<Integer> addIotGateway(IotGatewayEntity entity, HttpServletRequest request);
-
-    /**
-     * @描述 修改网关
-     * @参数
-     * @返回值
-     * @创建人  shmily
-     * @创建时间  2020/7/29
-     * @修改人和其它信息
-     */
-    public Result<Integer> editIotGateway(IotGatewayEntity entity,HttpServletRequest request);
-
-    /**
-     * @描述 删除网关信息
-     * @参数  [id]
-     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
-     * @创建人  shmily
-     * @创建时间  2020/8/1
-     * @修改人和其它信息
-     */
-    public Result<Integer> deleteIotGateway(Integer id);
-
-    /**
-     * @描述 网关分页
-     * @参数  [entity]
-     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
-     * @创建人  shmily
-     * @创建时间  2020/8/1
-     * @修改人和其它信息
-     */
-    public Result<Object> getIotGatewayPage(IotGatewayEntity entity);
-
-    /**
-     * @描述 获取单个网关详情
-     * @参数  [id]
-     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<ac.cn.saya.mqtt.middle.entity.IotGatewayEntity>
-     * @创建人  shmily
-     * @创建时间  2020/8/23
-     * @修改人和其它信息
-     */
-    public Result<IotGatewayEntity> getIotGatewayEntity(Integer id);
-
-    /**
-     * @描述 获取网关列表-用于添加设备时的下拉选框
-     * @参数  [entity]
-     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotGatewayEntity>>
-     * @创建人  shmily
-     * @创建时间  2020/8/23
-     * @修改人和其它信息
-     */
-    public Result<List<IotGatewayEntity>> getIotGatewayList(HttpServletRequest request);
-
-
-    /**
-     * 查看指定网关下可用的设备序号
-     * @param  gatewayId 网关
-     * @return  序号map
-     * @author  saya.ac.cn-刘能凯
-     * @date  9/20/21
-     * @description
-     */
-    public Result<Object> getAvailableSerialNum(Integer gatewayId);
-
-    /**
      * @描述 添加设备
-     * @参数  [entity]
+     * @参数  [entity,request]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人  shmily
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> addIotClient(IotClientEntity entity);
+    public Result<Integer> addIotClient(IotClientEntity entity,HttpServletRequest request);
 
     /**
      * @描述 修改设备
-     * @参数  [entity]
+     * @参数  [entity,request]
      * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人  shmily
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> editIotClient(IotClientEntity entity);
+    public Result<Integer> editIotClient(IotClientEntity entity,HttpServletRequest request);
 
     /**
      * @描述 删除设备
@@ -178,7 +97,7 @@ public interface DeviceService {
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> addIotProduct(IotProductTypeEntity entity);
+    public Result<Integer> addIotProduct(IotProductEntity entity);
 
     /**
      * @描述 修改iot产品
@@ -188,7 +107,7 @@ public interface DeviceService {
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Integer> editIotProduct(IotProductTypeEntity entity);
+    public Result<Integer> editIotProduct(IotProductEntity entity);
 
     /**
      * @描述 删除iot产品
@@ -208,7 +127,7 @@ public interface DeviceService {
      * @创建时间  2020/8/1
      * @修改人和其它信息
      */
-    public Result<Object> getIotProductPage(IotProductTypeEntity entity);
+    public Result<Object> getIotProductPage(IotProductEntity entity);
 
     /**
      * @描述 添加iot产品物模型

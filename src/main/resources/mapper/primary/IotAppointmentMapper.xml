@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.primary.IotAppointmentDAO">
+
+    <resultMap type="iotAppointment" id="IotAppointmentMap">
+        <result property="code" column="code"/>
+        <result property="clientId" column="client_id"/>
+        <result property="name" column="name"/>
+        <result property="abilityId" column="ability_id"/>
+        <result property="cron" column="cron"/>
+        <result property="command" column="command"/>
+        <result property="status" column="status"/>
+        <result property="executeTime" column="executeTime"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="iotAbility" javaType="iotAbility">
+            <result property="id" column="ability_id"/>
+            <result property="name" column="abilityName"/>
+            <result property="property" column="property"/>
+            <result property="type" column="abilityType"/>
+            <result property="scope" column="scope"/>
+        </association>
+        <association property="iotClient" javaType="iotClient">
+            <result property="id" column="client_id"/>
+            <result property="name" column="clientName"/>
+            <result property="lastLinkTime" column="last_link_time"/>
+            <result property="productId" column="productId"/>
+        </association>
+    </resultMap>
+
+    <!--通过code查询Iot预约-->
+    <select id="queryByCode" resultMap="IotAppointmentMap">
+        select
+            a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`,a.`execute_time` as executeTime, a.`create_time`, a.`update_time`,
+            b.`name` as clientName,b.`last_link_time`,b.`product_id` as productId
+        from iot_appointment a left join iot_client b on a.`client_id` = b.`id`
+        where a.`code` = #{code}
+        limit 1
+    </select>
+
+    <!--查询Iot预约-->
+    <select id="query" resultMap="IotAppointmentMap">
+        select
+          a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`, a.`execute_time` as executeTime, a.`create_time`, a.`update_time`,
+          b.`name` as clientName,b.`last_link_time`,b.`product_id` as productId,
+          d.`name` as abilityName,d.`property`,d.`scope`,d.`type` as abilityType
+        from iot_appointment a left join iot_client b on a.`client_id` = b.`id` left join iot_ability d on a.`ability_id` = d.`id`
+        <where>
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="status != null and status != 0">
+                and a.`status` = #{status}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!--分页查询Iot预约-->
+    <select id="queryPage" resultMap="IotAppointmentMap">
+        select
+            a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`, a.`execute_time` as executeTime, a.`create_time`, a.`update_time`,
+            b.`name` as clientName,b.`last_link_time`,b.`product_id` as productId,
+            d.`name` as abilityName,d.`property`,d.`scope`,d.`type` as abilityType
+        from iot_appointment a left join iot_client b on a.`client_id` = b.`id`  left join iot_ability d on a.`ability_id` = d.`id`
+        <where>
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="status != null and status != 0">
+                and a.`status` = #{status}
+            </if>
+        </where>
+        order by a.`status` asc,a.`create_time` desc
+        limit #{startLine},#{endLine}
+    </select>
+
+    <!--查询Iot预约总数-->
+    <select id="queryCount" resultType="java.lang.Long">
+        select
+            count(*)
+        from iot_appointment a
+        <where>
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="status != null and status != 0">
+                and a.`status` = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!--新增Iot预约-->
+    <insert id="insert">
+        insert into iot_appointment(code,client_id, name, ability_id, cron,command, create_time)
+        values (#{code},#{clientId}, #{name}, #{abilityId}, #{cron},#{command}, now())
+    </insert>
+
+    <!--修改预约-->
+    <update id="update">
+        update iot_appointment
+        <set>
+            <if test="clientId != null and clientId != 0">
+                `client_id` = #{clientId},
+            </if>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="abilityId != null and abilityId != 0">
+                `ability_id` = #{abilityId},
+            </if>
+            <if test="cron != null and cron != ''">
+                `cron` = #{cron},
+            </if>
+            <if test="command != null">
+                `command` = #{command},
+            </if>
+            <if test="executeTime != null and executeTime != ''">
+                `executeTime` = #{executeTime}
+            </if>
+            <if test="status != null and status != 0">
+                `status` = #{status},
+            </if>
+            `update_time` = #{updateTime}
+        </set>
+        where `code` = #{code}
+    </update>
+
+    <!--删除预约-->
+    <delete id="deleteByCode">
+        delete from iot_appointment where code = #{code}
+    </delete>
+
+    <select id="queryList" resultMap="IotAppointmentMap">
+        select
+            a.`code`, a.`client_id`, a.`name`, a.`ability_id`,a.`cron`, a.`command`, a.`status`, a.`create_time`, a.`update_time`,
+            b.`name` as clientName,b.`last_link_time`
+        from iot_appointment a left join iot_client b on a.`client_id` = b.`id`
+        <where>
+            <if test="code != null and code != ''">
+                a.`code` = #{code}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="status != null and status != 0">
+                and a.`status` = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>

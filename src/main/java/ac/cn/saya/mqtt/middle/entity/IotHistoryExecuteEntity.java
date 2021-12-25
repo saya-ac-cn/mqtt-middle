@@ -29,7 +29,7 @@ public class IotHistoryExecuteEntity extends BaseEntity{
     /**
      * 命令
      */
-    private Integer command;
+    private String command;
 
     /**
      * 执行时间

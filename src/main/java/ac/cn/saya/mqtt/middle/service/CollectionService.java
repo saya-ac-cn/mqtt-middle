@@ -97,23 +97,13 @@ public interface CollectionService {
     public void checkRuleWarring(List<IotCollectionEntity> datas);
 
     /**
-     * @Title 修改网关的最后上报时间
-     * @Params  [gatewayId]
-     * @Return  void
-     * @Author  saya.ac.cn-刘能凯
-     * @Date  6/26/21
-     * @Description
-     */
-    public void updateGatewayHeart(String uuid);
-
-    /**
      * @Title 修改设备最后上报时间
-     * @Params  [clientId]
+     * @Params  [identifyUuid]
      * @Return  void
      * @Author  saya.ac.cn-刘能凯
      * @Date  6/26/21
      * @Description
      */
-    public void updateDeviceHeart(int clientId);
+    public void updateDeviceHeart(String identifyUuid);
 
 }

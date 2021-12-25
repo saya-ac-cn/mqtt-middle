@@ -1,5 +1,5 @@
 package ac.cn.saya.mqtt.middle.handle;
-import ac.cn.saya.mqtt.middle.entity.UserEntity;
+import ac.cn.saya.mqtt.middle.entity.IotUserEntity;
 import ac.cn.saya.mqtt.middle.tools.HttpRequestUtil;
 import ac.cn.saya.mqtt.middle.tools.ResultUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +28,7 @@ public class SystemInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        UserEntity memoryUser = HttpRequestUtil.getMemoryUser(request);
+        IotUserEntity memoryUser = HttpRequestUtil.getMemoryUser(request);
         if (null != memoryUser) {
             return true;
         } else {

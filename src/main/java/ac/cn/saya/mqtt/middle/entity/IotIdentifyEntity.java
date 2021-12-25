@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
+
 /**
  * @Title: IotIdentifyEntity
  * @ProjectName mqtt-middle
@@ -16,6 +18,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class IotIdentifyEntity extends BaseEntity{
+
+
+    @Serial
     private static final long serialVersionUID = -5202367680250917805L;
 
     /**
@@ -49,6 +54,11 @@ public class IotIdentifyEntity extends BaseEntity{
     private Integer isSuperuser;
 
     /**
+     * 设备所属平台(针对本项目，统一为：物联网运营中心)
+     */
+    private final String platform = "物联网运营中心";
+
+    /**
      * 创建时间
      */
     private String createTime;
@@ -57,5 +67,4 @@ public class IotIdentifyEntity extends BaseEntity{
      * 修改时间
      */
     private String updateTime;
-
 }

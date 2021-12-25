@@ -1,6 +1,10 @@
 server:
   port: 8000
 
+scheduled:
+  # 定时刷新元数据cron表达式
+  metadata: 0 0 0/1 * * ?
+
 spring:
   application:
     # 服务名尽量用-，不用_，尽量不用特殊字符
@@ -11,7 +15,7 @@ spring:
     # 密码
     password: 123456
     # 服务器连接地址，如果有多个，用逗号隔开，如：tcp://0.0.0.0:1883,tcp://127.0.0.1:11883
-    url: tcp://118.24.198.239:1883
+    url: tcp://1.15.81.148:1883
     # 连接超时
     completionTimeout: 3000
     # 保持连接数
@@ -41,28 +45,47 @@ spring:
       ## #：表示匹配>=0个层次，比如a/#就匹配a，a/，a/b，a/b/c。单独的一个#表示匹配所有，不允许a#或a/#/c等形式。
       ## +：表示匹配一个层次，例如a/+匹配a/b，a/c，不匹配a/b/c。单独的一个+是允许的，但a+为非法形式。
       ## 关闭默认的匿名认证，启用MySQL认证=https://blog.csdn.net/zhen_6137/article/details/81112337
+      ## emqttd 忘记密码
   datasource:
-    # Druid连接池配置，官方配置参考：1、https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter
-    # 优化配置2、https://blog.csdn.net/qq_42235671/article/details/84592028
-    type: com.zaxxer.hikari.HikariDataSource
-
-    # 升级数据连接，url连接参数需加入serverTimezone=UTC
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    # Hikari其他配置
-    hikari:
+    primary:
+      type: com.zaxxer.hikari.HikariDataSource
+      jdbc-url: jdbc:mysql://1.15.81.148:3306/iot-home?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&rewriteBatchedStatements=true
+      username: -----
+      password: -----
+      driver-class-name: com.mysql.cj.jdbc.Driver
       minimum-idle: 4
-      # 空闲连接存活最大时间，默认600000（10分钟）
-      idle-timeout: 180000
-      # 连接池最大连接数，默认是10
+      # 连接池最大连接数
       maximum-pool-size: 10
+      # 空闲连接存活最大时间
+      idle-timeout: 30000
       # 此属性控制从池返回的连接的默认自动提交行为,默认值：true
       auto-commit: true
       # 连接池名称
-      pool-name: Hikari-CP
+      pool-name: Hikari-CP-Primary
       # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
-      max-lifetime: 1800000
+      max-lifetime: 290000
       # 数据库连接超时时间,默认30秒，即30000
-      connection-timeout: 30000
+      connection-timeout: 300000
+      connection-test-query: SELECT 1
+    identify:
+      type: com.zaxxer.hikari.HikariDataSource
+      jdbc-url: jdbc:mysql://1.15.81.148:3306/iot?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&rewriteBatchedStatements=true
+      username: ----
+      password: -----
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      minimum-idle: 4
+      # 连接池最大连接数
+      maximum-pool-size: 6
+      # 空闲连接存活最大时间
+      idle-timeout: 30000
+      # 此属性控制从池返回的连接的默认自动提交行为,默认值：true
+      auto-commit: true
+      # 连接池名称
+      pool-name: Hikari-CP-Identify
+      # 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      max-lifetime: 290000
+      # 数据库连接超时时间,默认30秒，即30000
+      connection-timeout: 300000
       connection-test-query: SELECT 1
 
 mybatis:

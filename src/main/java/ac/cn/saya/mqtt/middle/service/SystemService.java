@@ -1,6 +1,6 @@
 package ac.cn.saya.mqtt.middle.service;
 
-import ac.cn.saya.mqtt.middle.entity.UserEntity;
+import ac.cn.saya.mqtt.middle.entity.IotUserEntity;
 import ac.cn.saya.mqtt.middle.tools.IOTException;
 import ac.cn.saya.mqtt.middle.tools.Result;
 
@@ -24,6 +24,6 @@ public interface SystemService {
      * @创建时间  2020/11/15
      * @修改人和其它信息
      */
-    public Result<Object> login(UserEntity params, HttpServletRequest request) throws IOTException;
+    public Result<Object> login(IotUserEntity params, HttpServletRequest request) throws IOTException;
 
 }

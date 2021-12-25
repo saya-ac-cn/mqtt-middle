@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.primary.IotClientDAO">
+
+    <resultMap type="iotClient" id="IotClientMap">
+        <result property="id" column="id"/>
+        <result property="identifyUuid" column="identify_uuid"/>
+        <result property="belongUser" column="belong_user"/>
+        <result property="name" column="name"/>
+        <result property="lastLinkTime" column="last_link_time"/>
+        <result property="enable" column="enable"/>
+        <result property="remove" column="remove"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="productId" column="product_id"/>
+        <result property="productName" column="productName"/>
+    </resultMap>
+
+    <!--下拉列表显示Iot终端-->
+    <select id="querySelectList" resultMap="IotClientMap">
+        select
+            a.`id`, a.`identify_uuid`, a.`name`, a.`last_link_time`, a.`enable`,
+            a.`remove`, a.`product_id`,a.`create_time`, a.`update_time`,a.`belong_user`
+        from iot_client a
+        <where>
+            <if test="belongUser != null and belongUser != ''">
+                a.`belong_user` = #{belongUser}
+            </if>
+            <if test="keyWord != null and keyWord != ''">
+                and a.`name` like concat(#{keyWord},"%")
+            </if>
+        </where>
+    </select>
+
+    <!--查询Iot终端-->
+    <select id="query" resultMap="IotClientMap">
+        select
+          a.`id`, a.`identify_uuid`, a.`name`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,a.`belong_user`,
+          a.`product_id`,b.`name` as productName
+        from iot_client a left join iot_product b on b.`id` = a.`product_id`
+        <where>
+            <if test="id != null and id != 0">
+                and a.`id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`last_link_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="enable != null and enable != 0">
+                and a.`enable` = #{enable}
+            </if>
+            <if test="remove != null and remove != 0">
+                and a.`remove` = #{remove}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!--通过产品id查询设备信息-->
+    <select id="queryClientByProductId" resultMap="IotClientMap">
+        select
+            a.`id`, a.`identify_uuid`, a.`name`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,a.`belong_user`,
+            a.`product_id`,b.`name` as productName
+        from iot_client a
+        where a.product_id = #{productId}
+    </select>
+
+    <!--分页查询Iot终端 -->
+    <select id="queryPage" resultMap="IotClientMap">
+        select
+            a.`id`, a.`identify_uuid`, a.`name`, a.`last_link_time`, a.`enable`,a.`remove`, a.`create_time`, a.`update_time`,a.`belong_user`,
+            a.`product_id`,b.`name` as productName
+        from iot_client a left join iot_product b on b.`id` = a.`product_id`
+        <where>
+            <if test="id != null and id != 0">
+                and a.`id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`last_link_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="enable != null and enable != 0">
+                and a.`enable` = #{enable}
+            </if>
+            <if test="remove != null and remove != 0">
+                and a.`remove` = #{remove}
+            </if>
+        </where>
+        order by a.`id` desc
+        limit #{startLine},#{endLine}
+    </select>
+
+    <!--查询Iot终端数量-->
+    <select id="queryCount" resultType="java.lang.Long">
+        select count(*) from iot_client a
+        <where>
+            <if test="id != null and id != 0">
+                and a.`id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and a.`name` like concat(#{name},"%")
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`last_link_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+            <if test="enable != null and enable != 0">
+                and a.`enable` = #{enable}
+            </if>
+            <if test="remove != null and remove != 0">
+                and a.`remove` = #{remove}
+            </if>
+        </where>
+    </select>
+
+    <!--新增Iot终端-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="iotClient">
+        insert into iot_client(`identify_uuid`, `product_id`,`belong_user`,`name`, `enable`, `create_time`)
+        values (#{identifyUuid},#{productId},#{belongUser}, #{name}, #{enable}, now())
+    </insert>
+
+    <!--修改Iot终端-->
+    <update id="update">
+        update iot_client
+        <set>
+            <if test="identifyUuid != null and identifyUuid != ''">
+                `identify_uuid` = #{identifyUuid},
+            </if>
+            <if test="null != productId and '' != productId">
+                `product_id` = #{productId}
+            </if>
+            <if test="name != null and name != ''">
+                `name` = #{name},
+            </if>
+            <if test="belongUser != null and belongUser != ''">
+                `belong_user` = #{belongUser},
+            </if>
+            <if test="lastLinkTime != null  and lastLinkTime != ''">
+                `last_link_time` = #{lastLinkTime},
+            </if>
+            <if test="enable != null  and enable != 0">
+                `enable` = #{enable},
+            </if>
+            <if test="remove != null and remove != 0">
+                `remove` = #{remove},
+            </if>
+                `update_time` = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--删除Iot终端(谨慎删除)-->
+    <delete id="deleteById">
+        delete from iot_client where id = #{id}
+    </delete>
+
+    <!--修改设备最后上线时间-->
+    <update id="updateHeart">
+        update iot_client set `last_link_time` = now() where `identify_uuid` = #{identifyUuid}
+    </update>
+
+</mapper>

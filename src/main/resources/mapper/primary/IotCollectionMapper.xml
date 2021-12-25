@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.primary.IotCollectionDAO">
+
+    <resultMap type="iotCollection" id="IotCollectionMap">
+        <result property="id" column="id"/>
+        <result property="clientId" column="client_id"/>
+        <result property="value" column="value"/>
+        <result property="collectTime" column="collect_time"/>
+        <association property="iotClient" javaType="iotClient">
+            <result property="id" column="client_id"/>
+            <result property="name" column="clientName"/>
+            <result property="lastLinkTime" column="last_link_time"/>
+        </association>
+        <association property="abilities" javaType="iotAbility">
+            <result property="id" column="ability_id"/>
+            <result property="productId" column="productId"/>
+            <result property="name" column="abilityName"/>
+            <result property="property" column="property"/>
+            <result property="standardId" column="standardId"/>
+            <association property="standardUnit" javaType="iotStandardUnit">
+                <result property="id" column="standardId"/>
+                <result property="name" column="unitName"/>
+                <result property="symbol" column="unitSymbol"/>
+            </association>
+        </association>
+    </resultMap>
+
+
+    <!--查询Iot采集信息-->
+    <select id="query" parameterType="iotCollection" resultMap="IotCollectionMap">
+        select
+            a.`id`, a.`client_id`, a.`ability_id`, a.`value`, a.`collect_time`,
+            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+            d.`product_id` as productId, d.`property`,d.`standard_id` as standardId,
+            e.`name` as unitName,e.`symbol` as unitSymbol
+        from (
+          select * from iot_collection
+            <where>
+                <if test="id != null and id != 0">
+                    and `id` = #{id}
+                </if>
+                <if test="clientId != null and clientId != 0">
+                    and `client_id` = #{clientId}
+                </if>
+                <if test="value != null and value != ''">
+                    and `value` = #{value}
+                </if>
+                <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                    and date_format(`collect_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+                </if>
+            </where>
+            limit 1
+        ) a
+        left join iot_client b on a.`client_id` = b.`id`
+        left join iot_ability d on a.`ability_id` = d.`id`
+        left join iot_standard_unit e on d.`standard_id` = e.`id`
+    </select>
+
+    <!--分页查询Iot采集信息-->
+    <select id="queryPage" parameterType="iotCollection" resultMap="IotCollectionMap">
+        select
+            a.`id`, a.`client_id`, a.`ability_id`, a.`value`, a.`collect_time`,
+            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+            d.`product_id` as productId, d.`name` as abilityName,d.`property`,d.`standard_id` as standardId,
+            e.`name` as unitName,e.`symbol` as unitSymbol
+        from (
+          select * from iot_collection
+            <where>
+                <if test="id != null and id != 0">
+                    and `id` = #{id}
+                </if>
+                <if test="clientId != null and clientId != 0">
+                    and `client_id` = #{clientId}
+                </if>
+                <if test="value != null and value != ''">
+                    and `value` = #{value}
+                </if>
+                <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                    and date_format(`collect_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+                </if>
+            </where>
+            order by `id` desc
+            limit #{startLine},#{endLine}
+        ) a
+        left join iot_client b on a.`client_id` = b.`id`
+        left join iot_ability d on a.`ability_id` = d.`id`
+        left join iot_standard_unit e on d.`standard_id` = e.`id`
+    </select>
+
+    <!--查询Iot采集信息数量-->
+    <select id="queryCount" parameterType="iotCollection" resultType="java.lang.Long">
+        select
+            count(*)
+        from iot_collection a
+        <where>
+            <if test="id != null and id != 0">
+                and a.`id` = #{id}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="value != null and value != ''">
+                and a.`value` = #{value}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`collect_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into iot_collection(`client_id`, `ability_id`, `value`, collect_time)
+        values (#{clientId}, #{abilityId}, #{value}, now())
+    </insert>
+
+    <!--批量写入-->
+    <insert id="batchInsert" parameterType="list">
+        insert into iot_collection(`client_id`, `ability_id`, `value`, collect_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.clientId}, #{item.abilityId}, #{item.value}, now())
+        </foreach>
+    </insert>
+
+
+</mapper>

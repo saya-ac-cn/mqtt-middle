@@ -7,10 +7,8 @@ import ac.cn.saya.mqtt.middle.job.AppointmentThread;
 import ac.cn.saya.mqtt.middle.tools.IOTException;
 import ac.cn.saya.mqtt.middle.service.CommandService;
 import ac.cn.saya.mqtt.middle.tools.*;
-import ac.cn.saya.mqtt.middle.repository.IotAppointmentDAO;
-import ac.cn.saya.mqtt.middle.repository.IotHistoryExecuteDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import ac.cn.saya.mqtt.middle.repository.primary.IotAppointmentDAO;
+import ac.cn.saya.mqtt.middle.repository.primary.IotHistoryExecuteDAO;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 

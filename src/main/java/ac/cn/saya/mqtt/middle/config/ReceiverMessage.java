@@ -3,7 +3,6 @@ package ac.cn.saya.mqtt.middle.config;
 import ac.cn.saya.mqtt.middle.entity.IotAbilityEntity;
 import ac.cn.saya.mqtt.middle.entity.IotClientEntity;
 import ac.cn.saya.mqtt.middle.entity.IotCollectionEntity;
-import ac.cn.saya.mqtt.middle.meta.ClientParam;
 import ac.cn.saya.mqtt.middle.meta.Metadata;
 import ac.cn.saya.mqtt.middle.service.CollectionService;
 import ac.cn.saya.mqtt.middle.tools.IOTException;
@@ -11,6 +10,7 @@ import ac.cn.saya.mqtt.middle.tools.JackJsonUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageProducer;
@@ -35,7 +35,7 @@ import java.util.*;
  * @Description: 处理消息
  */
 
-//@Configuration
+@Configuration
 public class ReceiverMessage {
 
     @Resource
@@ -100,56 +100,48 @@ public class ReceiverMessage {
             System.out.println("----------------------------START---------------------------\n" +
                     "接收到订阅消息:\ntopic:" + topic + "\nmessage:" + msg +
                     "\n-----------------------------END----------------------------");
-            // 提取网关唯一编号id
-            String uuid = topic.substring(topic.lastIndexOf("/") + 1);
+            // 提取设备在物联网认证库中唯一编号identifyUuid
+            String identifyUuid = topic.substring(topic.lastIndexOf("/") + 1);
+            // 在缓存中查询设备是否存在
+            IotClientEntity client = metadata.getClients(identifyUuid);
+            if (client == null || client.getProductId() == null) {
+                // 设备为空！直接返回错误
+                return;
+            }
+            // 通过产品id，拿到本产品下物模型
+            Map<String, IotAbilityEntity> abilities = metadata.getProductAbility(client.getProductId());
+            if (CollectionUtils.isEmpty(abilities)) {
+                return;
+            }
             JsonNode jsonNode = JackJsonUtil.readTree(msg);
-            // 遍历处理本网关上报上来的各设备数据
-            Iterator<Map.Entry<String, JsonNode>> deviceReport = jsonNode.fields();
+            if (jsonNode == null) {
+                return;
+            }
+            // 遍历处理本设备上报上来的多条指标数据
+            Iterator<JsonNode> deviceReport = jsonNode.elements();
             // 提取上报数据
             List<IotCollectionEntity> datas = new ArrayList<>();
-            while(deviceReport.hasNext()) {
-                Map.Entry<String, JsonNode> reports = deviceReport.next();
-                // 设备在网关山的序号
-                int serialNum = Integer.parseInt(reports.getKey());
-                // 在缓存中查询设备是否存在
-                IotClientEntity client = metadata.getClients(new ClientParam(uuid, serialNum));
-                if (null == client){
-                    continue;
-                }
-                // 修改上报时间
-                collectionService.updateDeviceHeart(client.getId());
-                // 通过产品id，拿到本产品下物模型
-                Map<String, IotAbilityEntity> abilities = metadata.getProductAbility(client.getProductId());
-                if (CollectionUtils.isEmpty(abilities)){
-                    continue;
-                }
-                // 处理本序号下的上报数据
-                JsonNode reportsValue = reports.getValue();
-                // 本设备下的所有上报数据
-                Iterator<JsonNode> clientIterator = reportsValue.elements();
-                while(clientIterator.hasNext()) {
-                    // 当前传感器上报的数据
-                    JsonNode sensor = clientIterator.next();
-                    // 处理本传感器上报的所有数据
-                    Iterator<Map.Entry<String, JsonNode>> propertyReport = sensor.fields();
-                    while(propertyReport.hasNext()) {
-                        Map.Entry<String, JsonNode> node = propertyReport.next();
-                        // 本传感器上报数据属性key
-                        String property = node.getKey();
-                        IotAbilityEntity ability = abilities.getOrDefault(property, null);
-                        if (Objects.isNull(ability)){
-                            // 上报的数据不在物模型中时，不予加工处理
-                            continue;
-                        }
-                        // 本设备上报数据值value
-                        JsonNode nodeValue = node.getValue();
-                        datas.add(new IotCollectionEntity(client.getId(),ability.getId(),nodeValue.asText("")));
+            while (deviceReport.hasNext()) {
+                // 当前传感器上报的数据
+                JsonNode sensor = deviceReport.next();
+                // 处理本传感器上报的所有数据
+                Iterator<Map.Entry<String, JsonNode>> propertyReport = sensor.fields();
+                while (propertyReport.hasNext()) {
+                    Map.Entry<String, JsonNode> node = propertyReport.next();
+                    // 本传感器上报数据属性key
+                    String property = node.getKey();
+                    IotAbilityEntity ability = abilities.getOrDefault(property, null);
+                    if (Objects.isNull(ability)) {
+                        // 上报的数据不在物模型中时，不予加工处理
+                        continue;
                     }
+                    // 本设备上报数据值value
+                    JsonNode nodeValue = node.getValue();
+                    datas.add(new IotCollectionEntity(client.getId(), ability.getId(), nodeValue.asText("")));
                 }
-
             }
-            // 修改网关的上报时间
-            collectionService.updateGatewayHeart(uuid);
+            // 修改设备的上报时间
+            collectionService.updateDeviceHeart(identifyUuid);
             collectionService.insertCollectionData(datas);
             collectionService.checkRuleWarring(datas);
         };

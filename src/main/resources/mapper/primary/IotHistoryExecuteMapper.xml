@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.primary.IotHistoryExecuteDAO">
+
+    <resultMap type="iotHistoryExecute" id="IotHistoryExecuteMap">
+        <result property="id" column="id"/>
+        <result property="command" column="command"/>
+        <result property="excuteTime" column="excute_time"/>
+        <association property="iotClient" javaType="iotClient">
+            <result property="id" column="client_id"/>
+            <result property="name" column="clientName"/>
+            <result property="lastLinkTime" column="last_link_time"/>
+        </association>
+    </resultMap>
+
+    <!--查询Iot历史执行命令-->
+    <select id="query" resultMap="IotHistoryExecuteMap">
+        select
+          a.`id`, a.`client_id`, a.`command`, a.`excute_time`,
+          b.`gateway_id`,b.`name` as clientName,b.`last_link_time`
+        from iot_history_execute a left join iot_client b on a.`client_id` = b.`id`
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!--分页查询Iot历史执行命令-->
+    <select id="queryPage" resultMap="IotHistoryExecuteMap">
+        select
+        a.`id`, a.`client_id`, a.`command`, a.`excute_time`,
+        b.`gateway_id`,b.`name` as clientName,b.`last_link_time`
+        from iot_history_execute a left join iot_client b on a.`client_id` = b.`id`
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+        </where>
+        order by a.`id` desc
+        limit #{startLine},#{endLine}
+    </select>
+
+    <!--查询Iot历史执行命令数量-->
+    <select id="queryCount" resultType="java.lang.Long">
+        select
+            count(1)
+        from iot_history_execute a
+        <where>
+            <if test="id != null and id != 0">
+                a.`id` = #{id}
+            </if>
+            <if test="clientId != null and clientId != 0">
+                and a.`client_id` = #{clientId}
+            </if>
+            <if test="beginTime != null and beginTime != ''and endTime != null and endTime != ''">
+                and date_format(a.`excute_time`,'%Y-%m-%d') between date_format(#{beginTime},'%Y-%m-%d')  and date_format(#{endTime},'%Y-%m-%d')
+            </if>
+        </where>
+    </select>
+
+    <!--新增Iot历史执行命令-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into iot_history_execute(`client_id`, `command`, `excute_time`)
+        values (#{clientId}, #{command}, now())
+    </insert>
+
+</mapper>

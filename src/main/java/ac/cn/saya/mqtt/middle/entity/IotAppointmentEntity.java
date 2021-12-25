@@ -54,6 +54,11 @@ public class IotAppointmentEntity extends BaseEntity{
     private Integer status;
 
     /**
+     * 最后一次执行时间
+     */
+    private String executeTime;
+
+    /**
      *
      */
     private String createTime;
@@ -67,4 +72,9 @@ public class IotAppointmentEntity extends BaseEntity{
      * 所属设备信息，非数据库字段
      */
     private IotClientEntity iotClient;
+
+    /**
+     * 调度指定对应的所属的物模型，非数据库字段
+     */
+    private IotAbilityEntity iotAbility;
 }

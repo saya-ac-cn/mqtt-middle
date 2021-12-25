@@ -32,19 +32,6 @@ public class DeviceController {
     }
 
     /**
-     * @描述 获取网关设备类型
-     * @参数 []
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.util.List   <   ac.cn.saya.mqtt.middle.entity.IotGatewayTypeEntity>>
-     * @创建人 ac.cn.saya.mqtt.middle
-     * @创建时间 2020/8/8
-     * @修改人和其它信息
-     */
-    @GetMapping(value = "gateway/type")
-    public Result<List<IotGatewayTypeEntity>> getIotGatewayType() {
-        return deviceService.getIotGatewayType();
-    }
-
-    /**
      * @Title 获取产品列表
      * @Params [param]
      * @Return ac.cn.saya.mqtt.middle.tools.Result<java.util.List   <   ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity>>
@@ -53,7 +40,7 @@ public class DeviceController {
      * @Description
      */
     @GetMapping(value = "product/list")
-    public Result<List<IotProductTypeEntity>> getIotGatewayType(IotProductTypeEntity param) {
+    public Result<List<IotProductEntity>> getIotGatewayType(IotProductEntity param) {
         return deviceService.getIotProduct(param);
     }
 
@@ -71,111 +58,16 @@ public class DeviceController {
     }
 
     /**
-     * @描述 添加网关
-     * @参数 [entity]
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
-     * @创建人 ac.cn.saya.mqtt.middle
-     * @创建时间 2020/8/8
-     * @修改人和其它信息
-     */
-    @PostMapping(value = "gateway")
-    public Result<Integer> addIotGateway(@RequestBody IotGatewayEntity entity, HttpServletRequest request) {
-        return deviceService.addIotGateway(entity, request);
-    }
-
-    /**
-     * @描述 修改网关
-     * @参数 [entity]
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
-     * @创建人 ac.cn.saya.mqtt.middle
-     * @创建时间 2020/8/8
-     * @修改人和其它信息
-     */
-    @PutMapping(value = "gateway")
-    public Result<Integer> editIotGateway(@RequestBody IotGatewayEntity entity, HttpServletRequest request) {
-        return deviceService.editIotGateway(entity, request);
-    }
-
-    /**
-     * @描述 删除网关
-     * @参数 [id]
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
-     * @创建人 ac.cn.saya.mqtt.middle
-     * @创建时间 2020/8/8
-     * @修改人和其它信息
-     */
-    @DeleteMapping(value = "gateway/{id}")
-    public Result<Integer> deleteIotGateway(@PathVariable(value = "id") Integer id) {
-        return deviceService.deleteIotGateway(id);
-    }
-
-    /**
-     * @描述 网关分页
-     * @参数 [entity]
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
-     * @创建人 ac.cn.saya.mqtt.middle
-     * @创建时间 2020/8/8
-     * @修改人和其它信息
-     */
-    @GetMapping(value = "gateway")
-    public Result<Object> getIotGatewayPage(IotGatewayEntity entity, IotIdentifyEntity authenInfo) {
-        if (null != authenInfo && authenInfo.getEnable() != null && null != entity) {
-            entity.setAuthenInfo(authenInfo);
-        }
-        return deviceService.getIotGatewayPage(entity);
-    }
-
-    /**
-     * @描述 查询网关详情
-     * @参数 [id]
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<ac.cn.saya.lab.api.entity.IotGatewayEntity>
-     * @创建人 ac.cn.saya.mqtt.middle
-     * @创建时间 2020/8/23
-     * @修改人和其它信息
-     */
-    @GetMapping(value = "gateway/{id}")
-    public Result<IotGatewayEntity> getIotGatewayEntity(@PathVariable("id") Integer id) {
-        return deviceService.getIotGatewayEntity(id);
-    }
-
-    /**
-     * @描述 获取网关下拉列表
-     * @参数 [entity]
-     * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.util.List   <       ac.cn.saya.mqtt.middle.entity.IotGatewayEntity>>
-     * @创建人 ac.cn.saya.mqtt.middle
-     * @创建时间 2020/8/23
-     * @修改人和其它信息
-     */
-    @GetMapping(value = "gatewayList")
-    public Result<List<IotGatewayEntity>> getIotGatewayList(HttpServletRequest request) {
-        return deviceService.getIotGatewayList(request);
-    }
-
-    /**
-     * 查看指定网关下的设备序号
-     *
-     * @param gatewayId 网关id
-     * @return 设备序号
-     * @author saya.ac.cn-刘能凯
-     * @date 9/20/21
-     * @description
-     */
-    @GetMapping(value = "client/serialNum/{gatewayId}")
-    public Result<Object> getAvailableSerialNum(@PathVariable(value = "gatewayId") Integer gatewayId) {
-        return deviceService.getAvailableSerialNum(gatewayId);
-    }
-
-    /**
      * @描述 添加设备
-     * @参数 [entity]
+     * @参数 [entity,request]
      * @返回值 ac.cn.saya.mqtt.middle.tools.Result<java.lang.Integer>
      * @创建人 ac.cn.saya.mqtt.middle
      * @创建时间 2020/8/8
      * @修改人和其它信息
      */
     @PostMapping(value = "client")
-    public Result<Integer> addIotClient(@RequestBody IotClientEntity entity) {
-        return deviceService.addIotClient(entity);
+    public Result<Integer> addIotClient(@RequestBody IotClientEntity entity,HttpServletRequest request) {
+        return deviceService.addIotClient(entity,request);
     }
 
     /**
@@ -187,8 +79,8 @@ public class DeviceController {
      * @修改人和其它信息
      */
     @PutMapping(value = "client")
-    public Result<Integer> editIotClient(@RequestBody IotClientEntity entity) {
-        return deviceService.editIotClient(entity);
+    public Result<Integer> editIotClient(@RequestBody IotClientEntity entity,HttpServletRequest request) {
+        return deviceService.editIotClient(entity,request);
     }
 
     /**
@@ -239,7 +131,7 @@ public class DeviceController {
      * @Description
      */
     @PostMapping(value = "product")
-    public Result<Integer> addIotProduct(@RequestBody IotProductTypeEntity product) {
+    public Result<Integer> addIotProduct(@RequestBody IotProductEntity product) {
         return deviceService.addIotProduct(product);
     }
 
@@ -252,7 +144,7 @@ public class DeviceController {
      * @Description
      */
     @PutMapping(value = "product")
-    public Result<Integer> editIotClientRule(@RequestBody IotProductTypeEntity product) {
+    public Result<Integer> editIotClientRule(@RequestBody IotProductEntity product) {
         return deviceService.editIotProduct(product);
     }
 
@@ -278,7 +170,7 @@ public class DeviceController {
      * @Description
      */
     @GetMapping(value = "product")
-    public Result<List<IotProductTypeEntity>> getIotClientRulePage(IotProductTypeEntity param) {
+    public Result<List<IotProductEntity>> getIotClientRulePage(IotProductEntity param) {
         return deviceService.getIotProduct(param);
     }
 

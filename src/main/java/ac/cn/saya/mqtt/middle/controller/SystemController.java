@@ -1,6 +1,6 @@
 package ac.cn.saya.mqtt.middle.controller;
 
-import ac.cn.saya.mqtt.middle.entity.UserEntity;
+import ac.cn.saya.mqtt.middle.entity.IotUserEntity;
 import ac.cn.saya.mqtt.middle.service.SystemService;
 import ac.cn.saya.mqtt.middle.tools.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class SystemController {
      * @修改人和其它信息 登录回执
      */
     @PostMapping(value = "login")
-    public Result<Object> login(@RequestBody UserEntity params, HttpServletRequest request){
+    public Result<Object> login(@RequestBody IotUserEntity params, HttpServletRequest request){
         return systemService.login(params, request);
     }
 

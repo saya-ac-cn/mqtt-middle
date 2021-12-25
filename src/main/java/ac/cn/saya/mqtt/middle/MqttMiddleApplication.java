@@ -19,6 +19,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @创建人  saya.ac.cn-刘能凯
  * @创建时间  2020/7/7
  * @修改人和其它信息：
+ * 排除依赖冲突：
+ * https://www.jiweichengzhu.com/article/241cf96c495f4725bb17f7c7b8a100eb
+ * https://www.jiweichengzhu.com/article/241cf96c495f4725bb17f7c7b8a100eb
  */
 
 @Configuration

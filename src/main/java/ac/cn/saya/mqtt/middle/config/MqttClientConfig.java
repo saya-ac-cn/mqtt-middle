@@ -19,7 +19,7 @@ import java.util.List;
  * @Date: 2020/7/8 22:07
  * @Description: Mqtt
  */
-//@Configuration
+@Configuration
 //@IntegrationComponentScan
 public class MqttClientConfig {
 

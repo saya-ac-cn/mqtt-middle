@@ -96,6 +96,7 @@ public class RandomUtil {
         String fileName = RandomUtil.getRandomFileName();
         //2014030788359
         System.out.println(fileName);
+        System.out.println(getRandKeys(18));
     }
 
 }

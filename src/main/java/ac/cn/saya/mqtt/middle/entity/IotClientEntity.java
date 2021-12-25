@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
+
 /**
  * @Title: IotClientEntity
  * @ProjectName mqtt-middle
@@ -16,16 +18,13 @@ import lombok.Setter;
 @Setter
 public class IotClientEntity extends BaseEntity{
 
+    @Serial
     private static final long serialVersionUID = 244387139326102332L;
+
     /**
      * 序号
      */
     private Integer id;
-
-    /**
-     * 外键，关联网关表
-     */
-    private Integer gatewayId;
 
     /**
      * 产品id
@@ -33,15 +32,14 @@ public class IotClientEntity extends BaseEntity{
     private Integer productId;
 
     /**
-     * 设备在网关上的唯一序列号
+     * 外键，关联物联网认证表uuid
      */
-    private Integer serialNum;
+    private String identifyUuid;
 
     /**
      * 设备名
      */
     private String name;
-
 
     /**
      * 最后一次数据传送时间
@@ -59,6 +57,11 @@ public class IotClientEntity extends BaseEntity{
     private Integer remove;
 
     /**
+     * 所属用户
+     */
+    private String belongUser;
+
+    /**
      * 创建时间
      */
     private String createTime;
@@ -69,14 +72,14 @@ public class IotClientEntity extends BaseEntity{
     private String updateTime;
 
     /**
-     * 非数据库字段，网关信息
-     */
-    private IotGatewayEntity gateway;
-
-    /**
      * 非数据库字段，外键关联的产品名
      */
     private String productName;
+
+    /**
+     * 非数据库字段，外键关联的设备认证信息
+     */
+    private IotIdentifyEntity authenInfo;
 
     public IotClientEntity(Integer id) {
         this.id = id;

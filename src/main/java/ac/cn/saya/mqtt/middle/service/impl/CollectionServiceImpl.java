@@ -1,12 +1,12 @@
 package ac.cn.saya.mqtt.middle.service.impl;
 
 import ac.cn.saya.mqtt.middle.entity.IotCollectionEntity;
-import ac.cn.saya.mqtt.middle.entity.IotProductTypeEntity;
+import ac.cn.saya.mqtt.middle.entity.IotProductEntity;
 import ac.cn.saya.mqtt.middle.entity.IotWarningResultEntity;
 import ac.cn.saya.mqtt.middle.entity.IotWarningRulesEntity;
 import ac.cn.saya.mqtt.middle.enums.SymbolEnum;
 import ac.cn.saya.mqtt.middle.meta.Metadata;
-import ac.cn.saya.mqtt.middle.repository.*;
+import ac.cn.saya.mqtt.middle.repository.primary.*;
 import ac.cn.saya.mqtt.middle.service.CollectionService;
 import ac.cn.saya.mqtt.middle.tools.*;
 import org.springframework.stereotype.Service;
@@ -33,9 +33,6 @@ import java.util.Objects;
 public class CollectionServiceImpl implements CollectionService {
 
     @Resource
-    private IotGatewayDAO iotGatewayDAO;
-
-    @Resource
     private IotClientDAO iotClientDAO;
 
     @Resource
@@ -48,7 +45,7 @@ public class CollectionServiceImpl implements CollectionService {
     private IotWarningResultDAO iotWarningResultDAO;
 
     @Resource
-    private IotProductTypeDAO iotProductTypeDAO;
+    private IotProductDAO iotProductDAO;
 
     @Resource
     private Metadata metadata;
@@ -109,10 +106,10 @@ public class CollectionServiceImpl implements CollectionService {
         try {
             iotWarningRulesDAO.insert(param);
             // 刷新缓存
-            IotProductTypeEntity productWhere = new IotProductTypeEntity();
+            IotProductEntity productWhere = new IotProductEntity();
             productWhere.setStatus(1);
             productWhere.setId(param.getProductId());
-            List<IotProductTypeEntity> productRules = iotProductTypeDAO.queryProductRules(productWhere);
+            List<IotProductEntity> productRules = iotProductDAO.queryProductRules(productWhere);
             if (!CollectionUtils.isEmpty(productRules)) {
                 metadata.removeProductRule(param.getProductId());
                 metadata.doRefreshProductRule(param.getProductId(), productRules.get(0).getRules());
@@ -140,10 +137,10 @@ public class CollectionServiceImpl implements CollectionService {
         try {
             iotWarningRulesDAO.update(param);
             // 刷新缓存
-            IotProductTypeEntity productWhere = new IotProductTypeEntity();
+            IotProductEntity productWhere = new IotProductEntity();
             productWhere.setId(param.getProductId());
             productWhere.setStatus(1);
-            List<IotProductTypeEntity> productRules = iotProductTypeDAO.queryProductRules(productWhere);
+            List<IotProductEntity> productRules = iotProductDAO.queryProductRules(productWhere);
             if (!CollectionUtils.isEmpty(productRules)) {
                 metadata.removeProductRule(param.getProductId());
                 metadata.doRefreshProductRule(param.getProductId(), productRules.get(0).getRules());
@@ -171,10 +168,10 @@ public class CollectionServiceImpl implements CollectionService {
         try {
             // 删除规则
             iotWarningRulesDAO.deleteById(param.getId());
-            IotProductTypeEntity productWhere = new IotProductTypeEntity();
+            IotProductEntity productWhere = new IotProductEntity();
             productWhere.setId(param.getProductId());
             productWhere.setStatus(1);
-            List<IotProductTypeEntity> productRules = iotProductTypeDAO.queryProductRules(productWhere);
+            List<IotProductEntity> productRules = iotProductDAO.queryProductRules(productWhere);
             if (!CollectionUtils.isEmpty(productRules)) {
                 metadata.removeProductRule(param.getProductId());
                 metadata.doRefreshProductRule(param.getProductId(), productRules.get(0).getRules());
@@ -198,10 +195,10 @@ public class CollectionServiceImpl implements CollectionService {
     @Override
     public Result<Object> getIotWarningRules(int productId) {
         try {
-            IotProductTypeEntity productWhere = new IotProductTypeEntity();
+            IotProductEntity productWhere = new IotProductEntity();
             productWhere.setId(productId);
             productWhere.setStatus(1);
-            List<IotProductTypeEntity> productRules = iotProductTypeDAO.queryProductRules(productWhere);
+            List<IotProductEntity> productRules = iotProductDAO.queryProductRules(productWhere);
             if (CollectionUtils.isEmpty(productRules)) {
                 return ResultUtil.error(ResultEnum.NOT_EXIST);
             }
@@ -277,24 +274,14 @@ public class CollectionServiceImpl implements CollectionService {
     }
 
     /**
-     * 修改网关的最后上报时间
-     *
-     * @param uuid 网关唯一编码
-     */
-    @Override
-    public void updateGatewayHeart(String uuid) {
-        iotGatewayDAO.updateHeart(uuid);
-        metadata.addOnlineGateway(uuid);
-    }
-
-    /**
      * 修改设备的最后上报时间
      *
-     * @param clientId 设备id
+     * @param identifyUuid 设备在物联网认证表中的uuid
      */
     @Override
-    public void updateDeviceHeart(int clientId) {
-        iotClientDAO.updateHeart(clientId);
+    public void updateDeviceHeart(String identifyUuid) {
+        metadata.addOnlineClient(identifyUuid);
+        iotClientDAO.updateHeart(identifyUuid);
     }
 
 

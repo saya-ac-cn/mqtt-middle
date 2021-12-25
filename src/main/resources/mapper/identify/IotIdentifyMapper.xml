@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ac.cn.saya.mqtt.middle.repository.identify.IotIdentifyDAO">
+
+    <!--添加用户认证信息-->
+    <insert id="insert" parameterType="iotIdentify" >
+        insert into iot_identify(`uuid`,`username`,`password`,`salt`,`platform`,`create_time`) values(#{uuid},#{username},#{password},#{salt},#{platform},now())
+    </insert>
+
+    <!-- 修改用户认证信息-->
+    <update id="update" parameterType="iotIdentify">
+        update iot_identify
+        <set>
+            <if test = "password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="enable != null and enable != 0">
+                enable = #{enable}
+            </if>
+        </set>
+        where uuid = #{uuid}
+    </update>
+
+    <!--删除用户认证信息-->
+    <delete id="delete" parameterType="java.lang.String">
+        update iot_identify set enable = 2 where uuid = #{uuid}
+    </delete>
+
+    <!-- 查询用户认证信息-->
+    <select id="query" parameterType="iotIdentify" resultType="iotIdentify">
+        select `uuid`,`username`,`password`,`salt`,`enable` from iot_identify
+        <where>
+            <if test = "uuid != null and uuid != ''">
+                `uuid` = #{uuid}
+            </if>
+            <if test = "username != null and username != ''">
+                and `username` = #{username}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+</mapper>

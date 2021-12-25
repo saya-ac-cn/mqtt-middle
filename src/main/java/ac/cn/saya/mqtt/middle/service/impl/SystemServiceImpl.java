@@ -1,11 +1,9 @@
 package ac.cn.saya.mqtt.middle.service.impl;
 
-import ac.cn.saya.mqtt.middle.entity.UserEntity;
-import ac.cn.saya.mqtt.middle.repository.UserDAO;
+import ac.cn.saya.mqtt.middle.entity.IotUserEntity;
+import ac.cn.saya.mqtt.middle.repository.primary.IotUserDAO;
 import ac.cn.saya.mqtt.middle.service.SystemService;
 import ac.cn.saya.mqtt.middle.tools.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,7 +22,7 @@ import javax.servlet.http.HttpSession;
 public class SystemServiceImpl implements SystemService {
 
     @Resource
-    private UserDAO userDAO;
+    private IotUserDAO iotUserDAO;
 
     /**
      * @描述 用户登录
@@ -35,12 +33,12 @@ public class SystemServiceImpl implements SystemService {
      * @修改人和其它信息
      */
     @Override
-    public Result<Object> login(UserEntity params, HttpServletRequest request) throws IOTException{
-        UserEntity memoryUser = HttpRequestUtil.getMemoryUser(request);
+    public Result<Object> login(IotUserEntity params, HttpServletRequest request) throws IOTException{
+        IotUserEntity memoryUser = HttpRequestUtil.getMemoryUser(request);
         if (null == params || StringUtils.isEmpty(params.getAccount()) || StringUtils.isEmpty(params.getPassword())){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        UserEntity queryResult = userDAO.queryUser(params);
+        IotUserEntity queryResult = iotUserDAO.queryUser(params);
         if (null == queryResult){
             return ResultUtil.error(ResultEnum.NOT_EXIST);
         }
@@ -59,9 +57,9 @@ public class SystemServiceImpl implements SystemService {
                 queryResult.setPassword(null);
                 HttpSession session = request.getSession();
                 session.setAttribute("user", queryResult);
-                UserEntity editParams = new UserEntity();
+                IotUserEntity editParams = new IotUserEntity();
                 editParams.setAccount(params.getAccount());
-                userDAO.update(editParams);
+                iotUserDAO.update(editParams);
                 return ResultUtil.success(queryResult);
             }else{
                 return ResultUtil.error(ResultEnum.ERROR);
