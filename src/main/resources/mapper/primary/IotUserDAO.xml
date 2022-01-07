@@ -6,7 +6,7 @@
 
     <!-- 修改用户信息-->
     <update id="update" parameterType="iotUser">
-        update `user`
+        update `iot_user`
         <set>
             <if test = "name != null and name != ''">
                 `name` = #{name},
@@ -30,7 +30,7 @@
 
     <!-- 查询用户信息-->
     <select id="queryUser" parameterType="iotUser" resultType="iotUser">
-        select `account`,`name`,`password`,`create_time` as createTime,`email`,`phone`,`update_time` as updateTime, `login_time` as loginTime from `user`
+        select `account`,`name`,`password`,`create_time` as createTime,`email`,`phone`,`update_time` as updateTime, `login_time` as loginTime from `iot_user`
         <where>
             <if test = "account != null and account != ''">
                 `account` = #{account}

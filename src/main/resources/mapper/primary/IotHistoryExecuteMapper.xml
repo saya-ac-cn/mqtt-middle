@@ -17,7 +17,7 @@
     <select id="query" resultMap="IotHistoryExecuteMap">
         select
           a.`id`, a.`client_id`, a.`command`, a.`excute_time`,
-          b.`gateway_id`,b.`name` as clientName,b.`last_link_time`
+          b.`name` as clientName,b.`last_link_time`
         from iot_history_execute a left join iot_client b on a.`client_id` = b.`id`
         <where>
             <if test="id != null and id != 0">
@@ -37,7 +37,7 @@
     <select id="queryPage" resultMap="IotHistoryExecuteMap">
         select
         a.`id`, a.`client_id`, a.`command`, a.`excute_time`,
-        b.`gateway_id`,b.`name` as clientName,b.`last_link_time`
+        b.`name` as clientName,b.`last_link_time`
         from iot_history_execute a left join iot_client b on a.`client_id` = b.`id`
         <where>
             <if test="id != null and id != 0">

@@ -22,7 +22,7 @@
     <select id="query" resultMap="IotWarningResultMap">
         select
           a.`id`, a.`client_id`,a.`rule_id`, a.`topic`, a.`content`, a.`create_time`,
-          b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+          b.`name` as clientName,b.`last_link_time`,
           d.`name` as ruleName
         from iot_warning_result a left join iot_client b on a.`client_id` = b.`id` left join iot_warning_rules d on a.rule_id = d.id
         <where>
@@ -46,7 +46,7 @@
     <select id="queryPage" resultMap="IotWarningResultMap">
         select
             a.`id`, a.`client_id`,a.`rule_id`, a.`topic`, a.`content`, a.`create_time`,
-            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+            b.`name` as clientName,b.`last_link_time`,
             d.`name` as ruleName
         from iot_warning_result a left join iot_client b on a.`client_id` = b.`id` left join iot_warning_rules d on a.rule_id = d.id
         <where>

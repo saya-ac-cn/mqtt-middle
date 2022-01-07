@@ -31,7 +31,7 @@
     <select id="query" parameterType="iotCollection" resultMap="IotCollectionMap">
         select
             a.`id`, a.`client_id`, a.`ability_id`, a.`value`, a.`collect_time`,
-            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+            b.`name` as clientName,b.`last_link_time`,
             d.`product_id` as productId, d.`property`,d.`standard_id` as standardId,
             e.`name` as unitName,e.`symbol` as unitSymbol
         from (
@@ -61,7 +61,7 @@
     <select id="queryPage" parameterType="iotCollection" resultMap="IotCollectionMap">
         select
             a.`id`, a.`client_id`, a.`ability_id`, a.`value`, a.`collect_time`,
-            b.`gateway_id`,b.`name` as clientName,b.`last_link_time`,
+            b.`name` as clientName,b.`last_link_time`,
             d.`product_id` as productId, d.`name` as abilityName,d.`property`,d.`standard_id` as standardId,
             e.`name` as unitName,e.`symbol` as unitSymbol
         from (
@@ -123,6 +123,14 @@
             (#{item.clientId}, #{item.abilityId}, #{item.value}, now())
         </foreach>
     </insert>
+
+    <select id="queryByClientAndLatest" resultType="iotCollection">
+        select
+               b.`ability_id`,b.`value`, b.`collect_time`
+        from
+           (select `client_id`,max(`id`) as latest from iot_collection where `client_id` = #{clientId} group by `ability_id`) a
+       left join iot_collection b on a.`latest` = b.`id`
+    </select>
 
 
 </mapper>
