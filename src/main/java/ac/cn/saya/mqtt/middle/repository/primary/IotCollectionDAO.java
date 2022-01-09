@@ -53,4 +53,11 @@ public interface IotCollectionDAO {
      */
     public void batchInsert(@Param("list") List<IotCollectionEntity> list);
 
+    /**
+     * 查询指定设备下各种指标的最新数据
+     * @param clientId 设备id
+     * @return 该设备下最新的指标数据
+     */
+    public List<IotCollectionEntity> queryByClientAndLatest(@Param("clientId")Integer clientId);
+
 }

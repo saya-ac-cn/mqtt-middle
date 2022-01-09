@@ -23,11 +23,11 @@ public interface IotClientDAO {
 
     /**
      * 下拉列表显示Iot终端
-     * @param source 所属用户
+     * @param belongUser 所属用户
      * @param keyWord 通过关键词，按照网关名或者设备名检索
      * @return
      */
-    public List<IotClientEntity> querySelectList(@Param("source") String source,@Param("keyWord") String keyWord);
+    public List<IotClientEntity> querySelectList(@Param("belongUser") String belongUser,@Param("keyWord") String keyWord);
 
     /**
      * 分页查询Iot终端

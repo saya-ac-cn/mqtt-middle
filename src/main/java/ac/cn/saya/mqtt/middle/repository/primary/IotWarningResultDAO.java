@@ -16,6 +16,14 @@ import java.util.List;
 public interface IotWarningResultDAO {
 
     /**
+     * 查询最近的n条告警
+     *
+     * @param size 要抓取的数量
+     * @return 实例对象
+     */
+    public List<IotWarningResultEntity> queryLatestN(@Param("size") int size);
+
+    /**
      * 查询Iot告警结果
      *
      * @param entity

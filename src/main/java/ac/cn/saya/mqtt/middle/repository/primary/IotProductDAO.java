@@ -4,6 +4,7 @@ import ac.cn.saya.mqtt.middle.entity.IotProductEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Title: IotProductTypeDAO
@@ -71,5 +72,11 @@ public interface IotProductDAO {
      * @return
      */
     public Long queryCount(IotProductEntity entity);
+
+    /**
+     * 统计各个产品下的设备数量
+     * @return
+     */
+    public List<Map> totalProductClient();
 
 }
