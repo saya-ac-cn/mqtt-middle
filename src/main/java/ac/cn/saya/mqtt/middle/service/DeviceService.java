@@ -28,6 +28,16 @@ public interface DeviceService {
     public Result<List<IotProductEntity>> getIotProduct(IotProductEntity param);
 
     /**
+     * @Title   获取设备认证信息
+     * @Params  [identifyUuid]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<ac.cn.saya.mqtt.middle.entity.IotIdentifyEntity>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    public Result<IotIdentifyEntity> getIotIdentify(String identifyUuid);
+
+    /**
      * @Title   获取iot标准物理量
      * @Params  [param]
      * @Return  ac.cn.saya.mqtt.middle.tools.Result<java.util.List<ac.cn.saya.mqtt.middle.entity.IotStandardUnitEntity>>

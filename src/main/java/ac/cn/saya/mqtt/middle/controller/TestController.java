@@ -17,13 +17,13 @@ import javax.annotation.Resource;
 @RequestMapping("/test")
 public class TestController {
 
-    //@Resource
-    //private MqttGateway mqttGateway;
+    @Resource
+    private MqttGateway mqttGateway;
 
     @RequestMapping("/send")
     public String sendMqtt(String sendData){
         try {
-            //mqttGateway.sendToMqtt(sendData,"/esp32-001/res/led");
+            mqttGateway.sendToMqtt(sendData,"/iot/go/ack/esp32-001");
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -182,5 +182,13 @@
         delete from iot_product where id = #{id}
     </delete>
 
+    <select id="totalProductClient" resultType="java.util.Map">
+        select
+               a.`name`,b.`total`
+        from
+             iot_product a
+            left join (select `product_id`,count(1) as total from iot_client where `remove` = 1 group by `product_id`) b on a.`id`=b.`product_id`
+        where a.`status` = 1
+    </select>
 
 </mapper>

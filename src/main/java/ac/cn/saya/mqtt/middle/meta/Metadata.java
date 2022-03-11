@@ -71,7 +71,7 @@ public class Metadata {
         if (null == param) {
             return;
         }
-        if (StringUtils.hasText(param.getIdentifyUuid())) {
+        if (!StringUtils.hasText(param.getIdentifyUuid())) {
             return;
         }
         clients.put(param.getIdentifyUuid(), param);
@@ -123,7 +123,7 @@ public class Metadata {
         if (null == param) {
             return;
         }
-        if (StringUtils.hasText(param.getIdentifyUuid())) {
+        if (!StringUtils.hasText(param.getIdentifyUuid())) {
             return;
         }
         clients.remove(param.getIdentifyUuid());
@@ -154,7 +154,7 @@ public class Metadata {
         if (null == param) {
             return null;
         }
-        if (StringUtils.hasText(param.getIdentifyUuid())) {
+        if (!StringUtils.hasText(param.getIdentifyUuid())) {
             return null;
         }
         return clients.get(param.getIdentifyUuid());
@@ -166,6 +166,13 @@ public class Metadata {
         }
     }
 
+    public int getOnlineClientSize(){
+        if (CollectionUtils.isEmpty(onlineClientMap)){
+            return 0;
+        }
+        return onlineClientMap.size();
+    }
+
     public boolean isOnlineClient(String uuid) {
         if (StringUtils.isEmpty(uuid)) {
             return false;
@@ -174,7 +181,7 @@ public class Metadata {
     }
 
     public void removeOnlineClient(String uuid) {
-        if (StringUtils.hasText(uuid)) {
+        if (!StringUtils.hasText(uuid)) {
             return;
         }
         onlineClientMap.remove(uuid);
@@ -265,7 +272,7 @@ public class Metadata {
                 continue;
             }
             // 网关，设备id，定时cron，物模型字段，指令值都不能为空
-            boolean flag = Objects.isNull(Objects.isNull(appointment.getClientId()) || StringUtils.hasText(appointment.getCron()) || Objects.isNull(appointment.getAbilityId()) || Objects.isNull(appointment.getCommand()));
+            boolean flag = Objects.isNull(Objects.isNull(appointment.getClientId()) || !StringUtils.hasText(appointment.getCron()) || Objects.isNull(appointment.getAbilityId()) || Objects.isNull(appointment.getCommand()));
             if (flag) {
                 continue;
             }

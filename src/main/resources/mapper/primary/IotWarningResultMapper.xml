@@ -18,6 +18,17 @@
         </association>
     </resultMap>
 
+    <select id="queryLatestN" resultMap="IotWarningResultMap">
+        select
+            a.`id`, a.`client_id`,a.`rule_id`, a.`topic`, a.`content`, a.`create_time`,
+            b.`name` as clientName,b.`last_link_time`,
+            d.`name` as ruleName
+        from
+            (select `id`, `client_id`,`rule_id`, `topic`, `content`, `create_time` from iot_warning_result order by id desc limit #{size}) a
+            left join iot_client b on a.`client_id` = b.`id`
+            left join iot_warning_rules d on a.rule_id = d.id
+    </select>
+
     <!--查询Iot告警结果-->
     <select id="query" resultMap="IotWarningResultMap">
         select

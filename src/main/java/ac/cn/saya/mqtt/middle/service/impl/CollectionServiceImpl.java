@@ -16,9 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Title: CollectionServiceImpl
@@ -284,5 +283,27 @@ public class CollectionServiceImpl implements CollectionService {
         iotClientDAO.updateHeart(identifyUuid);
     }
 
+    /**
+     * @描述 查询指定设备最新的采集信息
+     * @参数  [clientId]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2022/1/9
+     * @修改人和其它信息
+     */
+    @Override
+    public Result<Object> getClientLatestCollect(int clientId){
+        List<IotCollectionEntity> collection = iotCollectionDAO.queryByClientAndLatest(clientId);
+        if (CollectionUtils.isEmpty(collection)){
+            return ResultUtil.error(ResultEnum.NOT_EXIST);
+        }
+        Map<Integer, IotCollectionEntity> result = new HashMap<>(collection.size());
+        collection.forEach(item -> {
+            if (null != item.getAbilityId()){
+                result.put(item.getAbilityId(),item);
+            }
+        });
+        return ResultUtil.success(result);
+    }
 
 }

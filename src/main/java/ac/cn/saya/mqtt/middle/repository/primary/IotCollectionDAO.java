@@ -58,6 +58,6 @@ public interface IotCollectionDAO {
      * @param clientId 设备id
      * @return 该设备下最新的指标数据
      */
-    public List<IotCollectionEntity> queryByClientAndLatest(@Param("clientId")Integer clientId);
+    public List<IotCollectionEntity> queryByClientAndLatest(@Param("clientId")int clientId);
 
 }

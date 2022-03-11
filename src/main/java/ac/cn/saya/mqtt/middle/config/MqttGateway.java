@@ -16,5 +16,4 @@ public interface MqttGateway {
 
     public void sendToMqtt(String data,@Header(MqttHeaders.TOPIC) String topic);
 
-
 }

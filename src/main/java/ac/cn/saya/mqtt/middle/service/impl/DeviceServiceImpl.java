@@ -70,6 +70,32 @@ public class DeviceServiceImpl implements DeviceService {
         }
     }
 
+    /**
+     * @Title   获取设备认证信息
+     * @Params  [identify]
+     * @Return  ac.cn.saya.mqtt.middle.tools.Result<ac.cn.saya.mqtt.middle.entity.IotIdentifyEntity>
+     * @Author  saya.ac.cn-刘能凯
+     * @Date  2021/8/22
+     * @Description
+     */
+    @Override
+    public Result<IotIdentifyEntity> getIotIdentify(String identifyUuid) {
+        try {
+            IotIdentifyEntity where = new IotIdentifyEntity();
+            where.setUuid(identifyUuid);
+            IotIdentifyEntity result = iotIdentifyDAO.query(where);;
+            if (null == result){
+                return ResultUtil.error(ResultEnum.NOT_EXIST);
+            }
+            // 密码脱敏
+            result.setPassword(null);
+            return ResultUtil.success(result);
+        } catch (Exception e) {
+            CurrentLineInfo.printCurrentLineInfo("获取Iot产品异常",e,DeviceServiceImpl.class);
+            throw new IOTException(ResultEnum.ERROR);
+        }
+    }
+
 
     /**
      * @Title   获取iot标准物理量
@@ -103,14 +129,14 @@ public class DeviceServiceImpl implements DeviceService {
      */
     @Override
     public Result<Integer> addIotClient(IotClientEntity entity,HttpServletRequest request) {
-        if (null == entity || entity.getProductId() == null ||StringUtils.hasText(entity.getName())){
+        if (null == entity || entity.getProductId() == null ||!StringUtils.hasText(entity.getName())){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         IotIdentifyEntity authenInfo = entity.getAuthenInfo();
         if (null == authenInfo){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
-        if (StringUtils.hasText(authenInfo.getUsername()) || StringUtils.hasText(authenInfo.getPassword())){
+        if (!StringUtils.hasText(authenInfo.getUsername()) || !StringUtils.hasText(authenInfo.getPassword())){
             return ResultUtil.error(ResultEnum.NOT_PARAMETER);
         }
         IotUserEntity userSession = (IotUserEntity) request.getSession().getAttribute("user");
@@ -166,13 +192,14 @@ public class DeviceServiceImpl implements DeviceService {
                 // 发生密码的修改
                 authenInfo = new IotIdentifyEntity();
                 authenInfo.setUuid(oldClient.getIdentifyUuid());
-                authenInfo.setPassword(Sha256Utils.getSHA256(authenInfo.getPassword()));
+                authenInfo.setPassword(Sha256Utils.getSHA256(authenInfoForm.getPassword()));
             }
             if(null != authenInfo){
                 iotIdentifyDAO.update(authenInfo);
             }
             if (iotClientDAO.update(entity) >= 0){
-                metadata.doRefreshClient(entity);
+                oldClient = iotClientDAO.query(new IotClientEntity(entity.getId()));
+                metadata.doRefreshClient(oldClient);
                 return ResultUtil.success();
             }
             return ResultUtil.error(ResultEnum.ERROR.getCode(),"修改设备异常");
@@ -203,6 +230,7 @@ public class DeviceServiceImpl implements DeviceService {
             // 值为删除状态
             clientEntity.setRemove(2);
             if (iotClientDAO.update(clientEntity) >= 0){
+                iotIdentifyDAO.delete(clientEntity.getIdentifyUuid());
                 metadata.removeClient(clientEntity);
                 return ResultUtil.success();
             }
@@ -513,6 +541,4 @@ public class DeviceServiceImpl implements DeviceService {
             throw new IOTException(ResultEnum.ERROR);
         }
     }
-
-
 }

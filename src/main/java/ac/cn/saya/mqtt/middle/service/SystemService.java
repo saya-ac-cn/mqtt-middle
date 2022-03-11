@@ -26,4 +26,43 @@ public interface SystemService {
      */
     public Result<Object> login(IotUserEntity params, HttpServletRequest request) throws IOTException;
 
+    /**
+     * @描述 查询最近size条告警事件
+     * @参数  [size]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2022/1/9
+     * @修改人和其它信息
+     */
+    public Result<Object> latestWarning(int size);
+
+    /**
+     * @描述 设备概览
+     * @参数  []
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2022/1/9
+     * @修改人和其它信息
+     */
+    public Result<Object> clientOverview();
+
+    /**
+     * @描述 统计各个产品下的设备数量
+     * @参数  []
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2022/1/9
+     * @修改人和其它信息
+     */
+    public Result<Object> totalProductClient();
+
+    /**
+     * @描述 查询近7天的数据上报情况
+     * @参数  []
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2022/1/9
+     * @修改人和其它信息
+     */
+    public Result<Object> getPre7DayCollect();
 }

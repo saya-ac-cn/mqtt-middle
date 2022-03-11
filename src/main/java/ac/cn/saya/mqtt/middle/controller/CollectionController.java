@@ -109,5 +109,18 @@ public class CollectionController {
     public Result<Object> getIotWarningRules(@PathVariable(value = "productId") int productId){
         return collectionService.getIotWarningRules(productId);
     }
+
+    /**
+     * @描述 查询指定设备最新的采集信息
+     * @参数  [client]
+     * @返回值  ac.cn.saya.mqtt.middle.tools.Result<java.lang.Object>
+     * @创建人  shmily
+     * @创建时间  2022/1/9
+     * @修改人和其它信息
+     */
+    @GetMapping(value = "collection/latest/{client}")
+    public Result<Object> getClientLatestCollect(@PathVariable(value = "client") Integer client){
+        return collectionService.getClientLatestCollect(client);
+    }
     
 }

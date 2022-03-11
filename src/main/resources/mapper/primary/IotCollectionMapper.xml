@@ -126,7 +126,7 @@
 
     <select id="queryByClientAndLatest" resultType="iotCollection">
         select
-               b.`ability_id`,b.`value`, b.`collect_time`
+               b.`ability_id` as abilityId,b.`value`, b.`collect_time` as collectTime
         from
            (select `client_id`,max(`id`) as latest from iot_collection where `client_id` = #{clientId} group by `ability_id`) a
        left join iot_collection b on a.`latest` = b.`id`
