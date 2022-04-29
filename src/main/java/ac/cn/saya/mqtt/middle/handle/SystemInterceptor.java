@@ -1,6 +1,7 @@
 package ac.cn.saya.mqtt.middle.handle;
 import ac.cn.saya.mqtt.middle.entity.IotUserEntity;
 import ac.cn.saya.mqtt.middle.tools.HttpRequestUtil;
+import ac.cn.saya.mqtt.middle.tools.JackJsonUtil;
 import ac.cn.saya.mqtt.middle.tools.ResultUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -41,7 +42,8 @@ public class SystemInterceptor implements HandlerInterceptor {
             response.setStatus(401);
             //获取PrintWriter输出流
             PrintWriter out = response.getWriter();
-            out.write(jsonMapper.writeValueAsString(ResultUtil.error(-7, "请登录")));
+            out.write((JackJsonUtil.toJson(ResultUtil.error(-7, "请登录"),false)));
+            ///out.write(jsonMapper.writeValueAsString(ResultUtil.error(-7, "请登录")));
             out.close();
             ///response.sendRedirect("/login.html");
             return false;
