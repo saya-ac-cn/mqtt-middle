@@ -22,7 +22,7 @@
         <java.version>17</java.version>
         <skipTests>true</skipTests>
         <project.build.directory>mqtt-middle</project.build.directory>
-        <mysql.version>8.0.18</mysql.version>
+        <mysql.version>8.0.28</mysql.version>
         <mybatis.version>2.1.2</mybatis.version>
         <lombok.version>1.18.20</lombok.version>
         <integration.version>5.5.7</integration.version>
